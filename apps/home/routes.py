@@ -9,6 +9,7 @@ from apps.case.case_routes import *
 from apps.case.case_analyze_routes import *
 from apps.case.case_normalization_routes import *
 from apps.case.case_graph import *
+from apps.dashboard.dashboard_routes import *
 from py2neo import Graph
 
 
@@ -28,7 +29,7 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 @blueprint.route('/index')
 @login_required
 def index():
-    return render_template('home/index.html', segment='index')
+    return redirect_dashboard()
 
 
 ''' Start Case analyze '''
