@@ -1,6 +1,8 @@
 import os
+from apps import db
 from flask import request, session, redirect, url_for, flash
 from werkzeug.utils import secure_filename
+from apps.authentication.models import Upload_Case
 
 UPLOAD_FOLDER = 'uploads'  # You can adjust this path as per your project structure
 ALLOWED_EXTENSIONS = {'case', 'db', 'mfdb'}  # Define allowed file extensions
@@ -35,6 +37,16 @@ def case_upload() :
         filename = secure_filename(file.filename)
         file_path = os.path.join(case_folder, filename)
         file.save(file_path)
+
+        # Save the upload details to the database
+        new_case = Upload_Case(
+            analyst=analyst,
+            case_number=case_number,
+            description=description,
+            file=file_path  # Save the actual file path
+        )
+        db.session.add(new_case)
+        db.session.commit()
 
         flash('정상적으로 업로드 되었습니다!', 'success')
         return redirect('/case/upload')
