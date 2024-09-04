@@ -1,0 +1,107 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Case List {% endblock %}
+
+{% block content %}
+<div class="pcoded-main-container">
+    <div class="pcoded-content">
+        <!-- [ breadcrumb ] start -->
+        <div class="page-header">
+            <div class="page-block">
+                <div class="row align-items-center">
+                    <div class="col-md-12">
+                        <div class="page-header-title">
+                            <h5 class="m-b-10">나의 사건 정보 목록</h5>
+                        </div>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
+                            <li class="breadcrumb-item"><a href="#">Case</a></li>
+                            <li class="breadcrumb-item"><a href="#">List</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- [ breadcrumb ] end -->
+        <!-- [ Main Content ] start -->
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Uploaded Case Files</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if cases %}
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Case Number</th>
+                                        <th>Description</th>
+                                        <th>File</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for case in cases %}
+                                        <tr>
+                                            <td>{{ case.case_number }}</td>
+                                            <td>{{ case.description }}</td>
+                                            <td>
+                                                <a href="{{ url_for('static', filename=case.file) }}" target="_blank">View File</a>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-case-id="{{ case.id }}">Delete</button>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        {% else %}
+                            <p>No cases uploaded yet.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- [ Main Content ] end -->
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Delete Confirmation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete this case file?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" action="/case/delete" method="POST">
+                    <input type="hidden" name="case_id" id="caseIdToDelete">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}
+<script>
+    // Add event listener to capture the case ID when the delete button is clicked
+    document.addEventListener('DOMContentLoaded', function() {
+        var deleteModal = document.getElementById('deleteModal');
+        deleteModal.addEventListener('show.bs.modal', function(event) {
+            var button = event.relatedTarget; // Button that triggered the modal
+            var caseId = button.getAttribute('data-case-id'); // Extract case ID from data attribute
+            var caseIdInput = document.getElementById('caseIdToDelete'); // Hidden input field in the form
+            caseIdInput.value = caseId; // Set the case ID in the form input
+        });
+    });
+</script>
+{% endblock javascripts %}
