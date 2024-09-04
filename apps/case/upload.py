@@ -40,6 +40,7 @@ def case_upload() :
 
         # Save the upload details to the database
         new_case = Upload_Case(
+            user = user,
             analyst=analyst,
             case_number=case_number,
             description=description,

@@ -29,6 +29,7 @@ class Users(db.Model, UserMixin):
 class Upload_Case(db.Model, UserMixin):
     __tablename__ = 'UploadFiles'
     id = db.Column(db.Integer, primary_key = True)
+    user = db.Column(db.Text)
     analyst = db.Column(db.Text)
     case_number = db.Column(db.Text)
     description = db.Column(db.Text)
