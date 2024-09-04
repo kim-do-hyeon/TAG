@@ -1,0 +1,85 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} TAG - Case Upload {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+    <!-- [ Main Content ] start -->
+    <section class="pcoded-main-container">
+        <div class="pcoded-content">
+            <!-- [ breadcrumb ] start -->
+            <div class="page-header">
+                <div class="page-block">
+                    <div class="row align-items-center">
+                        <div class="col-md-12">
+                            <div class="page-header-title">
+                                <h5 class="m-b-10">케이스 파일 업로드</h5>
+                            </div>
+                            <ul class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
+                                <li class="breadcrumb-item"><a href="#">Case</a></li>
+                                <li class="breadcrumb-item"><a href="#">Upload</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- [ breadcrumb ] end -->
+            <!-- [ Main Content ] start -->
+            <div class="row">
+                <!-- [ CaseUpload ] start -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>케이스 업로드</h5>
+                            <span class="d-block m-t-5">분석에 필요한 케이스파일을 업로드해주세요</span>
+                        </div>
+                        <div class="card-body table-border-style">
+                            <form action="/case/upload" method="post" enctype="multipart/form-data">
+                                <div class="form-group">
+                                    <label for="analyst">분석관</label>
+                                    <input type="text" class="form-control" id="analyst" name="analyst" placeholder="분석관 이름을 입력하세요" required>
+                                </div>
+                                <div class="form-group">
+                                    <hr>
+                                </div>
+                                <div class="form-group">
+                                    <label for="caseNumber">사건번호</label>
+                                    <input type="text" class="form-control" id="caseNumber" name="caseNumber" placeholder="사건번호를 입력하세요" required>
+                                </div>
+                                <div class="form-group">
+                                    <hr>
+                                </div>
+                                <div class="form-group">
+                                    <label for="description">설명</label>
+                                    <textarea class="form-control" id="description" name="description" rows="3" placeholder="설명을 입력하세요" required></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <hr>
+                                </div>
+                                <div class="form-group">
+                                    <label for="caseFile">파일 업로드</label>
+                                    <input type="file" class="form-control-file" id="caseFile" name="caseFile" required>
+                                </div>
+                                <div class="form-group">
+                                    <hr>
+                                </div>
+                                <button type="submit" class="btn btn-primary">업로드</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <!-- [ Case Upload ] end -->
+            </div>
+            <!-- [ Main Content ] end -->
+        </div>
+    </section>
+    <!-- [ Main Content ] end -->
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}{% endblock javascripts %}

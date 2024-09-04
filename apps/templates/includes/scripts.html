@@ -1,0 +1,45 @@
+
+    <script src="/static/assets/js/plugins/popper.min.js"></script>
+    <script src="/static/assets/js/plugins/perfect-scrollbar.min.js"></script>
+    <script src="/static/assets/js/plugins/bootstrap.min.js"></script>
+    <script src="/static/assets/js/pcoded.js"></script>
+    
+
+    <!-- Flash Message Modal -->
+    <div class="modal fade" id="flashModal" tabindex="-1" aria-labelledby="flashModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="flashModalLabel">Notification</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Flash messages will be injected here -->
+                    <ul class="list-unstyled">
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                                {% for category, message in messages %}
+                                    <li class="alert alert-{{ category }}">{{ message }}</li>
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script to automatically trigger the modal if there are flash messages -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Check if there are flash messages
+            if (document.querySelector('#flashModal .alert')) {
+                // Show the modal if flash messages exist
+                var flashModal = new bootstrap.Modal(document.getElementById('flashModal'));
+                flashModal.show();
+            }
+        });
+    </script>
