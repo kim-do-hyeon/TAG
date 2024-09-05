@@ -44,7 +44,8 @@ def case_upload() :
             analyst=analyst,
             case_number=case_number,
             description=description,
-            file=file_path  # Save the actual file path
+            file=file_path,
+            normalization = None
         )
         db.session.add(new_case)
         db.session.commit()

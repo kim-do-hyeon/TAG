@@ -34,6 +34,7 @@ class Upload_Case(db.Model, UserMixin):
     case_number = db.Column(db.Text)
     description = db.Column(db.Text)
     file = db.Column(db.Text)
+    normalization = db.Column(db.Text)
 
 @login_manager.user_loader
 def user_loader(id):
