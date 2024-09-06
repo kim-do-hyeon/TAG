@@ -10,6 +10,7 @@ from apps import db
 from apps.case.upload import case_upload
 from apps.case.delete import case_delete
 from apps.case.normalization import case_normalization
+from apps.case.analyze import case_analyze_view
 import time
 from run import app
 from apps.authentication.models import Upload_Case
@@ -24,6 +25,9 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 def index():
     return render_template('home/index.html', segment='index')
 
+
+
+''' Start Case analyze '''
 @blueprint.route("/case")
 def case_redirect() :
     return redirect("/case/list")
@@ -54,6 +58,15 @@ def case_analyze(id):
         return redirect('/case/list')
     return render_template('case/analyze.html', case=user_case)
 
+@blueprint.route('/case/analyze/view/<int:id>', methods = ['GET', 'POST'])
+def case_view(id) :
+    user_case = Upload_Case.query.filter_by(id = id).first()
+    if not user_case:
+        flash('Case not found', 'danger')
+        return redirect('/case/list')
+    datas = case_analyze_view(user_case)
+    return render_template('case/view.html', case = user_case, datas = datas)
+
 @blueprint.route('/case/analyze/prompt', methods=['POST'])
 def analyze_prompt():
     data = request.get_json()
@@ -69,38 +82,31 @@ def analyze_normalization():
     case_id = data.get('case_id')
     if not case_id:
         return jsonify({'success': False, 'message': 'Invalid input.'}), 400
-
-    # Initialize progress for this task
-    progress[case_id] = 0  # Progress starts at 0%
-
-    # Function to run normalization task with the correct application context
+    progress[case_id] = 0
     def run_normalization(app, case_id):
         global progress
-        with app.app_context():  # Ensure Flask application context is used
+        with app.app_context():
             for i in range(1, 11):
-                time.sleep(1)  # Simulate time-consuming task
-                progress[case_id] = i * 10  # Update progress (10%, 20%, ..., 100%)
-            
-            # Call the actual normalization function when task is complete
+                time.sleep(1)
+                progress[case_id] = i * 10
             result = case_normalization(case_id)
             if result:
-                # Update the database within the correct context
                 Upload_Case.query.filter_by(id=case_id).update(dict(normalization=True))
                 db.session.commit()
-            progress[case_id] = 100  # Task complete
+            progress[case_id] = 100
 
-    # Run the task in a background thread and pass the app instance
     from threading import Thread
     thread = Thread(target=run_normalization, args=(app, case_id))
     thread.start()
-
     return jsonify({'success': True, 'message': "정규화 처리가 시작되었습니다."})
 
 @blueprint.route('/case/analyze/normalization/progress/<case_id>', methods=['GET'])
 def get_normalization_progress(case_id):
-    # Return the progress for the given task ID
     progress_value = progress.get(case_id, 0)
     return jsonify({'progress': progress_value})
+
+''' End Case analyze '''
+
 @blueprint.route('/<template>')
 @login_required
 def route_template(template):

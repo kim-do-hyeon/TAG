@@ -62,7 +62,9 @@
                                             <td>
                                                 <button class="btn btn-primary submit-prompt" data-case-id="{{ case.id }}">Submit</button>
                                             </td>
-                                            <td><button class="btn btn-primary submit-view" data-case-id="{{ case.id }}">View</button></td>
+                                            <td>
+                                                <button class="btn btn-primary" onclick="window.location.href='/case/analyze/view/{{case.id}}'">직접 분석</button>
+                                            </td>
                                             {% else %}
                                             <td colspan="2">
                                                 <button class="btn btn-primary submit-normalization" data-case-id="{{ case.id }}">Submit</button>
