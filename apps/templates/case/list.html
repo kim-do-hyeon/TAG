@@ -37,7 +37,7 @@
                                     <tr>
                                         <th>Case Number</th>
                                         <th>Description</th>
-                                        <th>File</th>
+                                        <th>Analyze</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -47,7 +47,7 @@
                                             <td>{{ case.case_number }}</td>
                                             <td>{{ case.description }}</td>
                                             <td>
-                                                <a href="{{ url_for('static', filename=case.file) }}" target="_blank">View File</a>
+                                                <a href="/case/analyze/{{ case.id }}" target="_blank">View File</a>
                                             </td>
                                             <td>
                                                 <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-case-id="{{ case.id }}">Delete</button>
