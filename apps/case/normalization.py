@@ -131,7 +131,7 @@ def case_normalization(case_id):
 
                     new_cursor.executemany(insert_query, pivot_df[unique_columns].values.tolist())
                     new_conn.commit()
-                    print(f"Data for artifact '{artifact_name}' successfully inserted into table '{table_name}'.")
+                    # print(f"Data for artifact '{artifact_name}' successfully inserted into table '{table_name}'.")
 
                     # 테이블의 컬럼 이름을 리스트로 저장
                     table_columns[table_name] = unique_columns
@@ -142,6 +142,7 @@ def case_normalization(case_id):
         else:
             print(f"No artifact_id found for artifact '{artifact_name}' in artifact table.")
 
+    print("Success")
     # 커서와 연결 닫기
     new_cursor.close()
     new_conn.close()
@@ -158,7 +159,8 @@ def case_normalization(case_id):
     new_normalization_data = Normalization(
         normalization_definition=case_id,
         file=new_db_path,
-        result="Success"
+        result="Success",
+        artifacts_names = str(artifact_names)
     )
     
     # Use the correct session object to add and commit the new data

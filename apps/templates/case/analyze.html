@@ -37,19 +37,23 @@
                                 <table class="table table-bordered">
                                     <thead>
                                         <tr>
-                                            <th>Case ID</th>
+                                            <th>Case Number</th>
+                                            <th>Case Analysis</th>
                                             <th>Case Description</th>
                                             {% if case.normalization != None %}
                                                 <th>Prompt</th>
                                                 <th>Action</th>
+                                                <th>직접 분석</th>
                                             {% else %}
                                                 <th>케이스 정규화</th>
                                             {% endif %}
+                                            
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td>{{ case.id }}</td>
+                                            <td>{{ case.case_number }}</td>
+                                            <td>{{ case.analyst }}</td>
                                             <td>{{ case.description }}</td>
                                             {% if case.normalization != None %}
                                             <td>
@@ -58,6 +62,7 @@
                                             <td>
                                                 <button class="btn btn-primary submit-prompt" data-case-id="{{ case.id }}">Submit</button>
                                             </td>
+                                            <td><button class="btn btn-primary submit-view" data-case-id="{{ case.id }}">View</button></td>
                                             {% else %}
                                             <td colspan="2">
                                                 <button class="btn btn-primary submit-normalization" data-case-id="{{ case.id }}">Submit</button>

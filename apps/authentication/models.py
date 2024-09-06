@@ -42,6 +42,7 @@ class Normalization(db.Model, UserMixin) :
     normalization_definition = db.Column(db.Integer)
     file = db.Column(db.Text)
     result = db.Column(db.Text)
+    artifacts_names = db.Column(db.Text)
 
 @login_manager.user_loader
 def user_loader(id):
