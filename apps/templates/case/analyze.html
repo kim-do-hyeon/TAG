@@ -1,0 +1,192 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Case Analyze {% endblock %}
+
+{% block content %}
+<div class="pcoded-main-container">
+    <div class="pcoded-content">
+        <!-- [ breadcrumb ] start -->
+        <div class="page-header">
+            <div class="page-block">
+                <div class="row align-items-center">
+                    <div class="col-md-12">
+                        <div class="page-header-title">
+                            <h5 class="m-b-10">나의 사건 분석</h5>
+                        </div>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
+                            <li class="breadcrumb-item"><a href="#">Case</a></li>
+                            <li class="breadcrumb-item"><a href="#">Analyze</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- [ breadcrumb ] end -->
+        <!-- [ Main Content ] start -->
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Case Analyze</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if case %}
+                        <div class="card-body">
+                            {% if case %}
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Case ID</th>
+                                            <th>Case Description</th>
+                                            {% if case.normalization != None %}
+                                                <th>Prompt</th>
+                                                <th>Action</th>
+                                            {% else %}
+                                                <th>케이스 정규화</th>
+                                            {% endif %}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>{{ case.id }}</td>
+                                            <td>{{ case.description }}</td>
+                                            {% if case.normalization != None %}
+                                            <td>
+                                                <input type="text" class="form-control prompt-input" data-case-id="{{ case.id }}" placeholder="Enter your prompt">
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-primary submit-prompt" data-case-id="{{ case.id }}">Submit</button>
+                                            </td>
+                                            {% else %}
+                                            <td colspan="2">
+                                                <button class="btn btn-primary submit-normalization" data-case-id="{{ case.id }}">Submit</button>
+                                            </td>
+                                            {% endif %}
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            {% else %}
+                                <p>No case data available.</p>
+                            {% endif %}
+                        </div>
+                        {% else %}
+                            <p>No cases uploaded yet.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- [ Main Content ] end -->
+        <div id="progress-container" style="display: none;">
+            <p>Progress:</p>
+            <div class="progress">
+                <div id="progress-bar" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <p id="progress-text">0% Complete</p>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.submit-prompt').forEach(function(button) {
+            button.addEventListener('click', function() {
+                var caseId = this.getAttribute('data-case-id');
+                var promptInput = document.querySelector('.prompt-input[data-case-id="' + caseId + '"]');
+                var promptValue = promptInput.value;
+                if (promptValue.trim() === '') {
+                    alert('Please enter a prompt.');
+                    return;
+                }
+                fetch('/case/analyze/prompt', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ case_id: caseId, prompt: promptValue }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Prompt submitted successfully!');
+                    } else {
+                        alert('Failed to submit the prompt.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while submitting the prompt.');
+                });
+            });
+        });
+        document.querySelectorAll('.submit-normalization').forEach(function(button) {
+            button.addEventListener('click', function() {
+                var caseId = this.getAttribute('data-case-id');
+                fetch('/case/analyze/normalization', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ case_id: caseId }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showProgress(caseId);  // Start showing progress
+                    } else {
+                        alert('Failed to start the normalization process.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while starting the normalization process.');
+                });
+            });
+        });
+
+        function showProgress(caseId) {
+            // Show the progress bar
+            document.getElementById('progress-container').style.display = 'block';
+
+            // Function to poll the server for progress updates
+            function updateProgress() {
+                fetch(`/case/analyze/normalization/progress/${caseId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const progressValue = data.progress;
+                    const progressBar = document.getElementById('progress-bar');
+                    const progressText = document.getElementById('progress-text');
+
+                    // Update the progress bar and text
+                    progressBar.style.width = `${progressValue}%`;
+                    progressBar.setAttribute('aria-valuenow', progressValue);
+                    progressText.textContent = `${progressValue}% Complete`;
+
+                    // Continue polling if not yet complete
+                    if (progressValue < 100) {
+                        setTimeout(updateProgress, 1000);  // Poll every second
+                    } else {
+                        alert('정규화 처리가 완료되었습니다.');
+                        location.reload();  // Reload the page upon completion
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching progress:', error);
+                });
+            }
+
+            // Start polling for progress updates
+            updateProgress();
+        }
+    });
+</script>
+{% endblock javascripts %}

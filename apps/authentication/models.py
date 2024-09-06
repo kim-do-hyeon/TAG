@@ -36,6 +36,13 @@ class Upload_Case(db.Model, UserMixin):
     file = db.Column(db.Text)
     normalization = db.Column(db.Text)
 
+class Normalization(db.Model, UserMixin) :
+    __tablename__ = "Normalization"
+    id = db.Column(db.Integer, primary_key = True)
+    normalization_definition = db.Column(db.Integer)
+    file = db.Column(db.Text)
+    result = db.Column(db.Text)
+
 @login_manager.user_loader
 def user_loader(id):
     return Users.query.filter_by(id=id).first()
