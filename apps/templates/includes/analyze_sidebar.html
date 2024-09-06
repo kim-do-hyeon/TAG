@@ -1,0 +1,48 @@
+<!-- [ navigation menu ] start -->
+<nav class="pcoded-navbar menupos-fixed menu-light">
+    <div class="navbar-wrapper">
+        <div class="navbar-content scroll-div">
+            <ul class="nav pcoded-inner-navbar">
+                <li class="nav-item pcoded-menu-caption">
+                    <label>Case Management</label>
+                </li>
+                <li class="nav-item">
+                    <a href="/case/list" class="nav-link"><span class="pcoded-micon"><i class="feather icon-home"></i></span><span
+                            class="pcoded-mtext">Case List</span></a>
+                </li>
+                <li class="nav-item">
+                    <a href="/case/upload" class="nav-link"><span class="pcoded-micon"><i class="feather icon-box"></i></span><span
+                            class="pcoded-mtext">Case Upload</span></a>
+                </li>
+                
+                <!-- Table Names Section -->
+                {% if table_names %}
+                <li class="nav-item pcoded-menu-caption">
+                    <label>Tables in Case</label>
+                </li>
+                {% for table in table_names %}
+                <li class="nav-item">
+                    <a href="#" class="nav-link"><span class="pcoded-micon"><i class="feather icon-database"></i></span><span
+                            class="pcoded-mtext">{{ table }}</span></a>
+                </li>
+                {% endfor %}
+                {% else %}
+                <li class="nav-item">
+                    <span class="pcoded-mtext">No tables available</span>
+                </li>
+                {% endif %}
+
+                <!-- Other navigation items -->
+                <li class="nav-item pcoded-menu-caption">
+                    <label>Navigation</label>
+                </li>
+                <li class="nav-item">
+                    <a href="/" class="nav-link"><span class="pcoded-micon"><i class="feather icon-home"></i></span><span
+                            class="pcoded-mtext">Dashboard</span></a>
+                </li>
+                <!-- Continue with the rest of the sidebar content -->
+            </ul>
+        </div>
+    </div>
+</nav>
+<!-- [ navigation menu ] end -->

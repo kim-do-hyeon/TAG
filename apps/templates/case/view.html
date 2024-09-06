@@ -1,0 +1,184 @@
+{% extends "layouts/analyze_base.html" %}
+
+{% block title %} View {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+
+    <!-- [ Main Content ] start -->
+    <div class="pcoded-main-container">
+        <div class="pcoded-content">
+            <!-- [ Main Content ] start -->
+            <div class="row">
+                <!-- order-card start -->
+                <div class="col-md-12 col-lg-4">
+                    <div class="card seo-card overflow-hidden">
+                        <div class="card-body seo-statustic">
+                            <i class="feather icon-save f-20 text-c-red"></i>
+                            <h5 class="mb-1" id="memory-percentage">65%</h5> <!-- Updated to receive dynamic data -->
+                            <p>Memory</p>
+                        </div>
+                        <div class="seo-chart">
+                            <div id="seo-card1"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12" id="table-data-container">
+                    <h4>Table Data</h4>
+                    <div id="table-data-content">
+                        <p>Select a table to view its data.</p>
+                    </div>
+                </div>
+            </div>
+            <!-- [ Main Content ] end -->
+        </div>
+    </div>
+    <!-- [ Main Content ] end -->
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+    <!-- Apex Chart -->
+    <script src="/static/assets/js/plugins/apexcharts.min.js"></script>
+
+    <!-- custom-chart js -->
+    <script src="/static/assets/js/pages/dashboard-main.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+                <script>
+                    // Function to update memory usage chart
+                    function updateMemoryUsage() {
+                        fetch('/api/memory-usage')
+                            .then(response => response.json())
+                            .then(data => {
+                                // Update the memory percentage text
+                                document.getElementById('memory-percentage').innerText = data.memory + '%';
+                
+                                // Add the new memory data point to the chart
+                                chartOptions.series[0].data.push(data.memory);
+                                if (chartOptions.series[0].data.length > 10) {
+                                    chartOptions.series[0].data.shift(); // Keep only the latest 10 data points
+                                }
+                                memoryChart.updateSeries(chartOptions.series);
+                            })
+                            .catch(error => console.error('Error fetching memory usage:', error));
+                    }
+                
+                    // Define chart options for memory usage
+                    var chartOptions = {
+                        chart: {
+                            type: 'area',
+                            height: 145,
+                            sparkline: {
+                                enabled: true
+                            }
+                        },
+                        dataLabels: {
+                            enabled: false
+                        },
+                        colors: ["#ff5370"],
+                        fill: {
+                            type: 'gradient',
+                            gradient: {
+                                shade: 'dark',
+                                gradientToColors: ['#ff869a'],
+                                shadeIntensity: 1,
+                                type: 'horizontal',
+                                opacityFrom: 1,
+                                opacityTo: 0.8,
+                                stops: [0, 100, 100, 100]
+                            },
+                        },
+                        stroke: {
+                            curve: 'smooth',
+                            width: 2,
+                        },
+                        series: [{
+                            data: [] // Initially empty, will be filled with real-time data
+                        }],
+                        yaxis: {
+                            min: 0,
+                            max: 100,
+                        },
+                        tooltip: {
+                            fixed: {
+                                enabled: false
+                            },
+                            x: {
+                                show: false
+                            },
+                            y: {
+                                title: {
+                                    formatter: function(seriesName) {
+                                        return 'Memory Usage '
+                                    }
+                                }
+                            },
+                            marker: {
+                                show: false
+                            }
+                        }
+                    };
+                
+                    // Initialize the chart
+                    var memoryChart = new ApexCharts(document.querySelector("#seo-card1"), chartOptions);
+                    memoryChart.render();
+                
+                    // Update the memory usage every 5 seconds
+                    setInterval(updateMemoryUsage, 5000);
+                </script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Handle clicks on table names in the sidebar
+        $('.nav-link').click(function(event) {
+            event.preventDefault();  // Prevent default link behavior
+
+            var tableName = $(this).text().trim();  // Get table name from clicked link
+            var caseId = {{ case.id }};  // Get the current case ID
+            
+            // AJAX call to fetch table data
+            $.ajax({
+                url: `/case/analyze/view/table/${caseId}/${tableName}`,
+                method: 'GET',
+                success: function(response) {
+                    if (response.success) {
+                        displayTableData(response.columns, response.data);
+                    } else {
+                        $('#table-data-content').html(`<p>${response.message}</p>`);
+                    }
+                },
+                error: function(error) {
+                    console.error('Error fetching table data:', error);
+                    $('#table-data-content').html('<p>Error fetching data. Please try again.</p>');
+                }
+            });
+        });
+
+        // Function to display the table data
+        function displayTableData(columns, data) {
+            var table = `<table class="table table-bordered"><thead><tr>`;
+            columns.forEach(col => {
+                table += `<th>${col}</th>`;
+            });
+            table += `</tr></thead><tbody>`;
+            
+            data.forEach(row => {
+                table += `<tr>`;
+                columns.forEach(col => {
+                    table += `<td>${row[col]}</td>`;
+                });
+                table += `</tr>`;
+            });
+            table += `</tbody></table>`;
+            
+            $('#table-data-content').html(table);
+        }
+    });
+</script>
+{% endblock javascripts %}
