@@ -11,6 +11,7 @@ from apps import db
 from apps.case.upload import case_upload
 from apps.case.delete import case_delete
 from apps.case.normalization import case_normalization
+from apps.case.analyze_RAG import search_query
 from apps.case.analyze import case_analyze_view
 import time
 import sqlite3
@@ -76,8 +77,9 @@ def case_view(id) :
 @blueprint.route('/case/analyze/view/table/<int:id>/<string:table_name>', methods=['GET'])
 def get_table_data(id, table_name):
     user_case = Upload_Case.query.filter_by(id=id).first()
-    normalization_case = Normalization.query.filter_by(normalization_definition = user_case.id).first()
+    normalization_case = Normalization.query.filter_by(normalization_definition=user_case.id).first()
     normalization_db_file = normalization_case.file
+    
     if not user_case:
         return jsonify({'success': False, 'message': 'Case not found'}), 404
     
@@ -86,7 +88,7 @@ def get_table_data(id, table_name):
     cursor = conn.cursor()
     
     try:
-        cursor.execute(f"SELECT * FROM {table_name} LIMIT 10")  # Limit rows for demonstration
+        cursor.execute(f"SELECT * FROM {table_name}")
         columns = [description[0] for description in cursor.description]
         rows = cursor.fetchall()
     except Exception as e:
@@ -95,10 +97,14 @@ def get_table_data(id, table_name):
         cursor.close()
         conn.close()
     
-    # Convert rows into a list of dictionaries
-    table_data = [dict(zip(columns, row)) for row in rows]
-
+    # Convert rows into a list of dictionaries, excluding NULL values within rows
+    table_data = [
+        {col: val for col, val in zip(columns, row) if val is not None}  # Include only non-NULL values
+        for row in rows
+    ]
+    
     return jsonify({'success': True, 'data': table_data, 'columns': columns})
+
 
 
 @blueprint.route('/case/analyze/prompt', methods=['POST'])
@@ -108,6 +114,9 @@ def analyze_prompt():
     prompt = data.get('prompt')
     if not case_id or not prompt:
         return jsonify({'success': False, 'message': 'Invalid input.'}), 400
+    else :
+        db_path = Normalization.query.filter_by(normalization_definition = case_id).first().file
+        search_query(prompt, db_path)
     return jsonify({'success': True, 'message': 'Prompt submitted successfully!'})
 
 @blueprint.route('/case/analyze/normalization', methods=['POST'])
