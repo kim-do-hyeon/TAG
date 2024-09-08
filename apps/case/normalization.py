@@ -10,8 +10,11 @@ def case_normalization(case_id):
     db_name = db_path.split("/")[-1]
     new_db_name = "normalization_"
     new_db_path = "/".join(db_path.split("/")[:-1]) + "/" + new_db_name + db_name.split(".")[0] + ".db"
-    print(new_db_path)
     
+    directory = os.path.dirname(new_db_path)
+    # 디렉토리가 존재하지 않으면 생성
+    if not os.path.exists(directory):
+        os.makedirs(directory)
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
