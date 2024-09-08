@@ -3,7 +3,7 @@
 ### 팀원 소개
 <div align="center">
 
-|[ 박승현 ]<br/><br/>|[ 김도현 ]<br/><br/> | [ 박시우 ]<br/><br/>| [ 이주영 ]<br/><br/>| [ 박지혜 ]<br/><br/>
+|[ 박승현 ]<br/>PM<br/>|[ 김도현 ]<br/>Service Developer<br/> | [ 박시우 ]<br/>Data Analyze<br/>| [ 이주영 ]<br/>RAG Developer<br/>| [ 박지혜 ]<br/>AI Developer<br/>
 | :----------------------------------------------------------: | :---------------------------------------------: | :------: | :-------------------------------------------------: | :------: |
 |<img src = "https://github.com/user-attachments/assets/a714954b-46da-4902-b52f-8a1374a7b8c9" width="150"> | <img src = "https://github.com/user-attachments/assets/674c678a-57b1-49a0-8bc1-10860df25a67" width="150"> | <img src = "https://github.com/user-attachments/assets/d1927bce-2d7d-4426-8529-26f69566308b" width="150">  | <img src = "https://github.com/user-attachments/assets/8ad8cf49-13d7-4033-8134-2a9a53f63b64" width="150"> | <img src = "https://github.com/user-attachments/assets/cd75e1e6-9ad0-4b8d-b3fc-18f686eda4d2" width="150">
 
