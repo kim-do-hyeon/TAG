@@ -43,6 +43,14 @@ def case_view(id) :
 def get_table_data(id, table_name):
     return redirect_get_table_data(id, table_name)
 
+@blueprint.route('/case/analyze/view/table/columns/<int:id>/<string:table_name>', methods=['GET'])
+def get_table_columns(id, table_name):
+    return redirect_get_table_data(id, table_name)
+
+@blueprint.route('/case/analyze/view/table/data/<int:id>/<string:table_name>', methods=['POST'])
+def get_selected_columns_data(id, table_name):
+    return redirect_get_selected_columns_data(id, table_name)
+
 @blueprint.route('/case/analyze/prompt', methods=['POST'])
 def analyze_prompt():
     data = request.get_json()
@@ -56,7 +64,7 @@ def analyze_normalization():
 
 @blueprint.route('/case/analyze/normalization/progress/<case_id>', methods=['GET'])
 def get_normalization_progress(case_id):
-    redirect_get_normalization_progress(case_id)
+    return redirect_get_normalization_progress(case_id)
 
 ''' End Case analyze '''
 
