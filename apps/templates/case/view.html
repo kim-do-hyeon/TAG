@@ -67,6 +67,12 @@
                         }
                     </style>
 
+                    <!-- Search Bar -->
+                    <div id="search-container" style="margin-bottom: 20px;">
+                        <input type="text" id="table-search-input" class="form-control" placeholder="Search...">
+                    </div>
+
+
                     <!-- 테이블 데이터 영역 -->
                     <div class="col-md-12" id="table-data-container">
                         <h4>Table Data</h4>
@@ -96,7 +102,7 @@
     <script>
         $(document).ready(function() {
             var caseId = {{ case.id }};  // 현재 case ID를 가져옴
-    
+            
             // 테이블 클릭 시 컬럼 목록을 서버에서 가져옴
             $('.nav-link').click(function(event) {
                 event.preventDefault();
@@ -193,7 +199,22 @@
     
                 $('#table-data-content').html(table);
             }
+
+            $('#table-search-input').on('keyup', function() {
+                var value = $(this).val().toLowerCase(); // Get the search input value
+                filterTable(value); // Call the filter function with the input value
+            });
+
+            function filterTable(value) {
+                $('#table-data-content table tbody tr').filter(function() {
+                    // Toggle visibility based on matching text
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+                });
+            }
+
         });
+
+        
     </script>
     
 {% endblock javascripts %}
