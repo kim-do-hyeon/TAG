@@ -34,7 +34,7 @@ def search_query(scenario, db_path):
     openai.api_key = os.getenv('API_KEY')
 
     prompt = str(scenario) + "에서 포렌식 관점에서 필요한 아티팩트를 너가 선정해서 아래에서 골라줘," + str(tables) + " // 단 아티팩트 이름만 나열해. 그리고 각 아티팩트와 시나리오를 합쳐서 한문장으로 쿼리를 만들어줘(아티팩트당 하나의 쿼리)" + """
-    형식은 아래와 같이 나오게 해줘.
+    형식은 아래와 같이 5개 이상 나오게 해줘.
     - Internet : 인터넷에서 어떤걸 검색했나요?
     """
     print(prompt)
@@ -57,7 +57,7 @@ def search_query(scenario, db_path):
         embeddings = model.encode(texts)
 
         np.save('embeddings.npy', embeddings)
-        with open('original_texts.txt', 'w') as f:
+        with open('original_texts.txt', 'w', encoding='cp949') as f:
             for text in texts:
                 f.write(text + "\n")
 
@@ -68,16 +68,19 @@ def search_query(scenario, db_path):
         similarities = cosine_similarity(query_embedding, embeddings).flatten()
 
         top_indices = similarities.argsort()[-10:][::-1]
-        with open('original_texts.txt', 'r') as f:
+        with open('original_texts.txt', 'r', encoding='cp949') as f:
             original_texts = f.readlines()
 
         top_results = [(idx, original_texts[idx]) for idx in top_indices]  # Store row numbers with results
+        print()
+        print()
+        print("=" * 100)
         print(f"[{key}] Query : {query}")
         
         # Print results with row numbers
         for row_number, result in top_results:
-            # print(f"Row {row_number}: {result.strip()}")
-            print(f"Row {row_number}")
+            print(f"Row {row_number}: {result.strip()}")
+            # print(f"Row {row_number}")
 
     cursor.close()
     conn.close()
