@@ -4,29 +4,30 @@ from apps.authentication.models import Upload_Case, Normalization
 import sqlite3
 import pandas as pd
 
-def case_normalization(case_id):
+def case_normalization(case_id, progress):
     db_instance = Upload_Case.query.filter_by(id=case_id).first()  # Renamed to avoid confusion with db session
     db_path = db_instance.file
-    db_name = db_path.split("/")[-1]
-    new_db_name = "normalization_"
-    new_db_path = "/".join(db_path.split("/")[:-1]) + "/" + new_db_name + db_name.split(".")[0] + ".db"
-    
+    user = db_instance.user
+    case_number = db_instance.case_number
+    new_db_name = "normalization.db"
+    new_db_path = os.path.join(os.getcwd(), "uploads", user, case_number, new_db_name )
     directory = os.path.dirname(new_db_path)
     # 디렉토리가 존재하지 않으면 생성
     if not os.path.exists(directory):
         os.makedirs(directory)
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
-
+    progress[case_id] = 10
     query_artifact_name = """
         SELECT artifact_name FROM artifact;
     """
 
     cursor.execute(query_artifact_name)
-    artifact_names = [row[0].split(" ")[0] for row in cursor.fetchall()]
-    artifact_names = list(set(artifact_names))
-    print(artifact_names)
+    artifact_names = [row[0] for row in cursor.fetchall()]
 
+    increment = 80 / len(artifact_names)  # 90 - 10 = 80 for loop increments
+
+    # Iterate over each artifact name to create individual tables
     for artifact_name_normalization in artifact_names:
         query_artifact = """
             SELECT artifact_id
@@ -60,7 +61,6 @@ def case_normalization(case_id):
                 fragment_results = cursor.fetchall()
 
                 fragment_data = [(row[0], row[1], row[2]) for row in fragment_results]
-
                 if fragment_data:
                     query_hit_fragment = """
                         SELECT hit_id, value, fragment_definition_id
@@ -84,6 +84,7 @@ def case_normalization(case_id):
                         'fragment_definition_id', 'name', 'hit_id', 'value'
                     ])
 
+                    # Pivot the DataFrame
                     pivot_df = df.pivot_table(
                         index=['artifact_id', 'artifact_version_id', 'artifact_name', 'hit_id'],
                         columns='name',
@@ -94,42 +95,51 @@ def case_normalization(case_id):
                     pivot_df.columns.name = None
                     pivot_df.columns = [f'"{col.replace(" ", "_")}"' for col in pivot_df.columns]
 
+                    # Connect to the new database
                     new_conn = sqlite3.connect(new_db_path)
                     new_cursor = new_conn.cursor()
 
-                    # Check existing columns to avoid duplicates
+                    # Sanitize table name by replacing spaces and special characters
+                    safe_table_name = artifact_name_normalization.replace(' ', '_').replace('-', '_').replace('$', '').replace('(', '').replace(')', '')
+
+                    # Create table with sanitized table name
                     create_table_query = f"""
-                    CREATE TABLE IF NOT EXISTS {artifact_name_normalization} (
+                    CREATE TABLE IF NOT EXISTS "{safe_table_name}" (
                         {', '.join([f'{col} TEXT' for col in set(pivot_df.columns)])}
                     )
                     """
                     try:
                         new_cursor.execute(create_table_query)
                     except sqlite3.OperationalError as e:
-                        print(f"Error creating table {artifact_name_normalization}: {e}")
+                        print(f"Error creating table {safe_table_name}: {e}")
                         continue  # Skip to the next artifact if table creation fails
 
                     # Insert data into the correct table
                     insert_query = f"""
-                    INSERT INTO {artifact_name_normalization} ({', '.join(pivot_df.columns)})
+                    INSERT INTO "{safe_table_name}" ({', '.join(pivot_df.columns)})
                     VALUES ({', '.join(['?'] * len(pivot_df.columns))})
                     """
 
-                    new_cursor.executemany(insert_query, pivot_df.values.tolist())
+                    try:
+                        new_cursor.executemany(insert_query, pivot_df.values.tolist())
+                        new_conn.commit()
+                        print(f"Data successfully inserted into {safe_table_name} table.")
+                    except sqlite3.OperationalError as e:
+                        print(f"Error inserting data into {safe_table_name}: {e}")
 
-                    new_conn.commit()
+                    # Close connection to the new database
                     new_cursor.close()
                     new_conn.close()
-                    print(f"Data successfully inserted into {artifact_name_normalization} table.")
                 else:
                     print("No fragment_definition_id found in fragment_definition table.")
             else:
                 print("No artifact_version_id found in artifact_version table.")
         else:
             print(f"No artifact_id containing '{artifact_name_normalization}' found in artifact table.")
+        
+        progress[case_id] = min(90, progress[case_id] + increment)  
 
-    cursor.close()
-    conn.close()
+    progress[case_id] = 100
 
     # Create a new Normalization entry
     new_normalization_data = Normalization(

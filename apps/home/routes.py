@@ -60,11 +60,11 @@ def analyze_prompt():
 def analyze_normalization():
     data = request.get_json()
     case_id = data.get('case_id')
-    return redirect_analyze_normalization(data, case_id)
+    return redirect_analyze_normalization(data, case_id, progress)
 
 @blueprint.route('/case/analyze/normalization/progress/<case_id>', methods=['GET'])
 def get_normalization_progress(case_id):
-    return redirect_get_normalization_progress(case_id)
+    return redirect_get_normalization_progress(case_id, progress)
 
 ''' End Case analyze '''
 
