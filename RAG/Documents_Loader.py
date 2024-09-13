@@ -10,6 +10,7 @@ from langchain.schema import Document
 from langchain.vectorstores import FAISS
 import tiktoken
 import fitz
+import pdfplumber
 
 # 벡터 DB 위치
 db_path = "faiss_DB"
@@ -32,7 +33,7 @@ def tiktoken_len(text):
 
 # 설정값을 입력받는 함수
 def input_option():
-    separators = input("문서 분할을 위한 separators를 입력해주세요 (ex. \n, .,): ").split(',')  # 입력받은 구분자를 리스트로 변환
+    separators = input("문서 분할을 위한 separators를 입력해주세요 (ex. \\n, .,): ").split(',')  # 입력받은 구분자를 리스트로 변환
     chunk_size = int(input("문서 분할을 위한 chunk_size를 입력해주세요 (ex. 500): "))
     chunk_overlap = int(input("문서 분할을 위한 chunk_overlap을 입력해주세요 (ex. 250): "))
     return separators, chunk_size, chunk_overlap
@@ -107,6 +108,40 @@ if file_format == "pdf":
 
         # 추출된 텍스트를 Document 객체로 변환
         documents = [Document(page_content=page, metadata={"source": pdf_path, "page": i+1}) for i, page in enumerate(all_text)]
+
+    # 표 추출 로직
+    if ask_to_continue("표를 분리하여 저장하시겠습니까? (y/n): "):
+
+        # 만약 1중 컬럼이라면 fitz로 pdf read 객체 doc 생성
+        if file_split_format == 1:
+            doc = fitz.open(pdf_path)
+
+        # 경로 설정
+        table_path = input(r"분리한 표를 저장할 경로 입력 : ")
+        table_file_path = os.path.join(table_path, "output_tables.txt")
+
+        with open(table_file_path, "w", encoding="utf-8") as table_file:
+        # 표 추출을 위해 pdfplumber 사용
+            with pdfplumber.open(pdf_path) as plumnber_pdf:
+                # 각 page 별로 진행
+                for page_number in range(len(doc)):
+                    page = doc.load_page(page_number)
+                    plumber_page = plumnber_pdf.pages[page_number]
+
+                    # 표 추출
+                    tables = plumber_page.extract_tables()
+                    if tables:
+                        table_file.write(f"Tables on Page {page_number + 1}:\n")
+                        for table in tables:
+                            for row in table:
+                                table_file.write(", ".join([str(cell) for cell in row]) + "\n")
+                            table_file.write("\n")
+                    else:
+                        table_file.write(f"No tables found on Page {page_number + 1}\n")
+                        table_file.write("\n")
+        
+        doc.close()
+        print(f"표 분리가 완료되었습니다. {table_file_path} 에 저장되었습니다.")
 
     # 설정값 입력받고 청크 분할
     final_chunks = process_documents(file_format, documents)
