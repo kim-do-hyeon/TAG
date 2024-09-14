@@ -79,8 +79,54 @@ def search_query(scenario, db_path):
         
         # Print results with row numbers
         for row_number, result in top_results:
-            print(f"Row {row_number}: {result.strip()}")
-            # print(f"Row {row_number}")
+            match = re.search(r'hit_id: (\d+)', result)
+            if match:
+                print(f"Row {row_number}: hit_id: {match.group(1)}")
+                connection_to_case(db_path, str(match.group(1)))
+
 
     cursor.close()
+    conn.close()
+
+def connection_to_case(db_path, hit_id) :
+    conn = sqlite3.connect(db_path)
+    tables_query = "SELECT name FROM sqlite_master WHERE type='table';"
+    tables = pd.read_sql_query(tables_query, conn)['name'].tolist()
+    related_values = {}
+
+    for table in tables:
+        columns = pd.read_sql_query(f"PRAGMA table_info('{table}');", conn)['name'].tolist()
+        if 'hit_id' in columns:
+            query = f"SELECT * FROM '{table}' WHERE hit_id = '{hit_id}';"
+            result_df = pd.read_sql_query(query, conn)
+            if not result_df.empty:
+                for col in result_df.columns:
+                    if col not in ['artifact_version_id', 'hit_id', 'artifact_id', 'artifact_name']:
+                        if col not in related_values:
+                            related_values[col] = set()
+                        related_values[col].update(result_df[col].dropna().unique())
+
+    print("추출된 연관된 값들:", related_values)
+    related_data = []
+
+    for table in tables:
+        columns = pd.read_sql_query(f"PRAGMA table_info('{table}');", conn)['name'].tolist()
+        for col, values in related_values.items():
+            if col in columns:
+                for value in values:
+                    if len(value) > 5 :
+                        try:
+                            query = f"SELECT * FROM '{table}' WHERE \"{col}\" = '{value}';"
+                            result_df = pd.read_sql_query(query, conn)
+                            if len(result_df) < 1000 :
+                                if not result_df.empty:
+                                    related_data.append({'Table': table, 'Column': col, 'Value': value, 'Data': result_df})
+                        except Exception as e:
+                            print(f"테이블 '{table}'에서 열 '{col}'로 검색 중 오류 발생: {e}")
+
+    for data in related_data:
+        print(f"테이블: {data['Table']}, 열: {data['Column']}, 값: {data['Value']}")
+        print(data['Data'])
+        print('-' * 50)
+
     conn.close()
