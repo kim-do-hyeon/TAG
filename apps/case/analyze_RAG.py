@@ -119,6 +119,16 @@ def search_query(scenario, db_path, case_id, username):
     conn.close()
 
 def connection_to_case(db_path, hit_id) :
+    
+    def is_not_in_exclude_columns(table, col) :
+        with open(current_app.root_path + '/case/exclude_column_list.json', 'r', encoding='utf-8') as f:
+            exclude_columns = json.load(f)
+        if col in exclude_columns['common']:
+            return False
+        if table in exclude_columns and col in exclude_columns[table]:
+            return False
+        return True
+    
     conn = sqlite3.connect(db_path)
     tables_query = "SELECT name FROM sqlite_master WHERE type='table';"
     tables = pd.read_sql_query(tables_query, conn)['name'].tolist()
@@ -129,9 +139,10 @@ def connection_to_case(db_path, hit_id) :
         if 'hit_id' in columns:
             query = f"SELECT * FROM '{table}' WHERE hit_id = '{hit_id}';"
             result_df = pd.read_sql_query(query, conn)
+            
             if not result_df.empty:
                 for col in result_df.columns:
-                    if col not in ['artifact_version_id', 'hit_id', 'artifact_id', 'artifact_name']:
+                    if is_not_in_exclude_columns(table, col):
                         if col not in related_values:
                             related_values[col] = set()
                         related_values[col].update(result_df[col].dropna().unique())
@@ -146,11 +157,12 @@ def connection_to_case(db_path, hit_id) :
                 for value in values:
                     if len(value) > 5 :
                         try:
-                            query = f"SELECT * FROM '{table}' WHERE \"{col}\" = '{value}';"
-                            result_df = pd.read_sql_query(query, conn)
-                            if len(result_df) < 1000 :
-                                if not result_df.empty:
-                                    related_data.append({'Table': table, 'Column': col, 'Value': value, 'Data': result_df})
+                            if is_not_in_exclude_columns(table, col) :
+                                query = f"SELECT * FROM '{table}' WHERE \"{col}\" = '{value}';"
+                                result_df = pd.read_sql_query(query, conn)
+                                if len(result_df) < 1000 :
+                                    if not result_df.empty:
+                                        related_data.append({'Table': table, 'Column': col, 'Value': value, 'Data': result_df})
                         except Exception as e:
                             print(f"테이블 '{table}'에서 열 '{col}'로 검색 중 오류 발생: {e}")
 

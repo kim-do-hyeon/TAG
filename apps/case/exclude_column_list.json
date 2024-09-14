@@ -5,7 +5,5 @@
         "artifact_name"
     ],
     "table": {
-        "table1": ["column1", "column2"],
-        "table2": ["column3", "column4"]
     }
 }
