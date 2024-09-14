@@ -57,7 +57,7 @@ def search_query(scenario, db_path):
         embeddings = model.encode(texts)
 
         np.save('embeddings.npy', embeddings)
-        with open('original_texts.txt', 'w', encoding='cp949') as f:
+        with open('original_texts.txt', 'w', encoding='utf-8') as f:
             for text in texts:
                 f.write(text + "\n")
 
@@ -68,7 +68,7 @@ def search_query(scenario, db_path):
         similarities = cosine_similarity(query_embedding, embeddings).flatten()
 
         top_indices = similarities.argsort()[-10:][::-1]
-        with open('original_texts.txt', 'r', encoding='cp949') as f:
+        with open('original_texts.txt', 'r', encoding='utf-8') as f:
             original_texts = f.readlines()
 
         top_results = [(idx, original_texts[idx]) for idx in top_indices]  # Store row numbers with results
