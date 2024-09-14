@@ -5,6 +5,10 @@ import sqlite3
 import openai
 import re, os
 import pandas as pd
+import os
+import json
+from werkzeug.utils import secure_filename
+from flask import current_app
 
 def generate_response(prompt):
     try:
@@ -21,8 +25,32 @@ def generate_response(prompt):
         return response.choices[0].message['content'].strip()
     except Exception as e:
         return f"Error: {str(e)}"
+
+def save_query_data_to_user_folder(query, tables, response, case_id, username):
+    user_folder = os.path.join(current_app.root_path, 'user_folder', username, str(case_id))
+    if not os.path.exists(user_folder):
+        os.makedirs(user_folder)
+    file_path = os.path.join(user_folder, 'queries.json')
     
-def search_query(scenario, db_path):
+    # 기존 JSON 파일 읽기
+    if os.path.exists(file_path):
+        with open(file_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    else:
+        data = []
+
+    # 새로운 데이터 추가
+    data.append({
+        "query": query,
+        "tables": tables,
+        "response": response
+    })
+
+    # JSON 파일에 저장
+    with open(file_path, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
+
+def search_query(scenario, db_path, case_id, username):
     model = SentenceTransformer('all-MiniLM-L6-v2')
 
     conn = sqlite3.connect(db_path)
@@ -48,8 +76,9 @@ def search_query(scenario, db_path):
     print(data_dict)
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
+    response = ''
     for key, value in data_dict.items():
-        cursor.execute(f"SELECT * FROM {key}")
+        cursor.execute(f"SELECT * FROM '{key}'")
         columns = [description[0] for description in cursor.description]
         rows = cursor.fetchall()
 
@@ -84,7 +113,8 @@ def search_query(scenario, db_path):
                 print(f"Row {row_number}: hit_id: {match.group(1)}")
                 connection_to_case(db_path, str(match.group(1)))
 
-
+    save_query_data_to_user_folder(prompt, str(result1), response, case_id, secure_filename(username))
+    
     cursor.close()
     conn.close()
 

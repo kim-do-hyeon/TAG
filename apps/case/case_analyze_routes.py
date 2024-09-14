@@ -4,6 +4,7 @@ from apps.authentication.models import Upload_Case, Normalization
 from apps import db
 from apps.case.analyze import case_analyze_view
 from apps.case.analyze_RAG import search_query
+from apps.case.utils import load_query_data_from_user_folder
 
     
 def redirect_case_analyze(id) :
@@ -24,6 +25,17 @@ def redirect_case_view(id) :
         table_names = table_names,
         # record_counts = sum(record_counts)
         )
+
+def redirect_case_view_history(id) :    
+    user_case = Upload_Case.query.filter_by(id=id).first()
+    if not user_case:
+        flash('Case not found', 'danger')
+        return redirect('/case/list')
+    datas = load_query_data_from_user_folder(session.get('username'), id)
+    return render_template('case/view_history.html',
+                           case=user_case,
+                           datas=datas
+                           )
 
 def redirect_get_table_data(id, table_name) :
     user_case = Upload_Case.query.filter_by(id=id).first()
@@ -108,5 +120,9 @@ def redirect_analyze_prompt(data) :
         return jsonify({'success': False, 'message': 'Invalid input.'}), 400
     else :
         db_path = Normalization.query.filter_by(normalization_definition = case_id).first().file
-        search_query(prompt, db_path)
+        user = session.get('username')  # Assuming 'username' is stored in session
+        if not user:
+            flash('사용자 정보를 찾을 수 없습니다. 다시 로그인 해주세요.', 'danger')
+            return redirect('/case/list')
+        search_query(prompt, db_path, case_id, user)
     return jsonify({'success': True, 'message': 'Prompt submitted successfully!'})

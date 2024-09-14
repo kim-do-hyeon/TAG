@@ -40,7 +40,7 @@ def configure_database(app):
 
             print('> Fallback to SQLite ')
             db.create_all()
-
+            
     @app.teardown_request
     def shutdown_session(exception=None):
         db.session.remove()

@@ -3,7 +3,7 @@ import os
 from apps import db
 from apps.authentication.models import Upload_Case, Normalization
 import sqlite3
-
+from werkzeug.utils import secure_filename
 
 def get_table_names(db_path):
     conn = sqlite3.connect(db_path)

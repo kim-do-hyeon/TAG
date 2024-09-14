@@ -44,6 +44,7 @@
                                                 <th>Prompt</th>
                                                 <th>Action</th>
                                                 <th>직접 분석</th>
+                                                <th>질의 히스토리</th>
                                             {% else %}
                                                 <th>케이스 정규화</th>
                                             {% endif %}
@@ -64,6 +65,9 @@
                                             </td>
                                             <td>
                                                 <button class="btn btn-primary" onclick="window.location.href='/case/analyze/view/{{case.id}}'">직접 분석</button>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-primary" onclick="window.location.href='/case/analyze/view/{{case.id}}/history'">히스토리</button>
                                             </td>
                                             {% else %}
                                             <td colspan="2">

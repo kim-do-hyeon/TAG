@@ -39,6 +39,10 @@ def case_analyze(id):
 def case_view(id) :
     return redirect_case_view(id)
 
+@blueprint.route('/case/analyze/view/<int:id>/history', methods = ['GET', 'POST'])
+def case_view_history(id) :
+    return redirect_case_view_history(id)
+
 @blueprint.route('/case/analyze/view/table/<int:id>/<string:table_name>', methods=['GET'])
 def get_table_data(id, table_name):
     return redirect_get_table_data(id, table_name)
