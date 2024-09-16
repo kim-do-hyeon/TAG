@@ -6,9 +6,19 @@ import psutil
 from flask_login import login_required
 from jinja2 import TemplateNotFound
 
+from apps.authentication.models import GraphData
 from apps.case.case_routes import *
 from apps.case.case_analyze_routes import *
 from apps.case.case_normalization_routes import *
+from py2neo import Graph
+
+
+neo4j_url = os.environ.get('neo4j_server')
+neo4j_username = os.environ.get('neo4j_id')
+neo4j_password = os.environ.get('neo4j_password')
+graph = Graph(neo4j_url, auth=(neo4j_username, neo4j_password))
+
+
 
 
 progress = {}
@@ -78,6 +88,31 @@ def get_memory_usage():
     memory = psutil.virtual_memory()
     memory_percent = memory.percent
     return jsonify({'memory': memory_percent})
+
+@blueprint.route('/show_graph')
+def show_graph() :
+    return render_template("case/connection.html")
+
+@blueprint.route('/get-graph-data')
+def get_graph_data():
+    # 세션에서 데이터베이스 레코드 ID를 가져옵니다.
+    graph_data_id = session.get('graph_data_id')
+    
+    if not graph_data_id:
+        return jsonify({'success': False, 'message': 'No data found.'}), 404
+
+    # 데이터베이스에서 데이터를 조회합니다.
+    graph_record = GraphData.query.get(graph_data_id)
+    
+    if not graph_record:
+        return jsonify({'success': False, 'message': 'Graph data not found.'}), 404
+
+    # 그래프 데이터와 질의 데이터를 반환합니다.
+    return jsonify({
+        'graphs': graph_record.graph_data,
+        'queries': graph_record.query_data
+    })
+
 
 
 @blueprint.route('/<template>')

@@ -123,7 +123,9 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert('Prompt submitted successfully!');
+                        // Redirect based on the URL provided by the server
+                        alert("정상적으로 처리되었습니다.");
+                        window.location.href = "/show_graph";
                     } else {
                         alert('Failed to submit the prompt.');
                     }

@@ -1,6 +1,6 @@
 import sqlite3
 from flask import request, render_template, session, redirect, url_for, flash, Request, jsonify
-from apps.authentication.models import Upload_Case, Normalization
+from apps.authentication.models import Upload_Case, Normalization, GraphData
 from apps import db
 from apps.case.analyze import case_analyze_view
 from apps.case.analyze_RAG import search_query
@@ -124,5 +124,11 @@ def redirect_analyze_prompt(data) :
         if not user:
             flash('사용자 정보를 찾을 수 없습니다. 다시 로그인 해주세요.', 'danger')
             return redirect('/case/list')
-        search_query(prompt, db_path, case_id, user)
-    return jsonify({'success': True, 'message': 'Prompt submitted successfully!'})
+        graph_datas, query_datas = search_query(prompt, db_path, case_id, user)
+    
+    graph_record = GraphData(case_id=case_id, graph_data=graph_datas, query_data=query_datas)
+    db.session.add(graph_record)
+    db.session.commit()
+
+    session['graph_data_id'] = graph_record.id
+    return jsonify({'success': True})

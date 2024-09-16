@@ -1,10 +1,9 @@
 # -*- encoding: utf-8 -*-
 
 from flask_login import UserMixin
-
 from apps import db, login_manager
-
 from apps.authentication.util import hash_pass
+from datetime import datetime
 
 class Users(db.Model, UserMixin):
     __tablename__ = 'Users'
@@ -43,6 +42,19 @@ class Normalization(db.Model, UserMixin) :
     file = db.Column(db.Text)
     result = db.Column(db.Text)
     artifacts_names = db.Column(db.Text)
+
+class GraphData(db.Model, UserMixin):
+    __tablename__ = "GraphData"
+    id = db.Column(db.Integer, primary_key=True)
+    case_id = db.Column(db.String(50), nullable=False)
+    graph_data = db.Column(db.JSON, nullable=False)
+    query_data = db.Column(db.JSON, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __init__(self, case_id, graph_data, query_data):
+        self.case_id = case_id
+        self.graph_data = graph_data
+        self.query_data = query_data
 
 @login_manager.user_loader
 def user_loader(id):
