@@ -69,7 +69,7 @@ def search_query(scenario, db_path, case_id, username):
     openai.api_key = os.getenv('API_KEY')
 
     prompt = str(scenario) + "에서 포렌식 관점에서 필요한 아티팩트를 너가 선정해서 아래에서 골라줘," + str(tables) + " // 단 아티팩트 이름만 나열해. 그리고 각 아티팩트와 시나리오를 합쳐서 한문장으로 쿼리를 만들어줘(아티팩트당 하나의 쿼리)" + """
-    형식은 아래와 같이 5개 이상 나오게 해줘. 순서를 정하지마, 단순히 아래와 같은 형식으로.
+    형식은 아래와 같이 1개만 나오게 해줘. 순서를 정하지마, 단순히 아래와 같은 형식으로.
     - Internet:인터넷에서 어떤걸 검색했나요?
     """
     result = generate_response(prompt)
@@ -238,10 +238,14 @@ def create_graph(related_data):
     for record in results:
         for node in [record['n'], record['m']]:
             if node.identity not in nodes:
+                if "chrom" in str(node).lower() or "edge" in str(node) :
+                    node_name = node.get('Title', str(node.__name__)) + str(node.get('URL', str(node.__name__)))
+                else :
+                    node_name = node.get('URL', str(node.__name__))
                 nodes[node.identity] = {
                     "id": node.identity,
                     "label": list(node.labels)[0] if node.labels else "Node",
-                    "name": node.get('name', str(node.identity))
+                    "name": node_name
                 }
         
         links.append({
