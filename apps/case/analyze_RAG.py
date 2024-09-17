@@ -7,7 +7,6 @@ import re, os
 import pandas as pd
 import os
 import json
-from werkzeug.utils import secure_filename
 from flask import current_app
 from py2neo import Graph, Node, Relationship
 from apps import db
@@ -17,8 +16,6 @@ neo4j_url = os.getenv('neo4j_server')
 neo4j_username = os.getenv('neo4j_id')
 neo4j_password = os.getenv('neo4j_password')
 graph = Graph(neo4j_url, auth=(neo4j_username, neo4j_password))
-
-
 
 def generate_response(prompt):
     try:
@@ -35,38 +32,6 @@ def generate_response(prompt):
         return response.choices[0].message['content'].strip()
     except Exception as e:
         return f"Error: {str(e)}"
-
-def save_query_data_to_user_folder(query, tables, response, case_id, username):
-    user_folder = os.path.join(current_app.root_path, 'user_folder', username, str(case_id))
-    if not os.path.exists(user_folder):
-        os.makedirs(user_folder)
-    file_path = os.path.join(user_folder, 'queries.json')
-    
-    # 기존 JSON 파일 읽기
-    if os.path.exists(file_path):
-        with open(file_path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-    else:
-        data = []
-
-    # 새로운 데이터 추가
-    data.append({
-        "query": query,
-        "tables": tables,
-        "response": response
-    })
-
-    # JSON 파일에 저장
-    with open(file_path, 'w', encoding='utf-8') as f:
-        json.dump(data, f, ensure_ascii=False, indent=4)
-    
-    data = PromptQuries(username = username,
-                        case_id = case_id,
-                        query = str(query),
-                        tables = str(tables),
-                        response = str(response))
-    db.session.add(data)
-    db.session.commit()
 
 def search_query(scenario, db_path, case_id, username, progress):
     model = SentenceTransformer('all-MiniLM-L6-v2')
@@ -137,7 +102,13 @@ def search_query(scenario, db_path, case_id, username, progress):
             #progress
             progress[case_id] = min(99, int((idx_/len(top_results))*progress_unit + progress_unit * idx))
 
-    save_query_data_to_user_folder(prompt, tables, data_dict, case_id, secure_filename(username))
+    data = PromptQuries(username = username,
+                        case_id = case_id,
+                        query = str(query),
+                        tables = str(tables),
+                        response = str(response))
+    db.session.add(data)
+    db.session.commit()
     
     cursor.close()
     conn.close()
