@@ -10,7 +10,7 @@ import json
 from flask import current_app
 from py2neo import Graph, Node, Relationship
 from apps import db
-from apps.authentication.models import PromptQuries
+from apps.authentication.models import PromptQuries, Upload_Case
 
 neo4j_url = os.getenv('neo4j_server')
 neo4j_username = os.getenv('neo4j_id')
@@ -35,7 +35,9 @@ def generate_response(prompt):
 
 def search_query(scenario, db_path, case_id, username, progress):
     model = SentenceTransformer('all-MiniLM-L6-v2')
-
+    case_number = Upload_Case.query.filter_by(id = case_id).first().case_number
+    case_folder = os.path.join(os.getcwd(), "uploads", username, case_number)
+    
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
@@ -69,19 +71,19 @@ def search_query(scenario, db_path, case_id, username, progress):
         texts = [" ".join([f"{col}: {val}" for col, val in zip(columns, row) if val is not None]) for row in rows]
         embeddings = model.encode(texts)
 
-        np.save('embeddings.npy', embeddings)
-        with open('original_texts.txt', 'w', encoding='utf-8') as f:
+        np.save(os.path.join(case_folder, 'embeddings.npy'), embeddings)
+        with open(os.path.join(case_folder, 'original_texts.txt'), 'w', encoding='utf-8') as f:
             for text in texts:
                 f.write(text + "\n")
 
         query = value
         query_embedding = model.encode([query])
 
-        embeddings = np.load('embeddings.npy')
+        embeddings = np.load(os.path.join(case_folder, 'embeddings.npy'))
         similarities = cosine_similarity(query_embedding, embeddings).flatten()
 
         top_indices = similarities.argsort()[-10:][::-1]
-        with open('original_texts.txt', 'r', encoding='utf-8') as f:
+        with open(os.path.join(case_folder, 'original_texts.txt'), 'r', encoding='utf-8') as f:
             original_texts = f.readlines()
 
         top_results = [(idx, original_texts[idx]) for idx in top_indices]  # Store row numbers with results
