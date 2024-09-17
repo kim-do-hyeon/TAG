@@ -31,7 +31,7 @@
 			<!-- [ Main Content ] start -->
 			<div class="row">
 				<!-- [ sample-page ] start -->
-                {% for query, tables, result in datas %}
+                {% for data in datas %}
 				<div class="col-sm-12">
 					<div class="card">
 
@@ -52,7 +52,7 @@
 							</div>
 						</div>
 						<div class="card-body">
-							<p>{{ query }}</p>
+							<p>{{ data.query }}</p>
 						</div>
 					</div>
                     <div class="card">
@@ -74,7 +74,7 @@
 							</div>
 						</div>
 						<div class="card-body">
-							<p>{{ tables }}</p>
+							<p>{{ data.tables }}</p>
 						</div>
 					</div>
                     <div class="card">
@@ -96,7 +96,7 @@
 							</div>
 						</div>
 						<div class="card-body">
-							<p>{{ response }}</p>
+							<p>{{ data.response }}</p>
 						</div>
 					</div>
 				</div>
