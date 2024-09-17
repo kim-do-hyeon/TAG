@@ -49,7 +49,7 @@ class GraphData(db.Model, UserMixin):
     case_id = db.Column(db.String(50), nullable=False)
     graph_data = db.Column(db.JSON, nullable=False)
     query_data = db.Column(db.JSON, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.now)
 
     def __init__(self, case_id, graph_data, query_data):
         self.case_id = case_id
@@ -64,7 +64,9 @@ class PromptQuries(db.Model, UserMixin) :
     query = db.Column(db.Text)
     tables = db.Column(db.Text)
     response = db.Column(db.Text)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    graph_index = db.Column(db.Integer)
+    created_at = db.Column(db.DateTime, default=datetime.now)
+
     
 
 @login_manager.user_loader
