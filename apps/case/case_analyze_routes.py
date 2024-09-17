@@ -1,6 +1,6 @@
 import sqlite3
 from flask import request, render_template, session, redirect, url_for, flash, Request, jsonify
-from apps.authentication.models import Upload_Case, Normalization, GraphData
+from apps.authentication.models import Upload_Case, Normalization, GraphData, PromptQuries
 from apps import db
 from apps.case.analyze import case_analyze_view
 from apps.case.analyze_RAG import search_query
@@ -27,16 +27,15 @@ def redirect_case_view(id) :
         # record_counts = sum(record_counts)
         )
 
-def redirect_case_view_history(id) :    
+def redirect_case_view_history(id):    
     user_case = Upload_Case.query.filter_by(id=id).first()
     if not user_case:
         flash('Case not found', 'danger')
         return redirect('/case/list')
-    datas = load_query_data_from_user_folder(session.get('username'), id)
+    datas = db.session.query(PromptQuries).filter(PromptQuries.case_id == id, PromptQuries.username == session.get('username')).all()
     return render_template('case/view_history.html',
                            case=user_case,
-                           datas=datas
-                           )
+                           datas=datas)
 
 def redirect_get_table_data(id, table_name) :
     user_case = Upload_Case.query.filter_by(id=id).first()

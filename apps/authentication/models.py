@@ -56,6 +56,17 @@ class GraphData(db.Model, UserMixin):
         self.graph_data = graph_data
         self.query_data = query_data
 
+class PromptQuries(db.Model, UserMixin) :
+    __tablename__ = "PromptQuries"
+    id = db.Column(db.Integer, primary_key = True)
+    username = db.Column(db.Text)
+    case_id = db.Column(db.Text)
+    query = db.Column(db.Text)
+    tables = db.Column(db.Text)
+    response = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+
 @login_manager.user_loader
 def user_loader(id):
     return Users.query.filter_by(id=id).first()

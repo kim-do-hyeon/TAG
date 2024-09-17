@@ -10,6 +10,8 @@ import json
 from werkzeug.utils import secure_filename
 from flask import current_app
 from py2neo import Graph, Node, Relationship
+from apps import db
+from apps.authentication.models import PromptQuries
 
 neo4j_url = os.getenv('neo4j_server')
 neo4j_username = os.getenv('neo4j_id')
@@ -57,6 +59,14 @@ def save_query_data_to_user_folder(query, tables, response, case_id, username):
     # JSON 파일에 저장
     with open(file_path, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
+    
+    data = PromptQuries(username = username,
+                        case_id = case_id,
+                        query = str(query),
+                        tables = str(tables),
+                        response = str(response))
+    db.session.add(data)
+    db.session.commit()
 
 def search_query(scenario, db_path, case_id, username, progress):
     model = SentenceTransformer('all-MiniLM-L6-v2')
@@ -123,11 +133,16 @@ def search_query(scenario, db_path, case_id, username, progress):
                 graph_value, query_value = connection_to_case(db_path, str(match.group(1)))
                 graph_datas.append(graph_value)
                 query_datas.append(query_value)
+<<<<<<< HEAD
             
             #progress
             progress[case_id] = min(99, int((idx_/len(top_results))*progress_unit + progress_unit * idx))
     
     save_query_data_to_user_folder(prompt, str(result1), response, case_id, secure_filename(username))
+=======
+
+    save_query_data_to_user_folder(prompt, tables, data_dict, case_id, secure_filename(username))
+>>>>>>> 66273747af55aa9b87823c50454438b071f68a71
     
     cursor.close()
     conn.close()
