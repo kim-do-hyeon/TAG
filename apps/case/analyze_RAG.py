@@ -133,16 +133,11 @@ def search_query(scenario, db_path, case_id, username, progress):
                 graph_value, query_value = connection_to_case(db_path, str(match.group(1)))
                 graph_datas.append(graph_value)
                 query_datas.append(query_value)
-<<<<<<< HEAD
-            
+                
             #progress
             progress[case_id] = min(99, int((idx_/len(top_results))*progress_unit + progress_unit * idx))
-    
-    save_query_data_to_user_folder(prompt, str(result1), response, case_id, secure_filename(username))
-=======
 
     save_query_data_to_user_folder(prompt, tables, data_dict, case_id, secure_filename(username))
->>>>>>> 66273747af55aa9b87823c50454438b071f68a71
     
     cursor.close()
     conn.close()
