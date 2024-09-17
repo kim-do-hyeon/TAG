@@ -4,7 +4,6 @@ from apps.authentication.models import Upload_Case, Normalization, GraphData, Pr
 from apps import db
 from apps.case.analyze import case_analyze_view
 from apps.case.analyze_RAG import search_query
-from apps.case.utils import load_query_data_from_user_folder
 import threading
 from flask import current_app
 
