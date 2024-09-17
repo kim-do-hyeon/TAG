@@ -113,6 +113,7 @@
                     alert('Please enter a prompt.');
                     return;
                 }
+
                 fetch('/case/analyze/prompt', {
                     method: 'POST',
                     headers: {
@@ -124,8 +125,10 @@
                 .then(data => {
                     if (data.success) {
                         // Redirect based on the URL provided by the server
-                        alert("정상적으로 처리되었습니다.");
-                        window.location.href = "/show_graph";
+                        showProgress(caseId, function(){
+                            alert('정상적으로 처리되었습니다.');
+                            window.location.href = "/show_graph";
+                        });
                     } else {
                         alert('Failed to submit the prompt.');
                     }
@@ -149,7 +152,10 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        showProgress(caseId);  // Start showing progress
+                        showProgress(caseId, function () {
+                            location.reload();
+                            alert('정규화 처리가 완료되었습니다.');  // Start showing progress
+                        });
                     } else {
                         alert('Failed to start the normalization process.');
                     }
@@ -161,7 +167,7 @@
             });
         });
 
-        function showProgress(caseId) {
+        function showProgress(caseId, onComplete) {
             // Show the progress bar
             document.getElementById('progress-container').style.display = 'block';
 
@@ -188,8 +194,7 @@
                     if (progressValue < 100) {
                         setTimeout(updateProgress, 1000);  // Poll every second
                     } else {
-                        alert('정규화 처리가 완료되었습니다.');
-                        location.reload();  // Reload the page upon completion
+                        onComplete();  // Reload the page upon completion
                     }
                 })
                 .catch(error => {

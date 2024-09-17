@@ -68,7 +68,7 @@ def get_selected_columns_data(id, table_name):
 @blueprint.route('/case/analyze/prompt', methods=['POST'])
 def analyze_prompt():
     data = request.get_json()
-    return redirect_analyze_prompt(data)
+    return redirect_analyze_prompt(data, progress)
 
 @blueprint.route('/case/analyze/normalization', methods=['POST'])
 def analyze_normalization():

@@ -5,8 +5,9 @@ from apps import db
 from apps.case.analyze import case_analyze_view
 from apps.case.analyze_RAG import search_query
 from apps.case.utils import load_query_data_from_user_folder
+import threading
+from flask import current_app
 
-    
 def redirect_case_analyze(id) :
     user_case = Upload_Case.query.filter_by(id=id).first()
     if not user_case:
@@ -113,22 +114,33 @@ def redirect_get_selected_columns_data(id, table_name):
 
     return jsonify({'success': True, 'data': table_data, 'columns': selected_columns})
 
-def redirect_analyze_prompt(data) :
+def handle_graph_data(app, prompt, db_path, case_id, user, progress):
+    with app.app_context():
+        progress[case_id] = 0
+        graph_datas, query_datas = search_query(prompt, db_path, case_id, user, progress)
+        progress[case_id] = 100
+
+        graph_record = GraphData(case_id=case_id, graph_data=graph_datas, query_data=query_datas)
+        db.session.add(graph_record)
+        db.session.commit()
+
+def redirect_analyze_prompt(data, progress):
     case_id = data.get('case_id')
     prompt = data.get('prompt')
     if not case_id or not prompt:
         return jsonify({'success': False, 'message': 'Invalid input.'}), 400
-    else :
-        db_path = Normalization.query.filter_by(normalization_definition = case_id).first().file
+    else:
+        db_path = Normalization.query.filter_by(normalization_definition=case_id).first().file
         user = session.get('username')  # Assuming 'username' is stored in session
         if not user:
             flash('사용자 정보를 찾을 수 없습니다. 다시 로그인 해주세요.', 'danger')
             return redirect('/case/list')
-        graph_datas, query_datas = search_query(prompt, db_path, case_id, user)
-    
-    graph_record = GraphData(case_id=case_id, graph_data=graph_datas, query_data=query_datas)
-    db.session.add(graph_record)
-    db.session.commit()
 
-    session['graph_data_id'] = graph_record.id
+        # Get the current Flask app
+        app = current_app._get_current_object()
+
+        # Create and start a new thread for the search query
+        thread = threading.Thread(target=handle_graph_data, args=(app, prompt, db_path, case_id, user, progress))
+        thread.start()
+
     return jsonify({'success': True})

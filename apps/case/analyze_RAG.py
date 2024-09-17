@@ -58,7 +58,7 @@ def save_query_data_to_user_folder(query, tables, response, case_id, username):
     with open(file_path, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
 
-def search_query(scenario, db_path, case_id, username):
+def search_query(scenario, db_path, case_id, username, progress):
     model = SentenceTransformer('all-MiniLM-L6-v2')
 
     conn = sqlite3.connect(db_path)
@@ -83,7 +83,10 @@ def search_query(scenario, db_path, case_id, username):
     response = ''
     graph_datas = []
     query_datas = []
-    for key, value in data_dict.items():
+    
+    progress_unit = 100 / len(data_dict)
+    
+    for idx, (key, value) in enumerate(data_dict.items()):
         cursor.execute(f"SELECT * FROM '{key}'")
         columns = [description[0] for description in cursor.description]
         rows = cursor.fetchall()
@@ -113,14 +116,17 @@ def search_query(scenario, db_path, case_id, username):
         # print(f"[{key}] Query : {query}")
         
         # Print results with row numbers
-        for row_number, result in top_results:
+        for idx_, (row_number, result) in enumerate(top_results):
             match = re.search(r'hit_id: (\d+)', result)
             if match:
                 # print(f"Row {row_number}: hit_id: {match.group(1)}")
                 graph_value, query_value = connection_to_case(db_path, str(match.group(1)))
                 graph_datas.append(graph_value)
                 query_datas.append(query_value)
-
+            
+            #progress
+            progress[case_id] = min(99, int((idx_/len(top_results))*progress_unit + progress_unit * idx))
+    
     save_query_data_to_user_folder(prompt, str(result1), response, case_id, secure_filename(username))
     
     cursor.close()
