@@ -69,7 +69,7 @@
 
                             <script src="https://d3js.org/d3.v5.min.js"></script>
                             <script>
-                                fetch('/case_get_graph_data/{{case_id}}')
+                                fetch('/case_get_graph_data_history/{{case_id}}')
                                     .then(response => response.json())
                                     .then(data => {
                                         const graphs = data.graphs;

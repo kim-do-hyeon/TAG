@@ -10,7 +10,7 @@ import json
 from flask import current_app
 from py2neo import Graph, Node, Relationship
 from apps import db
-from apps.authentication.models import PromptQuries, Upload_Case
+from apps.authentication.models import PromptQuries, Upload_Case, GraphData
 
 neo4j_url = os.getenv('neo4j_server')
 neo4j_username = os.getenv('neo4j_id')
@@ -46,11 +46,11 @@ def search_query(scenario, db_path, case_id, username, progress):
     openai.api_key = os.getenv('API_KEY')
 
     prompt = str(scenario) + "에서 포렌식 관점에서 필요한 아티팩트를 너가 선정해서 아래에서 골라줘," + str(tables) + " // 단 아티팩트 이름만 나열해. 그리고 각 아티팩트와 시나리오를 합쳐서 한문장으로 쿼리를 만들어줘(아티팩트당 하나의 쿼리)" + """
-    형식은 아래와 같이 5개 이상 나오게 해줘. 순서를 정하지마, 단순히 아래와 같은 형식으로.
+    형식은 아래와 같이 1개만 나오게 해줘. 순서를 정하지마, 단순히 아래와 같은 형식으로.
     - Internet:인터넷에서 어떤걸 검색했나요?
     """
-    result = generate_response(prompt)
-    text = result.replace("- ", "").replace("'", "")
+    prompt_response = generate_response(prompt)
+    text = prompt_response.replace("- ", "").replace("'", "")
     result1 = re.split(r'[:\n]+', text)
 
     data_dict = {result1[i]: result1[i + 1].strip() for i in range(0, len(result1), 2)}
@@ -104,17 +104,25 @@ def search_query(scenario, db_path, case_id, username, progress):
             #progress
             progress[case_id] = min(99, int((idx_/len(top_results))*progress_unit + progress_unit * idx))
 
-    data = PromptQuries(username = username,
-                        case_id = case_id,
-                        query = str(query),
-                        tables = str(tables),
-                        response = str(response))
-    db.session.add(data)
-    db.session.commit()
+    
     
     cursor.close()
     conn.close()
-    return graph_datas, query_datas
+    
+    graph_record = GraphData(case_id=case_id, graph_data=graph_datas, query_data=query_datas)
+    db.session.add(graph_record)
+    db.session.commit()
+    
+    prompt_data = PromptQuries(username = username,
+                        case_id = case_id,
+                        query = str(scenario),
+                        tables = str(tables),
+                        response = str(prompt_response),
+                        graph_index = graph_record.id)
+    db.session.add(prompt_data)
+
+    db.session.commit()
+    return True
 
 def connection_to_case(db_path, hit_id) :
     

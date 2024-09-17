@@ -127,7 +127,7 @@
                         // Redirect based on the URL provided by the server
                         showProgress(caseId, function(){
                             alert('정상적으로 처리되었습니다.');
-                            window.location.href = "/show_graph/" + {{case.id}};
+                            window.location.href = "/case_graph/" + {{case.id}};
                         });
                     } else {
                         alert('Failed to submit the prompt.');

@@ -2,14 +2,13 @@
 from apps.home import blueprint
 from flask import request, render_template, session, redirect, url_for, flash, Request, jsonify
 import os
-import psutil
 from flask_login import login_required
 from jinja2 import TemplateNotFound
 
-from apps.authentication.models import GraphData
 from apps.case.case_routes import *
 from apps.case.case_analyze_routes import *
 from apps.case.case_normalization_routes import *
+from apps.case.case_graph import *
 from py2neo import Graph
 
 
@@ -80,40 +79,23 @@ def analyze_normalization():
 def get_normalization_progress(case_id):
     return redirect_get_normalization_progress(case_id, progress)
 
-''' End Case analyze '''
-
-@blueprint.route('/api/memory-usage')
-def get_memory_usage():
-    # Get current memory usage percentage
-    memory = psutil.virtual_memory()
-    memory_percent = memory.percent
-    return jsonify({'memory': memory_percent})
-
-@blueprint.route('/show_graph/<int:id>')
-def show_graph(id) :
+@blueprint.route('/case_graph/<int:id>')
+def case_graph(id) :
     return render_template("case/connection.html", case_id = id)
 
-@blueprint.route('/get-graph-data/<int:id>')
+@blueprint.route('/case_graph_history/<int:id>')
+def case_graph_history(id) :
+    return render_template("case/connection_history.html", case_id = id)
+
+@blueprint.route('/case_get_graph_data/<int:id>')
 def get_graph_data(id):
-    # 세션에서 데이터베이스 레코드 ID를 가져옵니다.
-    graph_data_id = id
-    
-    if not graph_data_id:
-        return jsonify({'success': False, 'message': 'No data found.'}), 404
+    return redirect_get_graph_data(id)
 
-    # 데이터베이스에서 데이터를 조회합니다.
-    graph_record = GraphData.query.filter_by(case_id = id).all()[-1]
-    
-    if not graph_record:
-        return jsonify({'success': False, 'message': 'Graph data not found.'}), 404
+@blueprint.route('/case_get_graph_data_history/<int:id>')
+def get_graph_data_history(id):
+    return redirect_get_graph_data_history(id)
 
-    # 그래프 데이터와 질의 데이터를 반환합니다.
-    return jsonify({
-        'graphs': graph_record.graph_data,
-        'queries': graph_record.query_data
-    })
-
-
+''' End Case analyze '''
 
 @blueprint.route('/<template>')
 @login_required

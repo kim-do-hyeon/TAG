@@ -115,12 +115,11 @@ def redirect_get_selected_columns_data(id, table_name):
 def handle_graph_data(app, prompt, db_path, case_id, user, progress):
     with app.app_context():
         progress[case_id] = 0
-        graph_datas, query_datas = search_query(prompt, db_path, case_id, user, progress)
-        progress[case_id] = 100
-
-        graph_record = GraphData(case_id=case_id, graph_data=graph_datas, query_data=query_datas)
-        db.session.add(graph_record)
-        db.session.commit()
+        result = search_query(prompt, db_path, case_id, user, progress)
+        if result == True :
+            progress[case_id] = 100
+        else :
+            progress[case_id] = 0
 
 def redirect_analyze_prompt(data, progress):
     case_id = data.get('case_id')
