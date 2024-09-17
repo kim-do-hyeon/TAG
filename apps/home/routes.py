@@ -89,20 +89,20 @@ def get_memory_usage():
     memory_percent = memory.percent
     return jsonify({'memory': memory_percent})
 
-@blueprint.route('/show_graph')
-def show_graph() :
-    return render_template("case/connection.html")
+@blueprint.route('/show_graph/<int:id>')
+def show_graph(id) :
+    return render_template("case/connection.html", case_id = id)
 
-@blueprint.route('/get-graph-data')
-def get_graph_data():
+@blueprint.route('/get-graph-data/<int:id>')
+def get_graph_data(id):
     # 세션에서 데이터베이스 레코드 ID를 가져옵니다.
-    graph_data_id = session.get('graph_data_id')
+    graph_data_id = id
     
     if not graph_data_id:
         return jsonify({'success': False, 'message': 'No data found.'}), 404
 
     # 데이터베이스에서 데이터를 조회합니다.
-    graph_record = GraphData.query.get(graph_data_id)
+    graph_record = GraphData.query.filter_by(case_id = id).all()[-1]
     
     if not graph_record:
         return jsonify({'success': False, 'message': 'Graph data not found.'}), 404
