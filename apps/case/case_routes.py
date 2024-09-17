@@ -1,6 +1,6 @@
 from flask import request, render_template, session, redirect, url_for, flash, Request, jsonify
-from apps.case.upload import case_upload
-from apps.case.delete import case_delete
+from apps.case.case_upload import case_upload
+from apps.case.case_delete import case_delete
 from apps.authentication.models import Upload_Case
 
 def redirect_case(subpath) :

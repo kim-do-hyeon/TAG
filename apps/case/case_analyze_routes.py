@@ -2,8 +2,8 @@ import sqlite3
 from flask import request, render_template, session, redirect, url_for, flash, Request, jsonify
 from apps.authentication.models import Upload_Case, Normalization, GraphData, PromptQuries
 from apps import db
-from apps.case.analyze import case_analyze_view
-from apps.case.analyze_RAG import search_query
+from apps.case.case_analyze import case_analyze_view
+from apps.case.case_analyze_RAG import search_query
 import threading
 from flask import current_app
 

@@ -3,8 +3,8 @@ import sqlite3, time
 from flask import request, render_template, session, redirect, url_for, flash, Request, jsonify
 from apps.authentication.models import Upload_Case, Normalization
 from apps import db
-from apps.case.analyze import case_analyze_view
-from apps.case.normalization import case_normalization
+from apps.case.case_analyze import case_analyze_view
+from apps.case.case_normalization import case_normalization
 
 def redirect_analyze_normalization(data, case_id, progress) :
     if not case_id:
