@@ -62,55 +62,87 @@
                 </div>
                 <div class="col-md-12 col-xl-6">
                     <div class="row">
-                        <div class="col-sm-6">
-                            <div class="card">
-                                <div class="card-body bg-patern">
-                                    <div class="row">
-                                        <div class="col-auto">
-                                            <span>Customers</span>
-                                        </div>
-                                        <div class="col text-end">
-                                            <h2 class="mb-0">826</h2>
-                                            <span class="text-c-green">8.2%<i class="feather icon-trending-up ms-1"></i></span>
-                                        </div>
-                                    </div>
-                                    <div id="customer-chart"></div>
-                                    <div class="row mt-3">
-                                        <div class="col">
-                                            <h3 class="m-0"><i class="fas fa-circle f-10 m-r-5 text-success"></i>674</h3>
-                                            <span class="ms-3">New</span>
-                                        </div>
-                                        <div class="col">
-                                            <h3 class="m-0"><i class="fas fa-circle text-primary f-10 m-r-5"></i>182</h3>
-                                            <span class="ms-3">Return</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-6">
+                        <div class="col-md-12">
                             <div class="card bg-primary text-white">
                                 <div class="card-body bg-patern-white">
                                     <div class="row">
                                         <div class="col-auto">
-                                            <span>Customers</span>
+                                            <span>Case Disk Space</span>
                                         </div>
                                         <div class="col text-end">
-                                            <h2 class="mb-0 text-white">826</h2>
+                                            <h2 class="mb-0 text-white">{{total_size_gb}} GB</h2>
                                             <span class="text-white">8.2%<i class="feather icon-trending-up ms-1"></i></span>
                                         </div>
                                     </div>
-                                    <div id="customer-chart1"></div>
-                                    <div class="row mt-3">
-                                        <div class="col">
-                                            <h3 class="m-0 text-white"><i class="fas fa-circle f-10 m-r-5 text-success"></i>674</h3>
-                                            <span class="ms-3">New</span>
-                                        </div>
-                                        <div class="col">
-                                            <h3 class="m-0 text-white"><i class="fas fa-circle f-10 m-r-5 text-white"></i>182</h3>
-                                            <span class="ms-3">Return</span>
-                                        </div>
-                                    </div>
+                                    <div id="file-size-chart"></div>
+                                    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+                                    <script>
+                                        window.onload = function() {
+                                            // Flask에서 전달한 데이터
+                                            var folderLabels = {{ folder_labels | tojson }};
+                                            var folderPercentages = {{ folder_percentages | tojson }};
+                                            
+                                            // 랜덤 색상 생성 함수
+                                            function getRandomColor() {
+                                                var letters = '0123456789ABCDEF';
+                                                var color = '#';
+                                                for (var i = 0; i < 6; i++) {
+                                                    color += letters[Math.floor(Math.random() * 16)];
+                                                }
+                                                return color;
+                                            }
+                                    
+                                            // 데이터의 개수에 맞게 랜덤 색상 배열 생성
+                                            var colors = [];
+                                            for (var i = 0; i < folderLabels.length; i++) {
+                                                colors.push(getRandomColor());
+                                            }
+                                    
+                                            // ApexCharts 차트 생성
+                                            var options = {
+                                                chart: {
+                                                    height: 350,
+                                                    type: 'donut',
+                                                },
+                                                dataLabels: {
+                                                    enabled: false
+                                                },
+                                                plotOptions: {
+                                                    pie: {
+                                                        donut: {
+                                                            size: '75%'
+                                                        }
+                                                    }
+                                                },
+                                                labels: folderLabels,  // Flask에서 전달한 폴더 이름
+                                                series: folderPercentages,  // Flask에서 전달한 백분율 데이터
+                                                legend: {
+                                                    show: true
+                                                },
+                                                tooltip: {
+                                                    theme: 'dark'
+                                                },
+                                                grid: {
+                                                    padding: {
+                                                        top: 20,
+                                                        right: 0,
+                                                        bottom: 0,
+                                                        left: 0
+                                                    },
+                                                },
+                                                colors: colors,  // 동적으로 생성된 랜덤 색상 배열
+                                                fill: {
+                                                    opacity: [1, 1, 1]
+                                                },
+                                                stroke: {
+                                                    width: 0,
+                                                }
+                                            };
+                                    
+                                            var chart = new ApexCharts(document.querySelector("#file-size-chart"), options);
+                                            chart.render();
+                                        };
+                                    </script>
                                 </div>
                             </div>
                         </div>
