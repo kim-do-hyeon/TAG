@@ -146,7 +146,7 @@ def case_normalization(case_id, progress):
         normalization_definition=case_id,
         file=new_db_path,
         result="Success",
-        artifacts_names = str(artifact_names)
+        artifacts_names = str([name.replace(' ', '_').replace('-', '_').replace('$', '').replace('(', '').replace(')', '') for name in artifact_names])
     )
     
     # Use the correct session object to add and commit the new data
