@@ -50,7 +50,7 @@
                 </div>
                 <!-- order-card end -->
                 <!-- users visite start -->
-                <div class="col-md-12 col-xl-6">
+                <!-- <div class="col-md-12 col-xl-6">
                     <div class="card">
                         <div class="card-header">
                             <h5>Unique Visitor</h5>
@@ -59,91 +59,36 @@
                             <div id="unique-visitor-chart"></div>
                         </div>
                     </div>
-                </div>
-                <div class="col-md-12 col-xl-6">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="card bg-primary text-white">
-                                <div class="card-body bg-patern-white">
-                                    <div class="row">
-                                        <div class="col-auto">
-                                            <span>Case Disk Space</span>
-                                        </div>
-                                        <div class="col text-end">
-                                            <h2 class="mb-0 text-white">{{total_size_gb}} GB</h2>
-                                            <span class="text-white">8.2%<i class="feather icon-trending-up ms-1"></i></span>
-                                        </div>
+                </div> -->
+                <div class="row">
+                    <!-- 첫 번째 차트 (왼쪽) -->
+                    <div class="col-md-12 col-xl-6">
+                        <div class="card bg-primary text-white">
+                            <div class="card-body bg-patern-white">
+                                <div class="row">
+                                    <div class="col-auto">
+                                        <span>Case Disk Space</span>
                                     </div>
-                                    <div id="file-size-chart"></div>
-                                    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-                                    <script>
-                                        window.onload = function() {
-                                            // Flask에서 전달한 데이터
-                                            var folderLabels = {{ folder_labels | tojson }};
-                                            var folderPercentages = {{ folder_percentages | tojson }};
-                                            
-                                            // 랜덤 색상 생성 함수
-                                            function getRandomColor() {
-                                                var letters = '0123456789ABCDEF';
-                                                var color = '#';
-                                                for (var i = 0; i < 6; i++) {
-                                                    color += letters[Math.floor(Math.random() * 16)];
-                                                }
-                                                return color;
-                                            }
-                                    
-                                            // 데이터의 개수에 맞게 랜덤 색상 배열 생성
-                                            var colors = [];
-                                            for (var i = 0; i < folderLabels.length; i++) {
-                                                colors.push(getRandomColor());
-                                            }
-                                    
-                                            // ApexCharts 차트 생성
-                                            var options = {
-                                                chart: {
-                                                    height: 350,
-                                                    type: 'donut',
-                                                },
-                                                dataLabels: {
-                                                    enabled: false
-                                                },
-                                                plotOptions: {
-                                                    pie: {
-                                                        donut: {
-                                                            size: '75%'
-                                                        }
-                                                    }
-                                                },
-                                                labels: folderLabels,  // Flask에서 전달한 폴더 이름
-                                                series: folderPercentages,  // Flask에서 전달한 백분율 데이터
-                                                legend: {
-                                                    show: true
-                                                },
-                                                tooltip: {
-                                                    theme: 'dark'
-                                                },
-                                                grid: {
-                                                    padding: {
-                                                        top: 20,
-                                                        right: 0,
-                                                        bottom: 0,
-                                                        left: 0
-                                                    },
-                                                },
-                                                colors: colors,  // 동적으로 생성된 랜덤 색상 배열
-                                                fill: {
-                                                    opacity: [1, 1, 1]
-                                                },
-                                                stroke: {
-                                                    width: 0,
-                                                }
-                                            };
-                                    
-                                            var chart = new ApexCharts(document.querySelector("#file-size-chart"), options);
-                                            chart.render();
-                                        };
-                                    </script>
+                                    <div class="col text-end">
+                                        <h2 class="mb-0 text-white">{{total_size_gb}} GB</h2>
+                                        <span class="text-white">8.2%<i class="feather icon-trending-up ms-1"></i></span>
+                                    </div>
                                 </div>
+                                <div id="file-size-chart"></div>
+                            </div>
+                        </div>
+                    </div>
+                
+                    <!-- 두 번째 차트 (오른쪽) -->
+                    <div class="col-md-12 col-xl-6">
+                        <div class="card bg-primary text-white">
+                            <div class="card-body bg-patern-white">
+                                <div class="row">
+                                    <div class="col-auto">
+                                        <span>Case Type OverView</span>
+                                    </div>
+                                </div>
+                                <div id="case-type-chart"></div>
                             </div>
                         </div>
                     </div>
@@ -164,5 +109,145 @@
 
     <!-- custom-chart js -->
     <script src="/static/assets/js/pages/dashboard-main.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+    <script>
+        window.onload = function() {
+            
+            // -- [Start] Case Disk Space Chart
+            // Flask에서 전달한 데이터
+            var folderLabels = {{ folder_labels | tojson }};
+            var folderPercentages = {{ folder_percentages | tojson }};
+            
+            // 랜덤 색상 생성 함수
+            function getRandomColor() {
+                var letters = '0123456789ABCDEF';
+                var color = '#';
+                for (var i = 0; i < 6; i++) {
+                    color += letters[Math.floor(Math.random() * 16)];
+                }
+                return color;
+            }
+    
+            // 데이터의 개수에 맞게 랜덤 색상 배열 생성
+            var colors = [];
+            for (var i = 0; i < folderLabels.length; i++) {
+                colors.push(getRandomColor());
+            }
+    
+            // ApexCharts 차트 생성
+            var options = {
+                chart: {
+                    height: 350,
+                    type: 'donut',
+                },
+                dataLabels: {
+                    enabled: false
+                },
+                plotOptions: {
+                    pie: {
+                        donut: {
+                            size: '75%'
+                        }
+                    }
+                },
+                labels: folderLabels,  // Flask에서 전달한 폴더 이름
+                series: folderPercentages,  // Flask에서 전달한 백분율 데이터
+                legend: {
+                    show: true
+                },
+                tooltip: {
+                    theme: 'dark'
+                },
+                grid: {
+                    padding: {
+                        top: 20,
+                        right: 0,
+                        bottom: 0,
+                        left: 0
+                    },
+                },
+                colors: colors,  // 동적으로 생성된 랜덤 색상 배열
+                fill: {
+                    opacity: [1, 1, 1]
+                },
+                stroke: {
+                    width: 0,
+                }
+            };
+    
+            var chart = new ApexCharts(document.querySelector("#file-size-chart"), options);
+            chart.render();
+
+            // -- [End] Case Disk Space Chart
+            // -- [Start] Case Tool Type Chart
+
+            var analyze_tools_labels = {{ analyze_tools_labels | tojson }};
+            var analyze_tools_values = {{ analyze_tools_values | tojson }};
+            
+            // 랜덤 색상 생성 함수
+            function getRandomColor() {
+                var letters = '0123456789ABCDEF';
+                var color = '#';
+                for (var i = 0; i < 6; i++) {
+                    color += letters[Math.floor(Math.random() * 16)];
+                }
+                return color;
+            }
+    
+            // 데이터의 개수에 맞게 랜덤 색상 배열 생성
+            var colors = [];
+            for (var i = 0; i < analyze_tools_labels.length; i++) {
+                colors.push(getRandomColor());
+            }
+    
+            // ApexCharts 차트 생성
+            var options = {
+                chart: {
+                    height: 350,
+                    type: 'donut',
+                },
+                dataLabels: {
+                    enabled: false
+                },
+                plotOptions: {
+                    pie: {
+                        donut: {
+                            size: '75%'
+                        }
+                    }
+                },
+                labels: analyze_tools_labels,  // Flask에서 전달한 폴더 이름
+                series: analyze_tools_values,  // Flask에서 전달한 백분율 데이터
+                legend: {
+                    show: true
+                },
+                tooltip: {
+                    theme: 'dark'
+                },
+                grid: {
+                    padding: {
+                        top: 20,
+                        right: 0,
+                        bottom: 0,
+                        left: 0
+                    },
+                },
+                colors: colors,  // 동적으로 생성된 랜덤 색상 배열
+                fill: {
+                    opacity: [1, 1, 1]
+                },
+                stroke: {
+                    width: 0,
+                }
+            };
+    
+            var chart1 = new ApexCharts(document.querySelector("#case-type-chart"), options);
+            chart1.render();
+
+            // -- [End] Case Tool Type Chart
+        };
+    </script>
 
 {% endblock javascripts %}

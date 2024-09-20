@@ -24,3 +24,16 @@ def get_folder_percentages(folders, total_size) :
     folder_labels = [os.path.basename(folder) for folder in folders.keys()]
     folder_percentages = [(size / total_size) * 100 if total_size > 0 else 0 for size in folders.values()]
     return folder_labels, folder_percentages
+
+def get_analyze_tool(user_upload_cases) :
+    analyze_tool = {"axiom" : 0, "autopsy" : 0, "encase" : 0}
+    for i in user_upload_cases :
+        extensions = str(os.path.splitext(i.file)[1]).lower()
+        print(extensions)
+        if extensions == ".mfdb" :
+            analyze_tool['axiom'] += 1
+        elif extensions == ".db" :
+            analyze_tool['autopsy'] += 1
+        elif extensions == ".case" :
+            analyze_tool["encase"] += 1
+    return list(analyze_tool.keys()), list(analyze_tool.values())

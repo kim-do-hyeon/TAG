@@ -15,6 +15,8 @@ def redirect_dashboard() :
     
     folder_labels, folder_percentages = get_folder_percentages(folders, total_size)
 
+    analyze_tools_labels, analyze_tools_values = get_analyze_tool(user_upload_cases)
+
     return render_template("dashboard/dashboard.html",
                            user_upload_cases = user_upload_cases,
                            user_normalization_cases = user_normalization_cases,
@@ -22,4 +24,6 @@ def redirect_dashboard() :
                            user_prompt_queries = user_prompt_queries,
                            folder_labels = folder_labels,
                            folder_percentages = folder_percentages,
-                           total_size_gb = total_size_gb) 
+                           total_size_gb = total_size_gb,
+                           analyze_tools_labels = analyze_tools_labels,
+                           analyze_tools_values = analyze_tools_values) 
