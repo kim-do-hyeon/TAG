@@ -46,7 +46,7 @@ def search_query(scenario, db_path, case_id, username, progress):
     openai.api_key = os.getenv('API_KEY')
 
     prompt = str(scenario) + "에서 포렌식 관점에서 필요한 아티팩트를 너가 선정해서 아래에서 골라줘," + str(tables) + " // 단 아티팩트 이름만 나열해. 그리고 각 아티팩트와 시나리오를 합쳐서 한문장으로 쿼리를 만들어줘(아티팩트당 하나의 쿼리)" + """
-    형식은 아래와 같이 1개만 나오게 해줘. 순서를 정하지마, 단순히 아래와 같은 형식으로.
+    형식은 아래와 같이 3개 나오게 해줘. 순서를 정하지마, 단순히 아래와 같은 형식으로.
     - Internet:인터넷에서 어떤걸 검색했나요?
     """
     prompt_response = generate_response(prompt)
