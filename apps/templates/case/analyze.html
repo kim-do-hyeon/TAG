@@ -45,6 +45,7 @@
                                                 <th>Action</th>
                                                 <th>직접 분석</th>
                                                 <th>질의 히스토리</th>
+                                                <th>USB</th>
                                             {% else %}
                                                 <th>케이스 정규화</th>
                                             {% endif %}
@@ -68,6 +69,9 @@
                                             </td>
                                             <td>
                                                 <button class="btn btn-primary" onclick="window.location.href='/case/analyze/view/{{case.id}}/history'">히스토리</button>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-primary submit-usb" data-case-id="{{ case.id }}">Submit</button>
                                             </td>
                                             {% else %}
                                             <td colspan="2">
@@ -128,6 +132,35 @@
                         showProgress(caseId, function(){
                             alert('정상적으로 처리되었습니다.');
                             window.location.href = "/case_graph/" + {{case.id}};
+                        });
+                    } else {
+                        alert('Failed to submit the prompt.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while submitting the prompt.');
+                });
+            });
+        });
+        document.querySelectorAll('.submit-usb').forEach(function(button) {
+            button.addEventListener('click', function() {
+                var caseId = this.getAttribute('data-case-id');
+                fetch('/case/analyze/usb', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ case_id: caseId}),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Redirect based on the URL provided by the server
+                        console.log(data)
+                        showProgress(caseId, function(){
+                            alert('정상적으로 처리되었습니다.');
+                            window.location.href = "/case/analyze/usb/" + {{case.id}};
                         });
                     } else {
                         alert('Failed to submit the prompt.');

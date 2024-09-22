@@ -1,9 +1,10 @@
-import sqlite3
+import sqlite3, os
 from flask import request, render_template, session, redirect, url_for, flash, Request, jsonify
 from apps.authentication.models import Upload_Case, Normalization, GraphData, PromptQuries
 from apps import db
 from apps.case.case_analyze import case_analyze_view
 from apps.case.case_analyze_RAG import search_query
+from apps.analyze.analyze_usb import usb_connection
 import threading
 from flask import current_app
 
@@ -141,3 +142,29 @@ def redirect_analyze_prompt(data, progress):
         thread.start()
 
     return jsonify({'success': True})
+
+def redirect_analyze_usb(data, progress):
+    case_id = data.get('case_id')
+    db_path = Normalization.query.filter_by(normalization_definition=case_id).first().file
+    user = session.get('username')  # Assuming 'username' is stored in session
+    if not user:
+        flash('사용자 정보를 찾을 수 없습니다. 다시 로그인 해주세요.', 'danger')
+        return redirect('/case/list')
+
+    # Get the current Flask app
+    app = current_app._get_current_object()
+
+    # Create and start a new thread for the search query
+    thread = threading.Thread(target=handle_usb_data, args=(app, db_path, case_id, user, progress))
+    thread.start()
+    return jsonify({'success': True})
+
+def handle_usb_data(app, db_path, case_id, user, progress):
+    global usb_path
+    with app.app_context():
+        progress[case_id] = 0
+        result = usb_connection(db_path, case_id, user, progress)
+        if result :
+            progress[case_id] = 100
+        else :
+            progress[case_id] = 0

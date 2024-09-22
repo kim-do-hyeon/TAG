@@ -6,17 +6,13 @@ from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 from pyvis.network import Network
 
-def search_query(scenario, db_path, case_id, username, progress):
+def usb_connection(db_path, case_id, username, progress):
     model = SentenceTransformer('all-MiniLM-L6-v2')
     case_number = Upload_Case.query.filter_by(id = case_id).first().case_number
     case_folder = os.path.join(os.getcwd(), "uploads", username, case_number)
     data_dict = {'USB_Devices': 'USB 연결 흔적에서 연결된 USB 장치 정보를 분석하여 시스템에 연결된 외부 장치의 이력을 파악할 수 있습니다.'}
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
-    response = ''
-    graph_datas = []
-    query_datas = []
-    
     progress_unit = 100 / len(data_dict)
     
     for idx, (key, value) in enumerate(data_dict.items()):
@@ -132,34 +128,13 @@ def search_query(scenario, db_path, case_id, username, progress):
                     net.add_edge(column_node, child_node)  # 컬럼 노드와 값 노드를 연결
 
         # 네트워크 그래프를 HTML 파일로 저장
-        output_file = "table_network.html"
+        output_file = os.path.join(case_folder, "usb_network.html")
         net.show(output_file)
         print(f"Saved graph to {output_file}")
         # 데이터베이스 연결 종료
-        conn.close()
-
-
-                
-                
+        conn.close()       
         # progress
         progress[case_id] = min(99, int((idx_/len(top_results))*progress_unit + progress_unit * idx))
-
-    
-    
     cursor.close()
     conn.close()
-    
-    # graph_record = GraphData(case_id=case_id, graph_data=graph_datas, query_data=query_datas)
-    # db.session.add(graph_record)
-    # db.session.commit()
-    
-    # prompt_data = PromptQuries(username = username,
-    #                     case_id = case_id,
-    #                     query = str(scenario),
-    #                     tables = str(tables),
-    #                     response = str(prompt_response),
-    #                     graph_index = graph_record.id)
-    # db.session.add(prompt_data)
-
-    # db.session.commit()
-    return True
+    return output_file

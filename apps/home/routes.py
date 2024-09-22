@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 from apps.home import blueprint
-from flask import request, render_template, session, redirect, url_for, flash, Request, jsonify
+from flask import request, render_template, session, redirect, url_for, flash, Request, jsonify, render_template_string
 import os
 from flask_login import login_required
 from jinja2 import TemplateNotFound
@@ -68,6 +68,20 @@ def get_selected_columns_data(id, table_name):
 def analyze_prompt():
     data = request.get_json()
     return redirect_analyze_prompt(data, progress)
+
+@blueprint.route('/case/analyze/usb', methods=['POST'])
+def analyze_usb():
+    data = request.get_json()
+    return redirect_analyze_usb(data, progress)
+
+@blueprint.route('/case/analyze/usb/<int:id>')
+def case_analyze_usb_graph(id) :
+    user = session.get('username')
+    case_number = Upload_Case.query.filter_by(id = id).first().case_number
+    html_result = os.path.join(os.getcwd(), "uploads", user, case_number, "usb_network.html")
+    with open(html_result, 'r') as file:
+        html_content = file.read()  # HTML 파일 내용을 읽어옴
+    return render_template_string(html_content)  # HTML 내용을 렌더링
 
 @blueprint.route('/case/analyze/normalization', methods=['POST'])
 def analyze_normalization():
