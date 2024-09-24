@@ -56,22 +56,23 @@ for table in db_table_list:
         removes.append(row[0])
     removes = list(set(removes)) # 중복 제거
 
-    # Scheduled_Tasks 테이블의 경우 예외 처리
-    if table == "Scheduled_Tasks":
+    # # Scheduled_Tasks 테이블의 경우 예외 처리
+    # -> 굳이 해싱 안해도 돼서 주석 처리
+    # if table == "Scheduled_Tasks":
 
-        # 원본 removes들을 해싱
-        removes = [sha1(item.encode()).hexdigest() for item in removes]
+    #     # 원본 removes들을 해싱
+    #     removes = [sha1(item.encode()).hexdigest() for item in removes]
 
-        # 현재 케이스 해싱하기 위해 데이터 로드
-        db_cursor.execute(f'SELECT "{target_column}" FROM "{table}" WHERE "{target_column}" IS NOT NULL')
-        rows = db_cursor.fetchall()
+    #     # 현재 케이스 해싱하기 위해 데이터 로드
+    #     db_cursor.execute(f'SELECT "{target_column}" FROM "{table}" WHERE "{target_column}" IS NOT NULL')
+    #     rows = db_cursor.fetchall()
 
-        # 현재 케이스 해싱: 현재 케이스 원본 데이터
-        # 형태로 딕셔너리 선언
-        original_hash_dict = {sha1(row[0].encode()).hexdigest() : row[0] for row in rows}
+    #     # 현재 케이스 해싱: 현재 케이스 원본 데이터
+    #     # 형태로 딕셔너리 선언
+    #     original_hash_dict = {sha1(row[0].encode()).hexdigest() : row[0] for row in rows}
 
-        # removes 에 있는 해시값과 일치할 경우, original_value만 removes에 저장
-        removes = [original_hash_dict[hash_value] for hash_value in removes if hash_value in original_hash_dict]
+    #     # removes 에 있는 해시값과 일치할 경우, original_value만 removes에 저장
+    #     removes = [original_hash_dict[hash_value] for hash_value in removes if hash_value in original_hash_dict]
 
     # 삭제 전후 비교 위해 삭제 전 row 수 저장
     db_cursor.execute(f'SELECT "{target_column}" FROM "{table}"')

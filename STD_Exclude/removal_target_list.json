@@ -193,8 +193,8 @@
             "SHA1_Hash"
         ],
         "Pictures": [
-            "File_Name",
-            "SHA1_Hash"
+            "SHA1_Hash",
+            "File_Name"
         ],
         "Potential_Browser_Activity": [
             "URL"
