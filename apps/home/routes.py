@@ -9,6 +9,7 @@ from apps.case.case_routes import *
 from apps.case.case_analyze_routes import *
 from apps.case.case_normalization_routes import *
 from apps.case.case_graph import *
+from apps.analyze.analyze_routes import *
 from py2neo import Graph
 
 
@@ -75,13 +76,15 @@ def analyze_usb():
     return redirect_analyze_usb(data, progress)
 
 @blueprint.route('/case/analyze/usb/<int:id>')
-def case_analyze_usb_graph(id) :
+def case_analyze_usb_result(id) :
     user = session.get('username')
-    case_number = Upload_Case.query.filter_by(id = id).first().case_number
-    html_result = os.path.join(os.getcwd(), "uploads", user, case_number, "usb_network.html")
-    with open(html_result, 'r') as file:
-        html_content = file.read()  # HTML 파일 내용을 읽어옴
-    return render_template_string(html_content)  # HTML 내용을 렌더링
+    return redirect_analyze_usb_result(id, user)
+
+@blueprint.route('/case/analyze/usb/<string:case_number>/<string:usb_data>')
+def case_analyze_usb_graph(case_number, usb_data) :
+    user = session.get('username')
+    return redirect_analze_usb_graph(user, case_number, usb_data)
+    
 
 @blueprint.route('/case/analyze/normalization', methods=['POST'])
 def analyze_normalization():
