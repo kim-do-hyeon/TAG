@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 from apps.home import blueprint
-from flask import request, render_template, session, redirect, url_for, flash, Request, jsonify
+from flask import request, render_template, session, redirect, url_for, flash, Request, jsonify, render_template_string
 import os
 from flask_login import login_required
 from jinja2 import TemplateNotFound
@@ -9,6 +9,7 @@ from apps.case.case_routes import *
 from apps.case.case_analyze_routes import *
 from apps.case.case_normalization_routes import *
 from apps.case.case_graph import *
+from apps.analyze.analyze_routes import *
 from apps.dashboard.dashboard_routes import *
 from py2neo import Graph
 
@@ -69,6 +70,22 @@ def get_selected_columns_data(id, table_name):
 def analyze_prompt():
     data = request.get_json()
     return redirect_analyze_prompt(data, progress)
+
+@blueprint.route('/case/analyze/usb', methods=['POST'])
+def analyze_usb():
+    data = request.get_json()
+    return redirect_analyze_usb(data, progress)
+
+@blueprint.route('/case/analyze/usb/<int:id>')
+def case_analyze_usb_result(id) :
+    user = session.get('username')
+    return redirect_analyze_usb_result(id, user)
+
+@blueprint.route('/case/analyze/usb/<string:case_number>/<string:usb_data>')
+def case_analyze_usb_graph(case_number, usb_data) :
+    user = session.get('username')
+    return redirect_analze_usb_graph(user, case_number, usb_data)
+    
 
 @blueprint.route('/case/analyze/normalization', methods=['POST'])
 def analyze_normalization():
