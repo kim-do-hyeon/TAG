@@ -5,6 +5,8 @@ from apps.authentication.models import Upload_Case
 from pyvis.network import Network
 
 def shorten_string(s) :
+    if s == None :
+        return "0"
     if len(s) > 40 :
         return s[0:35] + '...'
     else :
@@ -109,7 +111,11 @@ def usb_connection(db_path, case_id, username, progress):
                 "LNK_Files" : "Linked_Path",
                 "PDF_Documents" : "Filename",
                 "Recycle_Bin" : "File_Name",
-                "MRU_Recent_Files_&_Folders" : "File/Folder_Link"
+                "MRU_Recent_Files_&_Folders" : "File/Folder_Link",
+                "AmCache_Pnp_Devices" : "Inf",
+                "Shellbags" : "Path",
+                "System_Services" : "Service_Location",
+                "USB_Devices" : "Friendly_Name"
             }
 
             hit_artfacts = '\n'.join([shorten_string(str(data[artifacts_dict[table]][index])) for index in data[artifacts_dict[table]].keys()])
@@ -122,7 +128,7 @@ def usb_connection(db_path, case_id, username, progress):
             # Data의 각 인덱스(예: 322)를 중간 부모 노드로 설정
             for index in data[artifacts_dict[table]].keys():
                 index_node = f"{table}_index_{index}"
-                index_node_title = (insert_char_enter(data[artifacts_dict[table]][index]+'\n\n') +
+                index_node_title = (insert_char_enter(str(data[artifacts_dict[table]][index])+'\n\n') +
                                     insert_char_enter(f"table : {table}\n") +
                                     "columns : \n" + '\n'.join([col for col in data.keys()]))
                 net.add_node(index_node, label=f"Index: {shorten_string(data[artifacts_dict[table]][index])}", title=index_node_title, color="orange", shape="ellipse", size=40)  # 중간 부모 노드 (각 인덱스)
