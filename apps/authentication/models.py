@@ -56,6 +56,12 @@ class GraphData(db.Model, UserMixin):
         self.graph_data = graph_data
         self.query_data = query_data
 
+class UsbData(db.Model, UserMixin) :
+    __tablename__ = "UsbData"
+    id = db.Column(db.Integer, primary_key = True)
+    case_id = db.Column(db.Text)
+    usb_data = db.Column(db.JSON)
+
 class PromptQuries(db.Model, UserMixin) :
     __tablename__ = "PromptQuries"
     id = db.Column(db.Integer, primary_key = True)

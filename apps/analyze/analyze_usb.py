@@ -1,7 +1,8 @@
 import os, sqlite3, re
 import numpy as np
 import pandas as pd
-from apps.authentication.models import Upload_Case
+from apps import db
+from apps.authentication.models import Upload_Case, UsbData
 from pyvis.network import Network
 
 def shorten_string(s) :
@@ -156,7 +157,9 @@ def usb_connection(db_path, case_id, username, progress):
         print(f"Saved graph to {output_file}")
         output_files.append(output_file)
     
-
-    # 데이터베이스 연결 종료
+    data = UsbData(case_id = case_id, usb_data = output_files)
+    db.session.add(data)
+    db.session.commit()
+    
     conn.close()
     return output_files

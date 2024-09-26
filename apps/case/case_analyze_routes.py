@@ -1,6 +1,6 @@
 import sqlite3, os
 from flask import request, render_template, session, redirect, url_for, flash, Request, jsonify
-from apps.authentication.models import Upload_Case, Normalization, GraphData, PromptQuries
+from apps.authentication.models import Upload_Case, Normalization, GraphData, PromptQuries, UsbData
 from apps import db
 from apps.case.case_analyze import case_analyze_view
 from apps.case.case_analyze_RAG import search_query
@@ -145,6 +145,9 @@ def redirect_analyze_prompt(data, progress):
 
 def redirect_analyze_usb(data, progress):
     case_id = data.get('case_id')
+    if UsbData.query.filter_by(case_id = case_id).first() :
+        progress[case_id] = 100
+        return jsonify({'success': True})
     db_path = Normalization.query.filter_by(normalization_definition=case_id).first().file
     user = session.get('username')  # Assuming 'username' is stored in session
     if not user:

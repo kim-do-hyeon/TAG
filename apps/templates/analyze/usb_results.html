@@ -40,13 +40,15 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for usb_data in usb_lists %}
+                                    {% for item in usb_lists %}
+                                        {% for key, value in item.items() %}
                                         <tr>
-                                            <td>{{usb_data}}</td>
+                                            <td>{{key}}</td>
                                             <td>
-                                                <a href="/case/analyze/usb/{{case_number}}/{{usb_data}}" target="_blank">View File</a>
+                                                <a href="/case/analyze/usb/{{case_number}}/{{key}}" target="_blank">View File</a>
                                             </td>
                                         </tr>
+                                        {% endfor %}
                                     {% endfor %}
                                 </tbody>
                             </table>
