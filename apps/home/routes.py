@@ -120,8 +120,7 @@ def case_analyze_filtering() :
     return redirect_analyze_case_filtering(data)
 
 @blueprint.route('/case/analyze/filtering/<int:id>')
-def case_analyze_filtering_result() :
-    print(id)
+def case_analyze_filtering_result(id) :
     return redirect_case_analyze_filtering_result(id)
 
 ''' End Case analyze '''

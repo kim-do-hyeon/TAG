@@ -3,13 +3,15 @@ import pandas as pd
 import sqlite3
 from datetime import datetime, timedelta
 from flask import session
-from apps.authentication.models import Upload_Case
+from apps import db
+from apps.authentication.models import Upload_Case, FilteringData
 from pyvis.network import Network
 from apps.analyze.analyze_util import shorten_string, insert_char_enter
 
 def analyze_case_filtering(data) :
     user = session.get('username')
-    case_number = data['case_id']
+    case_id = data['case_id']
+    case_number = data['case_number']
     start_date_str = data['startDate']
     end_date_str = data['endDate']
     start_date = datetime.strptime(start_date_str, '%Y-%m-%dT%H:%M')
@@ -118,13 +120,20 @@ def analyze_case_filtering(data) :
                 # net.add_node(child_node, label=f"{shorten_string(str(value))}", color="pink", shape="box", size=50)  # 자식 노드
                 # net.add_edge(column_node, child_node)  # 컬럼 노드와 값 노드를 연결
     # 네트워크 그래프를 HTML 파일로 저장
-    output_file = os.path.join(case_folder, "filter.html")
+    output_file = os.path.join(case_folder, "Filter_" + str(start).replace(" ", "_").replace(":", "_") + "_to_" + str(end).replace(" ", "_").replace(":", "_") + ".html")
 
     # Write the HTML file with utf-8 encoding to avoid Unicode issues
     with open(output_file, "w", encoding="utf-8") as f:
         f.write(net.generate_html())  # Generates the HTML and writes it with utf-8 encoding
 
     print(f"Saved graph to {output_file}")
+
+    data = FilteringData(case_id = case_id,
+                         start_time = str(start),
+                         end_time = str(end),
+                         filtering_data = output_file)
+    db.session.add(data)
+    db.session.commit()
 
     return output_file
 

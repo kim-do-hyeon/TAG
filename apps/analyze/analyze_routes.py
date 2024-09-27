@@ -1,6 +1,6 @@
 import sqlite3, os
 from flask import request, render_template, session, redirect, url_for, flash, Request, jsonify, render_template_string
-from apps.authentication.models import Upload_Case, Normalization, GraphData, PromptQuries, UsbData
+from apps.authentication.models import Upload_Case, Normalization, GraphData, PromptQuries, UsbData, FilteringData
 from apps import db
 from apps.case.case_analyze import case_analyze_view
 from apps.case.case_analyze_RAG import search_query
@@ -65,8 +65,11 @@ def redirect_analze_usb_graph(user,case_number, usb_data) :
 
 def redirect_analyze_case_filtering(data) :
     result = analyze_case_filtering(data)
-    print(result)
     return jsonify({'success': True})
 
 def redirect_case_analyze_filtering_result(id) :
-    print("AA")
+    filtering_data = FilteringData.query.filter_by(case_id = id).all()[-1]
+    result = filtering_data.filtering_data
+    with open(result, 'r') as file:
+        html_content = file.read()
+    return render_template_string(html_content)
