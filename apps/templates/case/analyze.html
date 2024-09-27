@@ -79,6 +79,26 @@
                                             </td>
                                             {% endif %}
                                         </tr>
+                                        {% if case.normalization != None %}
+                                        <tr>
+                                            <th colspan="2">Start Date</th>
+                                            <th colspan="2">End Data</th>
+                                            <th colspan="2">Filtering</th>
+                                            <th colspan="2">Filtering History</th>
+                                        </tr>
+                                        <td colspan="2">
+                                            <input type="datetime-local" id="start_date">
+                                        </td>
+                                        <td colspan="2">
+                                            <input type="datetime-local" id="end_date">
+                                        </td>
+                                        <td colspan="2">
+                                            <button class="btn btn-primary submit-filtering" data-case-id="{{ case.id }}">Submit</button>
+                                        </td>
+                                        <td colspan="2">
+                                            <button class="btn btn-primary submit-filtering-history" data-case-id="{{ case.id }}">Submit</button>
+                                        </td>
+                                        {% endif %}
                                     </tbody>
                                 </table>
                             {% else %}
@@ -196,6 +216,49 @@
                 .catch(error => {
                     console.error('Error:', error);
                     alert('An error occurred while starting the normalization process.');
+                });
+            });
+        });
+
+        document.querySelectorAll('.submit-filtering').forEach(function(button) {
+            button.addEventListener('click', function() {
+                var caseId = this.getAttribute('data-case-id');
+                var startDate = document.getElementById('start_date').value;
+                var endDate = document.getElementById('end_date').value;
+                var promptInput = document.querySelector('.prompt-input[data-case-id="' + caseId + '"]');
+                var promptValue = promptInput.value;
+                if (startDate == '') {
+                    alert('Please enter a StartDate.');
+                    return;
+                }
+                if (endDate == ''){
+                    alert("Please enter a EndDate.");
+                    return;
+                }
+
+                fetch('/case/analyze/filtering', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ case_id: caseId, startDate: startDate, endDate : endDate }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Redirect based on the URL provided by the server
+                        // showProgress(caseId, function(){
+                        //     alert('정상적으로 처리되었습니다.');
+                        //     window.location.href = "/case_graph/" + {{case.id}};
+                        // });
+                        console.log(data);
+                    } else {
+                        alert('Failed to submit the filtering.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while submitting the filtering.');
                 });
             });
         });
