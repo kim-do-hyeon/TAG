@@ -11,6 +11,7 @@ from apps.case.case_normalization_routes import *
 from apps.case.case_graph import *
 from apps.analyze.analyze_routes import *
 from apps.dashboard.dashboard_routes import *
+from apps.analyze.analyze_filtering import *
 from py2neo import Graph
 
 
@@ -112,6 +113,16 @@ def get_graph_data(id):
 @blueprint.route('/case_get_graph_data_history/<int:id>')
 def get_graph_data_history(id):
     return redirect_get_graph_data_history(id)
+
+@blueprint.route('/case/analyze/filtering', methods = ['POST'])
+def case_analyze_filtering() :
+    data = request.get_json()
+    return redirect_analyze_case_filtering(data)
+
+@blueprint.route('/case/analyze/filtering/<int:id>')
+def case_analyze_filtering_result() :
+    print(id)
+    return redirect_case_analyze_filtering_result(id)
 
 ''' End Case analyze '''
 

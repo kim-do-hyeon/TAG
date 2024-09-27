@@ -61,3 +61,12 @@ def redirect_analze_usb_graph(user,case_number, usb_data) :
     with open(html_result, 'r') as file:
         html_content = file.read()  # HTML 파일 내용을 읽어옴
     return render_template_string(html_content)  # HTML 내용을 렌더링
+
+
+def redirect_analyze_case_filtering(data) :
+    result = analyze_case_filtering(data)
+    print(result)
+    return jsonify({'success': True})
+
+def redirect_case_analyze_filtering_result(id) :
+    print("AA")

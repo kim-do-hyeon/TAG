@@ -226,7 +226,6 @@
                 var startDate = document.getElementById('start_date').value;
                 var endDate = document.getElementById('end_date').value;
                 var promptInput = document.querySelector('.prompt-input[data-case-id="' + caseId + '"]');
-                var promptValue = promptInput.value;
                 if (startDate == '') {
                     alert('Please enter a StartDate.');
                     return;
@@ -246,11 +245,8 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Redirect based on the URL provided by the server
-                        // showProgress(caseId, function(){
-                        //     alert('정상적으로 처리되었습니다.');
-                        //     window.location.href = "/case_graph/" + {{case.id}};
-                        // });
+                        alert('정상적으로 처리되었습니다.');
+                        window.location.href = "/case/analyze/filtering/" + {{case.id}};
                         console.log(data);
                     } else {
                         alert('Failed to submit the filtering.');
