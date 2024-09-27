@@ -4,17 +4,7 @@ import pandas as pd
 from apps import db
 from apps.authentication.models import Upload_Case, UsbData
 from pyvis.network import Network
-
-def shorten_string(s) :
-    if s == None :
-        return "0"
-    if len(s) > 40 :
-        return s[0:35] + '...'
-    else :
-        return s
-
-def insert_char_enter(string):
-    return '\n'.join([string[i:i+60] for i in range(0, len(string), 60)])
+from apps.analyze.analyze_util import shorten_string, insert_char_enter
 
 
 def usb_connection(db_path, case_id, username, progress):
@@ -116,7 +106,8 @@ def usb_connection(db_path, case_id, username, progress):
                 "AmCache_Pnp_Devices" : "Inf",
                 "Shellbags" : "Path",
                 "System_Services" : "Service_Location",
-                "USB_Devices" : "Friendly_Name"
+                "USB_Devices" : "Friendly_Name",
+                "Text_Documents" : "Filename"
             }
 
             hit_artfacts = '\n'.join([shorten_string(str(data[artifacts_dict[table]][index])) for index in data[artifacts_dict[table]].keys()])

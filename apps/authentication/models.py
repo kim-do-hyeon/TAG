@@ -62,6 +62,14 @@ class UsbData(db.Model, UserMixin) :
     case_id = db.Column(db.Text)
     usb_data = db.Column(db.JSON)
 
+class FilteringData(db.Model, UserMixin) :
+    __tablename__ = "FilteringData"
+    id = db.Column(db.Integer, primary_key = True)
+    case_id = db.Column(db.Text)
+    start_time = db.Column(db.Text)
+    end_time = db.Column(db.Text)
+    filtering_data = db.Column(db.JSON)
+
 class PromptQuries(db.Model, UserMixin) :
     __tablename__ = "PromptQuries"
     id = db.Column(db.Integer, primary_key = True)
