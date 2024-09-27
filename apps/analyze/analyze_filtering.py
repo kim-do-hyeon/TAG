@@ -88,7 +88,8 @@ def analyze_case_filtering(data) :
             "AmCache_Pnp_Devices" : "Inf",
             "Shellbags" : "Path",
             "System_Services" : "Service_Location",
-            "USB_Devices" : "Friendly_Name"
+            "USB_Devices" : "Friendly_Name",
+            "Text_Documents" : "Filename"
         }
 
         hit_artfacts = '\n'.join([shorten_string(str(data[artifacts_dict[table]][index])) for index in data[artifacts_dict[table]].keys()])
