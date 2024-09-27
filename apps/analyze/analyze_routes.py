@@ -6,6 +6,7 @@ from apps.case.case_analyze import case_analyze_view
 from apps.case.case_analyze_RAG import search_query
 from apps.analyze.analyze_usb import usb_connection
 from apps.analyze.analyze_filtering import analyze_case_filtering
+from apps.analyze.analyze_util import *
 import threading
 from flask import current_app
 
@@ -76,6 +77,9 @@ def redirect_case_analyze_filtering_result(id) :
 
 def redirect_case_analyze_filtering_history(id) :
     filtering_data = FilteringData.query.filter_by(case_id = id).all()
+    for index, item in enumerate(filtering_data) :
+        filtering_data[index].start_time = change_local_time(filtering_data[index].start_time)
+        filtering_data[index].end_time = change_local_time(filtering_data[index].end_time)
     return render_template('analyze/filtering_results.html',
                            filtering_data = filtering_data)
 
