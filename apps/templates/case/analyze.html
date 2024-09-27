@@ -96,7 +96,7 @@
                                             <button class="btn btn-primary submit-filtering" data-case-id="{{ case.id }}">Submit</button>
                                         </td>
                                         <td colspan="2">
-                                            <button class="btn btn-primary submit-filtering-history" data-case-id="{{ case.id }}">Submit</button>
+                                            <button class="btn btn-primary" onclick="window.location.href='/case/analyze/filtering/history/{{case.id}}'">히스토리</button>
                                         </td>
                                         {% endif %}
                                     </tbody>

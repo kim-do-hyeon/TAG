@@ -123,6 +123,14 @@ def case_analyze_filtering() :
 def case_analyze_filtering_result(id) :
     return redirect_case_analyze_filtering_result(id)
 
+@blueprint.route('/case/analyze/filtering/history/<int:id>', methods = ['GET', 'POST'])
+def case_analyze_filtering_history(id) :
+    return redirect_case_analyze_filtering_history(id)
+
+@blueprint.route('/case/analyze/filtering/history/view/<int:id>', methods = ['GET', 'POST'])
+def case_analyze_filtering_history_view(id) :
+    return redirect_case_analyze_filtering_history_view(id)
+
 ''' End Case analyze '''
 
 @blueprint.route('/<template>')

@@ -73,3 +73,15 @@ def redirect_case_analyze_filtering_result(id) :
     with open(result, 'r') as file:
         html_content = file.read()
     return render_template_string(html_content)
+
+def redirect_case_analyze_filtering_history(id) :
+    filtering_data = FilteringData.query.filter_by(case_id = id).all()
+    return render_template('analyze/filtering_results.html',
+                           filtering_data = filtering_data)
+
+def redirect_case_analyze_filtering_history_view(id) :
+    filtering_data = FilteringData.query.filter_by(id = id).first()
+    result = filtering_data.filtering_data
+    with open(result, 'r') as file:
+        html_content = file.read()
+    return render_template_string(html_content)
