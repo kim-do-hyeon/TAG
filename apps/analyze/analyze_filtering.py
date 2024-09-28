@@ -18,7 +18,6 @@ def analyze_case_filtering(data) :
     end_date = datetime.strptime(end_date_str, '%Y-%m-%dT%H:%M')
     start = pd.to_datetime(start_date) - timedelta(hours=9)
     end = pd.to_datetime(end_date) - timedelta(hours=9)
-    print(start, end)
     case_number = Upload_Case.query.filter_by(id = case_number).first().case_number
     case_folder = os.path.join(os.getcwd(), "uploads", user, case_number)
     db_path = os.path.join(case_folder, "normalization.db")
@@ -47,7 +46,6 @@ def analyze_case_filtering(data) :
                                 result_df[date_col] = pd.to_datetime(result_df[date_col], errors='coerce')
                                 filtered_df = result_df[(result_df[date_col] >= pd.to_datetime(start)) & 
                                                         (result_df[date_col] <= pd.to_datetime(end))]
-                                print(filtered_df)
                                 # 'artifact_id' 열을 제외한 데이터로 작업
                                 if 'artifact_id' in filtered_df.columns:
                                     filtered_df = filtered_df.drop(columns=['artifact_id', 'artifact_version_id', 'artifact_name'])
@@ -97,7 +95,6 @@ def analyze_case_filtering(data) :
         root_title = (f"Root Node : {table}\nnumber of Hit artifact : {str(len(data[artifacts_dict[table]]))}\n"+
                     f"\nhit artifact :\n{hit_artfacts}")
         net.add_node(table, label=f"Table: {shorten_string(table)}", title=root_title, color="red", shape="ellipse", size=50)  # 테이블 이름을 최상위 부모로 설정
-        print(table)
         
         # Data의 각 인덱스(예: 322)를 중간 부모 노드로 설정
         for index in data[artifacts_dict[table]].keys():
@@ -127,8 +124,6 @@ def analyze_case_filtering(data) :
     with open(output_file, "w", encoding="utf-8") as f:
         f.write(net.generate_html())  # Generates the HTML and writes it with utf-8 encoding
 
-    print(f"Saved graph to {output_file}")
-
     data = FilteringData(case_id = case_id,
                          start_time = str(start),
                          end_time = str(end),
@@ -149,7 +144,6 @@ def analyze_case_filtering_to_minutes(data):
     end_date = datetime.strptime(end_date_str, '%Y-%m-%dT%H:%M')
     start = pd.to_datetime(start_date) - timedelta(hours=9)
     end = pd.to_datetime(end_date) - timedelta(hours=9)
-    print(start, end)
     case_number = Upload_Case.query.filter_by(id=case_number).first().case_number
     case_folder = os.path.join(os.getcwd(), "uploads", user, case_number)
     db_path = os.path.join(case_folder, "normalization.db")
@@ -203,8 +197,6 @@ def analyze_case_filtering_to_minutes(data):
                             for slot_start, slot_end in time_slots:
                                 filtered_df = result_df[(result_df[date_col] >= pd.to_datetime(slot_start)) &
                                                         (result_df[date_col] <= pd.to_datetime(slot_end))]
-                                print(filtered_df)
-
                                 if 'artifact_id' in filtered_df.columns:
                                     filtered_df = filtered_df.drop(columns=['artifact_id', 'artifact_version_id', 'artifact_name'])
 
@@ -262,7 +254,6 @@ def analyze_case_filtering_to_minutes(data):
         hit_artifacts = '\n'.join([shorten_string(str(data[artifacts_dict[table]][index])) for index in data[artifacts_dict[table]].keys()])
         table_title = (f"Table: {table}\nTime Slot: {slot_label}\nNumber of Hit Artifacts: {len(data[artifacts_dict[table]])}\n" +
                        f"Hit Artifacts:\n{hit_artifacts}")
-        print(table_title)
         net.add_node(f"{table}_{slot_label}", label=f"Table: {shorten_string(table)}", title=table_title, color="orange", shape="ellipse", size=40)
         net.add_edge(slot_label, f"{table}_{slot_label}")  # Connect the time slot node to the table node
 
@@ -283,8 +274,6 @@ def analyze_case_filtering_to_minutes(data):
 
     with open(output_file, "w", encoding="utf-8") as f:
         f.write(net.generate_html())
-
-    print(f"Saved graph to {output_file}")
 
     data = FilteringData(case_id=case_id,
                          start_time=str(start),
