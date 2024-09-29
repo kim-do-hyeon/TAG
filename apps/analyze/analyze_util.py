@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from bs4 import BeautifulSoup
 
 def shorten_string(s) :
     if s == None :
@@ -17,3 +18,12 @@ def change_local_time(date_str) :
     new_date_obj = date_obj + timedelta(hours=9)
     new_date_str = new_date_obj.strftime(date_format)
     return new_date_str
+
+def extract_body_and_scripts(html_content):
+    soup = BeautifulSoup(html_content, 'html.parser')
+    body_content = soup.body
+    scripts = soup.find_all('script')
+    body_html = str(body_content)
+    scripts_html = ''.join([str(script) for script in scripts])
+    
+    return body_html, scripts_html
