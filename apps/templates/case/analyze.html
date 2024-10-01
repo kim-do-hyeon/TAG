@@ -92,7 +92,13 @@
                                         <td colspan="2">
                                             <input type="datetime-local" id="end_date">
                                         </td>
-                                        <td colspan="2">
+                                        <td>
+                                            <select id="filtering_type">
+                                                <option value="time">Time</option>
+                                                <option value="table">Table</option>
+                                            </select>
+                                        </td>
+                                        <td colspan="1">
                                             <button class="btn btn-primary submit-filtering" data-case-id="{{ case.id }}">Submit</button>
                                         </td>
                                         <td colspan="2">
@@ -225,6 +231,7 @@
                 var caseNumber = this.getAttribute('data-case-id');
                 var startDate = document.getElementById('start_date').value;
                 var endDate = document.getElementById('end_date').value;
+                var filtering_type = document.getElementById('filtering_type').value;
                 var promptInput = document.querySelector('.prompt-input[data-case-id="' + caseNumber + '"]');
                 if (startDate == '') {
                     alert('Please enter a StartDate.');
@@ -240,7 +247,7 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ case_id: {{case.id}}, case_number : caseNumber, startDate: startDate, endDate : endDate }),
+                    body: JSON.stringify({ case_id: {{case.id}}, case_number : caseNumber, startDate: startDate, endDate : endDate, filtering_type : filtering_type }),
                 })
                 .then(response => response.json())
                 .then(data => {

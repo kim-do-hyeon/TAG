@@ -5,7 +5,7 @@ from apps import db
 from apps.case.case_analyze import case_analyze_view
 from apps.case.case_analyze_RAG import search_query
 from apps.analyze.analyze_usb import usb_connection
-from apps.analyze.analyze_filtering import analyze_case_filtering
+from apps.analyze.analyze_filtering import analyze_case_filtering, analyze_case_filtering_to_minutes
 from apps.analyze.analyze_util import *
 import threading
 from flask import current_app
@@ -65,7 +65,10 @@ def redirect_analze_usb_graph(user,case_number, usb_data) :
 
 
 def redirect_analyze_case_filtering(data) :
-    result = analyze_case_filtering(data)
+    if data['filtering_type'] == "time" :
+        result = analyze_case_filtering_to_minutes(data)
+    elif data['filtering_type'] == "table" :
+        result = analyze_case_filtering(data)
     return jsonify({'success': True})
 
 def redirect_case_analyze_filtering_result(id) :
