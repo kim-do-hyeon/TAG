@@ -4,6 +4,8 @@ from flask_login import UserMixin
 from apps import db, login_manager
 from apps.authentication.util import hash_pass
 from datetime import datetime
+import pickle
+from sqlalchemy.types import PickleType
 
 class Users(db.Model, UserMixin):
     __tablename__ = 'Users'
@@ -69,6 +71,7 @@ class FilteringData(db.Model, UserMixin) :
     start_time = db.Column(db.Text)
     end_time = db.Column(db.Text)
     filtering_data = db.Column(db.JSON)
+    datas = db.Column(PickleType)
 
 class PromptQuries(db.Model, UserMixin) :
     __tablename__ = "PromptQuries"
