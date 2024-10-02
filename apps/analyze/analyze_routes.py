@@ -8,6 +8,7 @@ from apps.analyze.analyze_usb import usb_connection
 from apps.analyze.analyze_filtering import analyze_case_filtering, analyze_case_filtering_to_minutes
 from apps.analyze.analyze_util import *
 import threading
+
 from flask import current_app
 
 def create_dict_from_file_paths(file_path):
@@ -88,7 +89,9 @@ def redirect_case_analyze_filtering_history(id) :
 
 def redirect_case_analyze_filtering_history_view(id) :
     filtering_data = FilteringData.query.filter_by(id = id).first()
+    print(filtering_data.datas)
     result = filtering_data.filtering_data
     with open(result, 'r') as file:
         html_content = file.read()
-    return render_template_string(html_content)
+    body_html, scripts_html = extract_body_and_scripts(html_content)
+    return render_template('analyze/filtering.html', body_html=body_html, scripts_html=scripts_html)
