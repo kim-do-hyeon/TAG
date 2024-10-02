@@ -1,10 +1,12 @@
 import sqlite3
 import json
 from hashlib import sha1
+import os
 
-# removal_target_list.json 로드
+# remove_win10_11.json 로드
 # 각 아티팩트 테이블 별 참고할 컬럼 리스트가 저장되어 있음
-removes_json_path = './removal_target_list.json'
+removes_json_path = os.path.join(os.path.dirname(__file__), "win10_11.json")
+
 
 with open(removes_json_path, "r", encoding='utf8') as f:
     f = f.read()
@@ -14,8 +16,13 @@ with open(removes_json_path, "r", encoding='utf8') as f:
 removal_target = json_data['removal_target']
 
 # .db 파일 경로
-db_path = '' # 현재 사건 케이스 파일 normalization 경로
-removal_db_dpath = '' # 윈도우 초기 케이스 파일 normalization 경로
+# .db 파일 경로
+db_path = input(f"제거를 진행할 정규화 파일 경로를 입력하세요:\n")  # 현재 사건 케이스 파일 normalization 경로
+removal_db_dpath = input(f"제거에 참고할 윈도우 초기 정규화 파일 경로를 입력하세요:\n") # 윈도우 초기 케이스 파일 normalization 경로
+
+# 만약 이스케이프 문자가 있는 경우 처리 (백슬래시를 두 번으로 변경)
+db_path = db_path.replace('\\', '\\\\')
+removal_db_dpath = removal_db_dpath.replace('\\', '\\\\')
 
 # 데이터베이스 연결
 conn = sqlite3.connect(db_path)
