@@ -24,6 +24,7 @@ def analyze_case_filtering(data) :
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     related_data = []
+    pandas_datas = []
 
     tables_query = "SELECT name FROM sqlite_master WHERE type='table';"
     tables = pd.read_sql_query(tables_query, conn)['name'].tolist()
@@ -49,7 +50,7 @@ def analyze_case_filtering(data) :
                                 # 'artifact_id' 열을 제외한 데이터로 작업
                                 if 'artifact_id' in filtered_df.columns:
                                     filtered_df = filtered_df.drop(columns=['artifact_id', 'artifact_version_id', 'artifact_name'])
-                                
+                                pandas_datas.append({'Table' : table, 'Data' : filtered_df})
                                 if not filtered_df.empty:
                                     for col in filtered_df.columns:
                                         values = filtered_df[col].dropna().unique()
@@ -127,7 +128,8 @@ def analyze_case_filtering(data) :
     data = FilteringData(case_id = case_id,
                          start_time = str(start),
                          end_time = str(end),
-                         filtering_data = output_file)
+                         filtering_data = output_file,
+                         datas = pandas_datas)
     db.session.add(data)
     db.session.commit()
 
@@ -150,6 +152,7 @@ def analyze_case_filtering_to_minutes(data):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     related_data = []
+    pandas_datas = []
 
     # Calculate time difference and set interval
     time_diff = end - start
@@ -199,7 +202,7 @@ def analyze_case_filtering_to_minutes(data):
                                                         (result_df[date_col] <= pd.to_datetime(slot_end))]
                                 if 'artifact_id' in filtered_df.columns:
                                     filtered_df = filtered_df.drop(columns=['artifact_id', 'artifact_version_id', 'artifact_name'])
-
+                                pandas_datas.append({'Table' : table, 'Data' : filtered_df})
                                 if not filtered_df.empty:
                                     for col in filtered_df.columns:
                                         values = filtered_df[col].dropna().unique()
@@ -278,7 +281,8 @@ def analyze_case_filtering_to_minutes(data):
     data = FilteringData(case_id=case_id,
                          start_time=str(start),
                          end_time=str(end),
-                         filtering_data=output_file)
+                         filtering_data=output_file,
+                         datas = pandas_datas)
     db.session.add(data)
     db.session.commit()
 

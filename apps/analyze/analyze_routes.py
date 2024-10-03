@@ -1,4 +1,5 @@
 import sqlite3, os
+import pandas as pd
 from flask import request, render_template, session, redirect, url_for, flash, Request, jsonify, render_template_string
 from apps.authentication.models import Upload_Case, Normalization, GraphData, PromptQuries, UsbData, FilteringData
 from apps import db
@@ -89,9 +90,16 @@ def redirect_case_analyze_filtering_history(id) :
 
 def redirect_case_analyze_filtering_history_view(id) :
     filtering_data = FilteringData.query.filter_by(id = id).first()
-    print(filtering_data.datas)
+    tables = []
+    for i in filtering_data.datas:
+        data_frame = pd.DataFrame(i['Data'])  # 'Data'는 판다스 DataFrame
+        table_html = data_frame.to_html(classes='table table-striped', index=False)  # HTML 변환
+        tables.append({
+            'title': i['Table'],  # 테이블 제목
+            'content': table_html  # 테이블 HTML
+        })
     result = filtering_data.filtering_data
     with open(result, 'r') as file:
         html_content = file.read()
     body_html, scripts_html = extract_body_and_scripts(html_content)
-    return render_template('analyze/filtering.html', body_html=body_html, scripts_html=scripts_html)
+    return render_template('analyze/filtering.html', body_html=body_html, scripts_html=scripts_html,  tables=tables)
