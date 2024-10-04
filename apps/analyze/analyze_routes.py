@@ -89,15 +89,27 @@ def redirect_case_analyze_filtering_history(id) :
                            filtering_data = filtering_data)
 
 def redirect_case_analyze_filtering_history_view(id) :
-    filtering_data = FilteringData.query.filter_by(id = id).first()
+    filtering_data = FilteringData.query.filter_by(id=id).first()
+    
+    # 판다스 데이터(DataFrame)를 HTML 테이블로 변환
     tables = []
     for i in filtering_data.datas:
         data_frame = pd.DataFrame(i['Data'])  # 'Data'는 판다스 DataFrame
-        table_html = data_frame.to_html(classes='table table-striped', index=False)  # HTML 변환
-        tables.append({
-            'title': i['Table'],  # 테이블 제목
-            'content': table_html  # 테이블 HTML
-        })
+        if not data_frame.empty :
+            # 각 셀에 툴팁을 적용할 수 있도록 HTML을 생성
+            table_html = data_frame.to_html(classes='table table-striped', index=False, escape=False)
+            
+            # BeautifulSoup으로 HTML 테이블 파싱하여 각 셀에 툴팁 추가
+            soup = BeautifulSoup(table_html, 'html.parser')
+            for td in soup.find_all('td'):
+                full_text = td.get_text()
+                td['title'] = full_text  # 툴팁에 전체 텍스트 추가
+                td.string = (full_text[:50] + '...') if len(full_text) > 50 else full_text  # 셀에 50자까지만 표시
+
+            tables.append({
+                'title': i['Table'],  # 테이블 제목
+                'content': str(soup)  # 툴팁이 적용된 테이블 HTML
+            })
     result = filtering_data.filtering_data
     with open(result, 'r') as file:
         html_content = file.read()
