@@ -5,7 +5,6 @@
 {% block content %}
 <div class="pcoded-main-container">
     <div class="pcoded-content">
-        <!-- [ breadcrumb ] start -->
         <div class="page-header">
             <div class="page-block">
                 <div class="row align-items-center">
@@ -23,7 +22,7 @@
                 </div>
             </div>
         </div>
-        <!-- [ breadcrumb ] end -->
+
         <!-- [ Main Content ] start -->
         <div class="row">
             <div class="col">
@@ -52,10 +51,30 @@
                             </div>
 
                             <!-- Right column for the table (50%) -->
-                            <div class="col">
+                            <div class="col-md-6">
                                 <div id="table-container">
-                                    <!-- 테이블이 삽입될 공간 -->
-                                    
+                                    <style>
+                                        table {
+                                            width: 100%; /* 테이블 전체 너비 */
+                                            table-layout: auto; /* 테이블 셀 너비 자동 조정 */
+                                            border-collapse: collapse; /* 테이블 경계선 중첩 */
+                                        }
+                                        td, th {
+                                            word-wrap: break-word; /* 긴 단어 줄바꿈 */
+                                            word-break: break-all; /* 긴 단어 강제 줄바꿈 */
+                                            white-space: normal; /* 줄바꿈 허용 */
+                                            overflow: hidden; /* 넘치는 텍스트 숨김 */
+                                            text-overflow: ellipsis; /* 말줄임표로 넘침 표시 */
+                                            max-width: 200px; /* 최대 너비 설정 */
+                                            padding: 10px; /* 셀 내 여백 */
+                                            border: 1px solid #ddd; /* 테이블 셀 경계선 */
+                                            position: relative; /* 툴팁을 위해 위치 설정 */
+                                        }
+                                    </style>
+                                    {% for table in tables %}
+                                        <h5>{{ table.title }}</h5>
+                                        {{ table.content | safe }}
+                                    {% endfor %}
                                 </div>
                             </div>
                         </div>
