@@ -1,13 +1,15 @@
 import sqlite3, os
+import pandas as pd
 from flask import request, render_template, session, redirect, url_for, flash, Request, jsonify, render_template_string
 from apps.authentication.models import Upload_Case, Normalization, GraphData, PromptQuries, UsbData, FilteringData
 from apps import db
 from apps.case.case_analyze import case_analyze_view
 from apps.case.case_analyze_RAG import search_query
 from apps.analyze.analyze_usb import usb_connection
-from apps.analyze.analyze_filtering import analyze_case_filtering
+from apps.analyze.analyze_filtering import analyze_case_filtering, analyze_case_filtering_to_minutes
 from apps.analyze.analyze_util import *
 import threading
+
 from flask import current_app
 
 def create_dict_from_file_paths(file_path):
@@ -65,15 +67,18 @@ def redirect_analze_usb_graph(user,case_number, usb_data) :
 
 
 def redirect_analyze_case_filtering(data) :
-    result = analyze_case_filtering(data)
+    if data['filtering_type'] == "time" :
+        result = analyze_case_filtering_to_minutes(data)
+    elif data['filtering_type'] == "table" :
+        result = analyze_case_filtering(data)
     return jsonify({'success': True})
 
 def redirect_case_analyze_filtering_result(id) :
     filtering_data = FilteringData.query.filter_by(case_id = id).all()[-1]
-    result = filtering_data.filtering_data
-    with open(result, 'r') as file:
-        html_content = file.read()
-    return render_template_string(html_content)
+    filtering_data = FilteringData.query.filter_by(id=id).first()
+    body_html, scripts_html, tables = extract_body_and_scripts(filtering_data)
+    return render_template('analyze/filtering.html', body_html=body_html, scripts_html=scripts_html,  tables=tables)
+
 
 def redirect_case_analyze_filtering_history(id) :
     filtering_data = FilteringData.query.filter_by(case_id = id).all()
@@ -84,8 +89,6 @@ def redirect_case_analyze_filtering_history(id) :
                            filtering_data = filtering_data)
 
 def redirect_case_analyze_filtering_history_view(id) :
-    filtering_data = FilteringData.query.filter_by(id = id).first()
-    result = filtering_data.filtering_data
-    with open(result, 'r') as file:
-        html_content = file.read()
-    return render_template_string(html_content)
+    filtering_data = FilteringData.query.filter_by(id=id).first()
+    body_html, scripts_html, tables = extract_body_and_scripts(filtering_data)
+    return render_template('analyze/filtering.html', body_html=body_html, scripts_html=scripts_html,  tables=tables)
