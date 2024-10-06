@@ -1,0 +1,524 @@
+{
+    "removal_target" :[
+        {
+            "table": "AMR_Files",
+            "column": "File_Name",
+            "values": []
+        },
+        {
+            "table": "AmCache_Device_Containers",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "AmCache_File_Entries",
+            "column": "Name",
+            "values": []
+        },
+        {
+            "table": "AmCache_Pnp_Devices",
+            "column": "Description",
+            "values": []
+        },
+        {
+            "table": "AmCache_Program_Entries",
+            "column": "Package_Full_Name",
+            "values": []
+        },
+        {
+            "table": "Apple_Disk_Images",
+            "column": "File_Name",
+            "values": []
+        },
+        {
+            "table": "Audio",
+            "column": "File_Name",
+            "values": []
+        },
+        {
+            "table": "AutoRun_Items",
+            "column": "File_Name",
+            "values": []
+        },
+        {
+            "table": "CSV_Documents",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Carved_Archives_content_not_searched",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Chrome_Autofill",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Chrome_Cache_Records",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Chrome_Cookies",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Chrome_Current_Tabs",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Chrome_Downloads",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Chrome_Extensions",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Chrome_FavIcons",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Chrome_Keyword_Search_Terms",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Chrome_Last_Tabs",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Chrome_Logins",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Chrome_Shortcuts",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Chrome_Top_Sites",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Chrome_Web_History",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Chrome_Web_Visits",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Default_Browser",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "EMLX_Files",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Edge_Chromium_Cache_Records",
+            "column": "URL",
+            "values": []
+        },
+        {
+            "table": "Edge_Chromium_Cookies",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Edge_Chromium_Current_Session",
+            "column": "Redirect_URL",
+            "values": []
+        },
+        {
+            "table": "Edge_Chromium_Current_Tabs",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Edge_Chromium_Downloads",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Edge_Chromium_FavIcons",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Edge_Chromium_Keyword_Search_Terms",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Edge_Chromium_Shortcuts",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Edge_Chromium_Web_History",
+            "column": "URL",
+            "values": []
+        },
+        {
+            "table": "Edge_Chromium_Web_Visits",
+            "column": "URL",
+            "values": []
+        },
+        {
+            "table": "Edge/Internet_Explorer_10_11_Content",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Edge/Internet_Explorer_10_11_Cookies",
+            "column": "URL",
+            "values": []
+        },
+        {
+            "table": "Edge/Internet_Explorer_10_11_Daily/Weekly_History",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Edge/Internet_Explorer_10_11_Dependency_Entries",
+            "column": "URL",
+            "values": []
+        },
+        {
+            "table": "Edge/Internet_Explorer_10_11_Main_History",
+            "column": "URL",
+            "values": []
+        },
+        {
+            "table": "Encrypted_Files",
+            "column": "File_Name",
+            "values": []
+        },
+        {
+            "table": "Feature_Usage",
+            "column": "Application",
+            "values": []
+        },
+        {
+            "table": "File_Associations",
+            "column": "File_Name",
+            "values": []
+        },
+        {
+            "table": "File_System_Information",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "File_snippets",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Google_Maps",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Hangul_Word_Processor",
+            "column": "File_Name",
+            "values": []
+        },
+        {
+            "table": "Installed_Microsoft_Programs",
+            "column": "Application_Name",
+            "values": []
+        },
+        {
+            "table": "Installed_Programs",
+            "column": "Application_Name",
+            "values": []
+        },
+        {
+            "table": "Internet_Explorer_Favorites",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Internet_Explorer_Typed_URLs",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Jump_Lists",
+            "column": "Data",
+            "values": []
+        },
+        {
+            "table": "Known_DLLs",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "LNK_Files",
+            "column": "Linked_Path",
+            "values": [
+                "msedge.exe"            
+            ]
+        },
+        {
+            "table": "MRU_Recent_Files_&_Folders",
+            "column": "File/Folder_Link",
+            "values": []
+        },
+        {
+            "table": "MUICache",
+            "column": "File_Path",
+            "values": []
+        },
+        {
+            "table": "Microsoft_Excel_Documents",
+            "column": "Filename",
+            "values": []
+        },
+        {
+            "table": "Microsoft_PowerPoint_Documents",
+            "column": "Filename",
+            "values": []
+        },
+        {
+            "table": "Microsoft_Word_Documents",
+            "column": "Filename",
+            "values": []
+        },
+        {
+            "table": "Network_Interfaces_Registry",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Network_Profiles",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Operating_SySstem_Information",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "PDF_Documents",
+            "column": "MD5_Hash",
+            "values": []
+        },
+        {
+            "table": "Pictures",
+            "column": [
+                "File_Name",
+                "MD5_Hash"
+            ],
+            "values": []
+        },
+        {
+            "table": "Potential_Browser_Activity",
+            "column": "URL",
+            "values": []
+        },
+        {
+            "table": "Prefetch_Files___Windows_8/10",
+            "column": "Application_Name",
+            "values": []
+        },
+        {
+            "table": "QQ",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "RTF_Documents",
+            "column": "Filename",
+            "values": []
+        },
+        {
+            "table": "Rebuilt_Desktops___Windows",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Rebuilt_Webpages",
+            "column": "URL",
+            "values": []
+        },
+        {
+            "table": "Registry_snippets",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "SRUM_Application_Resource_Usage",
+            "column": "Application_Name",
+            "values": []
+        },
+        {
+            "table": "SRUM_Network_Connections",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "SRUM_Network_Usage",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "SRUM_Push_Notification_Data",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Safari_History",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Scheduled_Tasks",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Shellbags",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Shim_Cache",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Startup_Items",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "System_Services",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Text_Documents",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Thumbcache_Pictures",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Timezone_Information",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "USB_Devices",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "User_Accounts___Windows",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "UserAssist",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Videos",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Virtual_Machines",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "WebKit_Browser_Web_History_Carved",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Windows_Defender_Logs",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Windows_Event_Logs",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Windows_Event_Logs___Firewall_Events",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Windows_Event_Logs___Office_Alert_Events",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Windows_Event_Logs___Script_Events",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Windows_Event_Logs___Service_Events",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Windows_Event_Logs___Storage_Device_Events",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Windows_Event_Logs___System_Events",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Windows_Event_Logs___User_Events",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Windows_Event_Logs___User_PNP_Events",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Windows_Notification_Center",
+            "column": "",
+            "values": []
+        },
+        {
+            "table": "Windows_Timeline_Activity",
+            "column": "",
+            "values": []
+        }
+    ]
+}
