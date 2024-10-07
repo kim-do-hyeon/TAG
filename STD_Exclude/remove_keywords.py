@@ -2,6 +2,19 @@ import sqlite3
 import json
 import os
 
+# 청크로 나눠서 실행할 함수
+def delete_in_chunks(cursor, conn, removes, table, target_column, chunk_size=999):
+    # 리스트를 chunk_size로 나누기
+    for i in range(0, len(removes), chunk_size):
+        chunk = removes[i:i + chunk_size]
+        # 각 아이템에 대해 LIKE 조건을 만듦
+        like_conditions = ' OR '.join([f'"{target_column}" LIKE ?' for _ in chunk])
+        sql_query = f'DELETE FROM "{table}" WHERE {like_conditions}'
+        # %를 사용하여 부분 일치를 찾기 위해 각 항목에 %를 추가
+        like_values = [f'%{value}%' for value in chunk]
+        cursor.execute(sql_query, like_values)
+        conn.commit()  # 각 청크 처리 후 커밋
+
 # keywords.json 로드
 # 테이블명, 컬럼, 키워드 정보가 저장되어 있음
 removes_json_path = os.path.join(os.path.dirname(__file__), "keywords.json")
@@ -69,13 +82,8 @@ for table in db_table_list:
     res = db_cursor.fetchall()
     before_remove = len(res)
 
-    # 쿼리 작성
-    # '?' 플레이스 홀더를 사용하여 여러 값을 대입
-    placeholders = ', '.join(['?'] * len(removes))
-    sql_query = f'DELETE FROM "{table}" WHERE "{target_column}" IN ({placeholders})'
-
-    # 쿼리 실행
-    db_cursor.execute(sql_query, removes)
+    # 삭제 진행
+    delete_in_chunks(db_cursor, conn, removes, table, target_column)
 
     # 삭제 전후 비교 위해 삭제 전 row 수 저장
     db_cursor.execute(f'SELECT "{target_column}" FROM "{table}"')
