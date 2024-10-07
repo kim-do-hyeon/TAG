@@ -163,8 +163,7 @@ def exclude_column(df, table) :
     exclude_dict = {
         "common" : [
             '"artifact_version_id"',
-            '"artifact_id"',
-            '"artifact_name"'
+            '"artifact_id"'
             ],
         "LogFile_Analysis" : [
             '"Current_Short_File_Name"',
