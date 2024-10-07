@@ -140,7 +140,7 @@ def case_normalization(case_id, progress):
         else:
             print(f"No artifact_id containing '{artifact_name_normalization}' found in artifact table.")
         
-        progress[case_id] = min(90, progress[case_id] + increment)  
+        progress[case_id] = min(90, progress[case_id] + increment)
 
     progress[case_id] = 100
 
@@ -164,8 +164,7 @@ def exclude_column(df, table) :
         "common" : [
             '"artifact_version_id"',
             '"artifact_id"',
-            '"artifact_name"',
-            '"hit_id"'
+            '"artifact_name"'
             ],
         "LogFile_Analysis" : [
             '"Current_Short_File_Name"',

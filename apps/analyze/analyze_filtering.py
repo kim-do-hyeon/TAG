@@ -82,6 +82,7 @@ def analyze_case_filtering(data) :
             "Jump_Lists" : "Data",
             "LNK_Files" : "Linked_Path",
             "PDF_Documents" : "Filename",
+            "RTF_Documents" : "Filename",
             "Recycle_Bin" : "File_Name",
             "MRU_Recent_Files_&_Folders" : "File/Folder_Link",
             "AmCache_Pnp_Devices" : "Inf",
