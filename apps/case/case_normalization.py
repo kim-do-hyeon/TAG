@@ -102,6 +102,9 @@ def case_normalization(case_id, progress):
                     # Sanitize table name by replacing spaces and special characters
                     safe_table_name = artifact_name_normalization.replace(' ', '_').replace('-', '_').replace('$', '').replace('(', '').replace(')', '')
 
+                    pivot_df = exclude_column(pivot_df, safe_table_name)
+                    print(pivot_df.columns)
+
                     # Create table with sanitized table name
                     create_table_query = f"""
                     CREATE TABLE IF NOT EXISTS "{safe_table_name}" (
@@ -154,3 +157,29 @@ def case_normalization(case_id, progress):
     db.session.commit()
 
     return new_db_path
+
+
+def exclude_column(df, table) :
+    exclude_dict = {
+        "common" : [
+            '"artifact_version_id"',
+            '"artifact_id"',
+            '"artifact_name"',
+            '"hit_id"'
+            ],
+        "LogFile_Analysis" : [
+            '"Current_Short_File_Name"',
+            '"Original_Short_File_Name"'
+        ]
+    }
+    # 공통적으로 제외할 열
+    columns_to_exclude = exclude_dict.get("common", [])
+    
+    # 특정 테이블에 대해 추가적으로 제외할 열
+    if table in exclude_dict:
+        columns_to_exclude.extend(exclude_dict[table])
+    
+    # DataFrame에서 제외할 열 제거
+    df = df.drop(columns=[col for col in columns_to_exclude if col in df.columns], errors='ignore')
+    
+    return df
