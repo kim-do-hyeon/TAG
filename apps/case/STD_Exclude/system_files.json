@@ -1,0 +1,37 @@
+{
+    "removal_target": {
+        "AmCache_File_Entries": [
+            "Name"
+        ],
+        "AutoRun_Items": [
+            "File_Name"
+        ],
+        "LNK_Files": [
+            "Linked_Path"
+        ],
+        "MUICache" : [
+            "File_Name"
+        ],
+        "SRUM_Application_Resource_Usage" : [
+            "Application_Name"
+        ],
+        "SRUM_Network_Usage" : [
+            "Full_Path"
+        ],
+        "LogFile_Analysis" : [
+            "Current_File_Name"
+        ],
+        "File_Associations" : [
+            "File_Name"
+        ],
+        "Prefetch_Files___Windows_8/10" : [
+            "Application_Path"
+        ],
+        "Shim_Cache" : [
+            "File_Name"
+        ],
+        "System_Services" : [
+            "Service_Name"
+        ]
+    }
+}
