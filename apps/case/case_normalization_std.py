@@ -1,4 +1,7 @@
 import os, pandas, sqlite3
+from datetime import datetime
+import json
+
 from apps.case.case_normalization_std_util import *
 
 def remove_system_files(db_path) :
@@ -133,3 +136,51 @@ def remove_keywords(new_db_path) :
 
     print(f"전체 행 {total} 중에서 {before_total - after_taotal} 개의 행이 삭제되었습니다.\n현재 {total - before_total + after_taotal} 개의 행이 존재합니다.")
 
+def process_json_file(json_file_path, cursor, max_sql_variables=999):
+    with open(json_file_path, 'r', encoding='utf-8') as file:
+        data = json.load(file)
+    deleted_rows_total = 0
+    for entry in data:
+        table = entry['table']
+        column = entry['column']
+        values = entry['values']
+        filtered_values = [value for value in values if value is not None]
+        try:
+            cursor.execute(f'SELECT COUNT(*) FROM "{table}"')
+            initial_row_count = cursor.fetchone()[0]
+            if filtered_values:
+                for i in range(0, len(filtered_values), max_sql_variables):
+                    chunk = filtered_values[i:i + max_sql_variables]
+                    placeholders = ', '.join('?' for _ in chunk)
+                    query = f'DELETE FROM "{table}" WHERE "{column}" IN ({placeholders})'
+                    cursor.execute(query, chunk)
+            cursor.execute(f'SELECT COUNT(*) FROM "{table}"')
+            final_row_count = cursor.fetchone()[0]
+            deleted_rows = initial_row_count - final_row_count
+            deleted_rows_total += deleted_rows
+            print(f'Table "{table}": {deleted_rows} rows deleted, {final_row_count} rows remaining.')
+        except sqlite3.OperationalError as e:
+            print(f'Skipping table "{table}" due to error: {e}')
+        except sqlite3.DatabaseError as e:
+            print(f"Error with data in table '{table}': {e}")
+    return deleted_rows_total
+
+def remove_win10_11_basic_artifacts(db_path) :
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    try :
+        win11_json_file_path = os.path.join(os.getcwd(), "apps", "case", "STD_Exclude", "win11_output.json")
+        deleted_rows_win11 = process_json_file(win11_json_file_path, cursor)
+        print(f"Window11 기본 데이터가 {deleted_rows_win11}개 삭제되었습니다.")
+    except Exception as e :
+        print("Windows 11 Error / " + str(e))
+    
+    try :
+        win10_json_file_path = os.path.join(os.getcwd(), "apps", "case", "STD_Exclude", "win10_output.json")
+        deleted_rows_win10 = process_json_file(win10_json_file_path, cursor)
+        print(f"Window10 기본 데이터가 {deleted_rows_win10}개 삭제되었습니다.")
+    except Exception as e :
+        print("Windows 10 Error / " + str(e))
+    conn.commit()
+    conn.close()
+    

@@ -149,6 +149,10 @@ def case_normalization(case_id, progress):
     ''' Remove Keywords - Jihye Code '''
     remove_keywords(new_db_path)
 
+    ''' Remove Win 10, 11 Basic Artifacts - Addy Code '''
+    remove_win10_11_basic_artifacts(new_db_path)
+
+
     progress[case_id] = 100
 
     # Create a new Normalization entry
