@@ -47,16 +47,21 @@ def handle_usb_data(app, db_path, case_id, user, progress):
         if result :
             progress[case_id] = 100
         else :
-            progress[case_id] = 0
+            progress[case_id] = 100
+            progress['result'] = False
 
 
 def redirect_analyze_usb_result(id, user) :
     case_number = Upload_Case.query.filter_by(id = id).first().case_number
     files_lists = (os.listdir(os.path.join(os.getcwd(), "uploads", user, case_number)))
-    usb_list = UsbData.query.filter_by(case_id = id).first().usb_data
+    try :
+        usb_list = UsbData.query.filter_by(case_id = id).first().usb_data
+    except :
+        flash("USB 장치 삽입 / 해제 시간이 존재하지 않습니다.")
+        return redirect('/case/analyze/' + str(id))
     usb_dict_list = [create_dict_from_file_paths(path) for path in usb_list]
     return render_template("analyze/usb_results.html",
-                           case_number = case_number,
+                        case_number = case_number,
                             usb_lists = usb_dict_list)
 
 def redirect_analze_usb_graph(user,case_number, usb_data) :
