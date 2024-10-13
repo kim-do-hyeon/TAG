@@ -126,6 +126,7 @@
             </div>
             <p id="progress-text">0% Complete</p>
         </div>
+        <div id="message-Text"></div>
     </div>
 </div>
 
@@ -281,17 +282,20 @@
                 .then(response => response.json())
                 .then(data => {
                     const progressValue = data.progress;
+                    const message = data.message;
                     const progressBar = document.getElementById('progress-bar');
                     const progressText = document.getElementById('progress-text');
-
+                    const messageText = document.getElementById('message-Text')
                     // Update the progress bar and text
                     progressBar.style.width = `${progressValue}%`;
                     progressBar.setAttribute('aria-valuenow', progressValue);
                     progressText.textContent = `${progressValue}% Complete`;
+                    messageText.innerHTML = `${message.replace(/\n/g, '<br>')}` + messageText.innerHTML;
+
 
                     // Continue polling if not yet complete
                     if (progressValue < 100) {
-                        setTimeout(updateProgress, 1000);  // Poll every second
+                        setTimeout(updateProgress, 10);  // Poll every second
                     } else {
                         onComplete();  // Reload the page upon completion
                     }

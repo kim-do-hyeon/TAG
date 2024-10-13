@@ -10,6 +10,7 @@ def redirect_analyze_normalization(data, case_id, progress) :
     if not case_id:
         return jsonify({'success': False, 'message': 'Invalid input.'}), 400
     progress[case_id] = 0
+    progress['message'] = ""
     def run_normalization(app, case_id):
         
         with app.app_context():
@@ -26,4 +27,6 @@ def redirect_analyze_normalization(data, case_id, progress) :
 
 def redirect_get_normalization_progress(case_id, progress) :
     progress_value = progress.get(case_id, 0)
-    return jsonify({'progress': progress_value})
+    message_value = progress.get("message", "")
+    progress['message'] = ""
+    return jsonify({'progress': progress_value, 'message' : message_value})
