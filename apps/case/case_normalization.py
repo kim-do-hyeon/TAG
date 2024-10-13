@@ -26,7 +26,7 @@ def case_normalization(case_id, progress):
     cursor.execute(query_artifact_name)
     artifact_names = [row[0] for row in cursor.fetchall()]
 
-    increment = 80 / len(artifact_names)  # 90 - 10 = 80 for loop increments
+    increment = 60 / len(artifact_names)  # 90 - 10 = 80 for loop increments
 
     # Iterate over each artifact name to create individual tables
     for artifact_name_normalization in artifact_names:
@@ -127,7 +127,8 @@ def case_normalization(case_id, progress):
                     try:
                         new_cursor.executemany(insert_query, pivot_df.values.tolist())
                         new_conn.commit()
-                        print(f"Data successfully inserted into {safe_table_name} table.")
+                        # print(f"Data successfully inserted into {safe_table_name} table.")
+                        progress['message'] += f"Data successfully inserted into {safe_table_name} table.\n"
                     except sqlite3.OperationalError as e:
                         print(f"Error inserting data into {safe_table_name}: {e}")
 
@@ -141,17 +142,16 @@ def case_normalization(case_id, progress):
         else:
             print(f"No artifact_id containing '{artifact_name_normalization}' found in artifact table.")
         
-        progress[case_id] = min(90, progress[case_id] + increment)
+        progress[case_id] = min(70, progress[case_id] + increment)
 
     ''' Remove System Files - Jihye Code '''
-    remove_system_files(new_db_path)
-
+    remove_system_files(new_db_path, progress)
+    progress[case_id] = 80
     ''' Remove Keywords - Jihye Code '''
-    remove_keywords(new_db_path)
-
+    remove_keywords(new_db_path, progress)
+    progress[case_id] = 90
     ''' Remove Win 10, 11 Basic Artifacts - Addy Code '''
-    remove_win10_11_basic_artifacts(new_db_path)
-
+    remove_win10_11_basic_artifacts(new_db_path, progress) 
 
     progress[case_id] = 100
 

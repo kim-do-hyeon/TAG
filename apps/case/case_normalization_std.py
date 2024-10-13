@@ -4,7 +4,7 @@ import json
 
 from apps.case.case_normalization_std_util import *
 
-def remove_system_files(db_path) :
+def remove_system_files(db_path, progress) :
     removes_json_path = os.path.join(os.getcwd(), "apps", "case", "STD_Exclude", "system_files.json")
     with open(removes_json_path, "r", encoding='utf8') as f:
         f = f.read()
@@ -52,14 +52,15 @@ def remove_system_files(db_path) :
         after_remove = len(res)
         before_total += before_remove
         after_taotal += after_remove
+        progress['message'] += f"{table} 테이블 삭제 전: {before_remove} / 삭제 후: {after_remove} 개의 행으로 감소하였습니다.\n"
+        # print(f"{table} 테이블 삭제 전: {before_remove} / 삭제 후: {after_remove} 개의 행으로 감소하였습니다.")
 
-        print(f"{table} 테이블 삭제 전: {before_remove} / 삭제 후: {after_remove} 개의 행으로 감소하였습니다.")
-
-    print(f"전체 행 {before_total} 중에서 {before_total - after_taotal} 개의 행이 삭제되었습니다.\n현재 {after_taotal} 개의 행이 존재합니다.")
+    # print(f"전체 행 {before_total} 중에서 {before_total - after_taotal} 개의 행이 삭제되었습니다.\n현재 {after_taotal} 개의 행이 존재합니다.")
+    progress['message'] += f"전체 행 {before_total} 중에서 {before_total - after_taotal} 개의 행이 삭제되었습니다.\n현재 {after_taotal} 개의 행이 존재합니다.\n"
     conn.commit()
     conn.close()
 
-def remove_keywords(new_db_path) :
+def remove_keywords(new_db_path, progress) :
     # keywords.json 로드
     # 테이블명, 컬럼, 키워드 정보가 저장되어 있음
     removes_json_path = os.path.join(os.getcwd(), "apps", "case", "STD_Exclude", "keywords.json")
@@ -132,11 +133,14 @@ def remove_keywords(new_db_path) :
         after_taotal += after_remove
 
         # 변경 사항 출력
-        print(f"{table} 테이블 삭제 전: {before_remove} / 삭제 후: {after_remove} 개의 행으로 감소하였습니다.")
+        # print(f"{table} 테이블 삭제 전: {before_remove} / 삭제 후: {after_remove} 개의 행으로 감소하였습니다.")
+        progress['message'] += f"{table} 테이블 삭제 전: {before_remove} / 삭제 후: {after_remove} 개의 행으로 감소하였습니다.\n"
 
-    print(f"전체 행 {total} 중에서 {before_total - after_taotal} 개의 행이 삭제되었습니다.\n현재 {total - before_total + after_taotal} 개의 행이 존재합니다.")
+    # print(f"전체 행 {total} 중에서 {before_total - after_taotal} 개의 행이 삭제되었습니다.\n현재 {total - before_total + after_taotal} 개의 행이 존재합니다.")
+    progress['message'] += f"전체 행 {before_total} 중에서 {before_total - after_taotal} 개의 행이 삭제되었습니다.\n현재 {after_taotal} 개의 행이 존재합니다.\n"
 
-def process_json_file(json_file_path, cursor, max_sql_variables=999):
+def process_json_file(json_file_path, cursor, progress):
+    max_sql_variables=999
     with open(json_file_path, 'r', encoding='utf-8') as file:
         data = json.load(file)
     deleted_rows_total = 0
@@ -158,26 +162,27 @@ def process_json_file(json_file_path, cursor, max_sql_variables=999):
             final_row_count = cursor.fetchone()[0]
             deleted_rows = initial_row_count - final_row_count
             deleted_rows_total += deleted_rows
-            print(f'Table "{table}": {deleted_rows} rows deleted, {final_row_count} rows remaining.')
+            # print(f'Table "{table}": {deleted_rows} rows deleted, {final_row_count} rows remaining.')
+            progress['message'] += f'Table "{table}": {deleted_rows} rows deleted, {final_row_count} rows remaining.\n'
         except sqlite3.OperationalError as e:
             print(f'Skipping table "{table}" due to error: {e}')
         except sqlite3.DatabaseError as e:
             print(f"Error with data in table '{table}': {e}")
     return deleted_rows_total
 
-def remove_win10_11_basic_artifacts(db_path) :
+def remove_win10_11_basic_artifacts(db_path, progress) :
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     try :
         win11_json_file_path = os.path.join(os.getcwd(), "apps", "case", "STD_Exclude", "win11_output.json")
-        deleted_rows_win11 = process_json_file(win11_json_file_path, cursor)
+        deleted_rows_win11 = process_json_file(win11_json_file_path, cursor, progress)
         print(f"Window11 기본 데이터가 {deleted_rows_win11}개 삭제되었습니다.")
     except Exception as e :
         print("Windows 11 Error / " + str(e))
     
     try :
         win10_json_file_path = os.path.join(os.getcwd(), "apps", "case", "STD_Exclude", "win10_output.json")
-        deleted_rows_win10 = process_json_file(win10_json_file_path, cursor)
+        deleted_rows_win10 = process_json_file(win10_json_file_path, cursor, progress)
         print(f"Window10 기본 데이터가 {deleted_rows_win10}개 삭제되었습니다.")
     except Exception as e :
         print("Windows 10 Error / " + str(e))
