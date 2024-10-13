@@ -18,4 +18,3 @@ def delete_in_chunks(cursor, conn, removes, table, target_column, chunk_size=999
 def load_file(file_path):
     with open(file_path, "r") as file:
         return [line.strip() for line in file]
-    
