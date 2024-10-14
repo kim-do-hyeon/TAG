@@ -111,29 +111,97 @@
                             </a>
                         </h5>
                         <div class="collapse" id="collapseGoogleDrive">
-                            {% if google_drive %}
-                                <div class="table-responsive">
-                                    <table class="table table-bordered">
-                                        <thead>
-                                            <tr>
-                                                <th>Key</th>
-                                                <th>Value</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for key, value in google_drive.items() %}
-                                            <tr>
-                                                <td>{{ key }}</td>
-                                                <td style="word-wrap: break-word; max-width: 200px;">{{ value }}</td>
-                                            </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h5>Gmail Log</h5>
+                                    {% if google_drive %}
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Key</th>
+                                                        <th>Value</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for item in google_drive %}
+                                                        {% if item.gmail_log %}
+                                                            <tr>
+                                                                <td>URL</td>
+                                                                <td style="word-wrap: break-word; max-width: 200px;">{{ item.gmail_log.URL }}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Title</td>
+                                                                <td>{{ item.gmail_log.Title }}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Date Visited</td>
+                                                                <td>{{ item.gmail_log['Date_Visited_Date/Time_-_UTC_(yyyy-mm-dd)'] }}</td>
+                                                            </tr>
+                                                        {% else %}
+                                                            <tr>
+                                                                <td colspan="2">No Gmail Log available.</td>
+                                                            </tr>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    {% else %}
+                                        <p>데이터가 없습니다.</p>
+                                    {% endif %}
                                 </div>
-                            {% else %}
-                                <p>데이터가 없습니다.</p>
-                            {% endif %}
+
+                                <div class="col-md-6">
+                                    <h5>Drive Sharing Log</h5>
+                                    {% if google_drive %}
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Key</th>
+                                                        <th>Value</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for item in google_drive %}
+                                                        {% if item.drive_sharing_log %}
+                                                            <tr>
+                                                                <td>URL</td>
+                                                                <td style="word-wrap: break-word; max-width: 200px;">{{ item.drive_sharing_log.URL }}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Title</td>
+                                                                <td>{{ item.drive_sharing_log.Title }}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Date Visited</td>
+                                                                <td>{{ item.drive_sharing_log['Date_Visited_Date/Time_-_UTC_(yyyy-mm-dd)'] }}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Transition Type</td>
+                                                                <td>{{ item.drive_sharing_log.Transition_Type }}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Artifact Name</td>
+                                                                <td>{{ item.drive_sharing_log.artifact_name }}</td>
+                                                            </tr>
+                                                        {% else %}
+                                                            <tr>
+                                                                <td colspan="2">No Drive Sharing Log available.</td>
+                                                            </tr>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    {% else %}
+                                        <p>데이터가 없습니다.</p>
+                                    {% endif %}
+                                </div>
+                            </div>
                         </div>
+
 
                         <!-- Gmail Subject to Google Redirection -->
                         <h5>
