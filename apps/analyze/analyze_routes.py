@@ -1,4 +1,4 @@
-import sqlite3, os
+import sqlite3, os, json
 import pandas as pd
 from flask import request, render_template, session, redirect, url_for, flash, Request, jsonify, render_template_string
 from apps.authentication.models import Upload_Case, Normalization, GraphData, PromptQuries, UsbData, FilteringData
@@ -7,6 +7,7 @@ from apps.case.case_analyze import case_analyze_view
 from apps.case.case_analyze_RAG import search_query
 from apps.analyze.analyze_usb import usb_connection
 from apps.analyze.analyze_filtering import analyze_case_filtering, analyze_case_filtering_to_minutes
+from apps.analyze.analyze_tagging import all_table_parsing, all_tag_process
 from apps.analyze.analyze_util import *
 import threading
 
@@ -97,3 +98,10 @@ def redirect_case_analyze_filtering_history_view(id) :
     filtering_data = FilteringData.query.filter_by(id=id).first()
     body_html, scripts_html, tables = extract_body_and_scripts(filtering_data)
     return render_template('analyze/filtering.html', body_html=body_html, scripts_html=scripts_html,  tables=tables)
+
+def redirect_analyze_case_group(data) :
+    output_path = all_table_parsing(data)
+    with open(output_path, 'r', encoding='utf-8') as f:
+        json_data = json.load(f)
+    tag_process = all_tag_process(data, json_data, output_path)
+    return jsonify({'success': True})

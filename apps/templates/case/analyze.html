@@ -101,6 +101,17 @@
                                         <td colspan="1">
                                             <button class="btn btn-primary submit-filtering" data-case-id="{{ case.id }}">Submit</button>
                                         </td>
+                                        <td colspan="1">
+                                            <button class="btn btn-primary" onclick="window.location.href='/case/analyze/filtering/history/{{case.id}}'">히스토리</button>
+                                        </td>
+                                        
+                                        <tr>
+                                            <th colspan="2">그룹화 작업</th>
+                                            <th colspan="2">그룹화 히스토리</th>
+                                        </tr>
+                                        <td colspan="2">
+                                            <button class="btn btn-primary submit-group" data-case-id="{{ case.id }}">Submit</button>
+                                        </td>
                                         <td colspan="2">
                                             <button class="btn btn-primary" onclick="window.location.href='/case/analyze/filtering/history/{{case.id}}'">히스토리</button>
                                         </td>
@@ -263,6 +274,32 @@
                 .catch(error => {
                     console.error('Error:', error);
                     alert('An error occurred while submitting the filtering.');
+                });
+            });
+        });
+
+        document.querySelectorAll('.submit-group').forEach(function(button) {
+            button.addEventListener('click', function() {
+                var caseId = this.getAttribute('data-case-id');
+                fetch('/case/analyze/group', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ case_id: caseId}),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('정상적으로 처리되었습니다.');
+                        window.location.href = "/case/analyze/group/" + {{case.id}};
+                    } else {
+                        alert('Failed to submit the prompt.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while submitting the prompt.');
                 });
             });
         });

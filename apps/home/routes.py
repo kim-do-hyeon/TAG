@@ -131,6 +131,11 @@ def case_analyze_filtering_history(id) :
 def case_analyze_filtering_history_view(id) :
     return redirect_case_analyze_filtering_history_view(id)
 
+@blueprint.route('/case/analyze/group', methods = ['POST'])
+def case_analyze_group() :
+    data = request.get_json()
+    return redirect_analyze_case_group(data)
+
 ''' End Case analyze '''
 
 @blueprint.route('/<template>')
