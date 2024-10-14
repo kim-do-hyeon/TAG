@@ -136,6 +136,10 @@ def case_analyze_group() :
     data = request.get_json()
     return redirect_analyze_case_group(data)
 
+@blueprint.route('/case/analyze/group/<int:id>')
+def case_analyze_group_result(id) :
+    return redirect_case_analyze_group_result(id)
+
 ''' End Case analyze '''
 
 @blueprint.route('/<template>')

@@ -1,7 +1,7 @@
 import sqlite3, os, json
 import pandas as pd
 from flask import request, render_template, session, redirect, url_for, flash, Request, jsonify, render_template_string
-from apps.authentication.models import Upload_Case, Normalization, GraphData, PromptQuries, UsbData, FilteringData
+from apps.authentication.models import Upload_Case, Normalization, GraphData, PromptQuries, UsbData, FilteringData, GroupParingResults
 from apps import db
 from apps.case.case_analyze import case_analyze_view
 from apps.case.case_analyze_RAG import search_query
@@ -105,3 +105,15 @@ def redirect_analyze_case_group(data) :
         json_data = json.load(f)
     tag_process = all_tag_process(data, json_data, output_path)
     return jsonify({'success': True})
+
+def redirect_case_analyze_group_result(id) :
+    group_data = GroupParingResults.query.filter_by(case_id = id).first()
+    gmail_subject_to_web_pdf_download = json.loads(group_data.result1)
+    gmail_subject_to_google_drive_sharing = json.loads(group_data.result2)
+    gmail_subject_to_google_redirection = json.loads(group_data.result3)
+    file_web_access_to_pdf_document = json.loads(group_data.result4)
+    return render_template('analyze/group_result.html', 
+                           gmail_pdf=gmail_subject_to_web_pdf_download,
+                           google_drive=gmail_subject_to_google_drive_sharing,
+                           google_redirect=gmail_subject_to_google_redirection,
+                           pdf_access=file_web_access_to_pdf_document)
