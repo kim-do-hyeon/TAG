@@ -213,28 +213,67 @@
                         </h5>
                         <div class="collapse" id="collapsePDFDocument">
                             {% if pdf_access %}
-                                <div class="table-responsive">
-                                    <table class="table table-bordered">
-                                        <thead>
-                                            <tr>
-                                                <th>Key</th>
-                                                <th>Value</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for key, value in pdf_access.items() %}
-                                            <tr>
-                                                <td>{{ key }}</td>
-                                                <td style="word-wrap: break-word; max-width: 200px;">{{ value }}</td>
-                                            </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
+                                {% for item in pdf_access %}
+                                    <div class="row mb-4">
+                                        <div class="col-md-6">
+                                            <h5>PDF Document Access Log</h5>
+                                            {% if 'pdf_document_access_log' in item %}
+                                                <div class="table-responsive">
+                                                    <table class="table table-bordered">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Key</th>
+                                                                <th>Value</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {% for key, value in item['pdf_document_access_log'].items() %}
+                                                                <tr>
+                                                                    <td>{{ key }}</td>
+                                                                    <td style="word-wrap: break-word; max-width: 200px;">{{ value }}</td>
+                                                                </tr>
+                                                            {% endfor %}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            {% else %}
+                                                <p>No PDF Document Access Log available.</p>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <h5>PDF Web Access Log</h5>
+                                            {% if 'pdf_web_access_log' in item %}
+                                                <div class="table-responsive">
+                                                    <table class="table table-bordered">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Key</th>
+                                                                <th>Value</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {% for key, value in item['pdf_web_access_log'].items() %}
+                                                                <tr>
+                                                                    <td>{{ key }}</td>
+                                                                    <td style="word-wrap: break-word; max-width: 200px;">{{ value }}</td>
+                                                                </tr>
+                                                            {% endfor %}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            {% else %}
+                                                <p>No PDF Web Access Log available.</p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% endfor %}
                             {% else %}
                                 <p>데이터가 없습니다.</p>
                             {% endif %}
                         </div>
+
+                        
 
                     </div>
                 </div>
