@@ -84,7 +84,25 @@ class PromptQuries(db.Model, UserMixin) :
     graph_index = db.Column(db.Integer)
     created_at = db.Column(db.DateTime, default=datetime.now)
 
-    
+class GroupParsingProcess(db.Model, UserMixin) :
+    __tablename__ = "GroupParsingProcess"
+    id = db.Column(db.Integer, primary_key = True)
+    case_id = db.Column(db.Text)
+    result = db.Column(db.Integer)
+    output_path = db.Column(db.Text)
+
+class GroupParingResults(db.Model, UserMixin) :
+    __tablename__ = "GroupParingResults"
+    id = db.Column(db.Integer, primary_key = True)
+    case_id = db.Column(db.Text)
+    logTagger_output_path = db.Column(db.Text)
+    result1 = db.Column(db.JSON)
+    result2 = db.Column(db.JSON)
+    result3 = db.Column(db.JSON)
+    result4 = db.Column(db.JSON)
+
+
+
 
 @login_manager.user_loader
 def user_loader(id):

@@ -1,12 +1,13 @@
-import sqlite3, os
+import sqlite3, os, json
 import pandas as pd
 from flask import request, render_template, session, redirect, url_for, flash, Request, jsonify, render_template_string
-from apps.authentication.models import Upload_Case, Normalization, GraphData, PromptQuries, UsbData, FilteringData
+from apps.authentication.models import Upload_Case, Normalization, GraphData, PromptQuries, UsbData, FilteringData, GroupParingResults
 from apps import db
 from apps.case.case_analyze import case_analyze_view
 from apps.case.case_analyze_RAG import search_query
 from apps.analyze.analyze_usb import usb_connection
 from apps.analyze.analyze_filtering import analyze_case_filtering, analyze_case_filtering_to_minutes
+from apps.analyze.analyze_tagging import all_table_parsing, all_tag_process
 from apps.analyze.analyze_util import *
 import threading
 
@@ -47,16 +48,21 @@ def handle_usb_data(app, db_path, case_id, user, progress):
         if result :
             progress[case_id] = 100
         else :
-            progress[case_id] = 0
+            progress[case_id] = 100
+            progress['result'] = False
 
 
 def redirect_analyze_usb_result(id, user) :
     case_number = Upload_Case.query.filter_by(id = id).first().case_number
     files_lists = (os.listdir(os.path.join(os.getcwd(), "uploads", user, case_number)))
-    usb_list = UsbData.query.filter_by(case_id = id).first().usb_data
+    try :
+        usb_list = UsbData.query.filter_by(case_id = id).first().usb_data
+    except :
+        flash("USB 장치 삽입 / 해제 시간이 존재하지 않습니다.")
+        return redirect('/case/analyze/' + str(id))
     usb_dict_list = [create_dict_from_file_paths(path) for path in usb_list]
     return render_template("analyze/usb_results.html",
-                           case_number = case_number,
+                        case_number = case_number,
                             usb_lists = usb_dict_list)
 
 def redirect_analze_usb_graph(user,case_number, usb_data) :
@@ -92,3 +98,22 @@ def redirect_case_analyze_filtering_history_view(id) :
     filtering_data = FilteringData.query.filter_by(id=id).first()
     body_html, scripts_html, tables = extract_body_and_scripts(filtering_data)
     return render_template('analyze/filtering.html', body_html=body_html, scripts_html=scripts_html,  tables=tables)
+
+def redirect_analyze_case_group(data) :
+    output_path = all_table_parsing(data)
+    with open(output_path, 'r', encoding='utf-8') as f:
+        json_data = json.load(f)
+    tag_process = all_tag_process(data, json_data, output_path)
+    return jsonify({'success': True})
+
+def redirect_case_analyze_group_result(id) :
+    group_data = GroupParingResults.query.filter_by(case_id = id).first()
+    gmail_subject_to_web_pdf_download = json.loads(group_data.result1)
+    gmail_subject_to_google_drive_sharing = json.loads(group_data.result2)
+    gmail_subject_to_google_redirection = json.loads(group_data.result3)
+    file_web_access_to_pdf_document = json.loads(group_data.result4)
+    return render_template('analyze/group_result.html', 
+                           gmail_pdf=gmail_subject_to_web_pdf_download,
+                           google_drive=gmail_subject_to_google_drive_sharing,
+                           google_redirect=gmail_subject_to_google_redirection,
+                           pdf_access=file_web_access_to_pdf_document)
