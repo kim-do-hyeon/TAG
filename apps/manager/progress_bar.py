@@ -14,6 +14,45 @@ class ProgressBar:
     def __init__(self):
         if not hasattr(self, '_initialized'):  # 초기화 방지
             self._initialized = True
+            self.progress = 0
+            self.num_of_task = 0
+            self.now_task = 0
+            self.now_log = ''
+            self.show = False
+
+    def reset_progress(self) : 
+        self.progress = 0
+        self.num_of_task = 0
+        self.now_task = 0
+        self.now_log = ''
+        self.show = False
+
+    def start_progress(self, num_of_task) :
+        self.progress = 0
+        self.num_of_task = num_of_task
+        self.now_task = 0
+        self.show = True
+    
+    def done_1_task(self) :
+        if self.num_of_task > 0 :
+            self.now_task += 1
+            self.progress = round((self.now_task / self.num_of_task) * 100, 2)
+    
+    def set_now_log(self, log) :
+        self.now_log = log
+    
+    def set_progress(self, progress) :
+        self.progress = progress
+    
+    def get_now_log(self) :
+        return self.now_log
+    
+    def get_progress(self) :
+        return self.progress
+    
+    def progress_end(self) :
+        self.reset_progress()
+        
 
     @classmethod
     def get_instance(cls):

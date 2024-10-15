@@ -7,13 +7,14 @@ from apps.case.case_analyze_RAG import search_query
 from apps.analyze.analyze_usb import usb_connection
 import threading
 from flask import current_app
+from apps.manager.progress_bar import ProgressBar
 
 def redirect_case_analyze(id) :
     user_case = Upload_Case.query.filter_by(id=id).first()
     if not user_case:
         flash('Case not found', 'danger')
         return redirect('/case/list')
-    return render_template('case/analyze.html', case=user_case)
+    return render_template('case/analyze.html', case=user_case, progressBar=ProgressBar.get_instance())
 
 def redirect_case_view(id) :
     user_case = Upload_Case.query.filter_by(id = id).first()
