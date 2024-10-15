@@ -7,6 +7,7 @@ import os, sqlite3
 import pandas as pd
 from pprint import pprint
 from datetime import timedelta
+from apps.authentication.models import Upload_Case
 import ast
 import json
 
@@ -19,7 +20,7 @@ def shorten_string(s) :
 def insert_char_enter(string):
     return '\n'.join([string[i:i+60] for i in range(0, len(string), 60)])
 
-def modify_html_click(output_file) :
+def modify_html_click(output_file, id_change) :
     # HTML 파일을 수정하는 코드 추가
     with open(output_file, 'r') as file:
         html_content = file.read()
@@ -39,15 +40,17 @@ def modify_html_click(output_file) :
 
     # 특정 위치에 스크립트 삽입 (예: </body> 태그 직전에 삽입)
     html_content = html_content.replace('</body>', additional_script + '</body>')
+    html_content = html_content.replace("mynetwork", id_change)
 
     # 수정된 HTML 파일 다시 저장
     with open(output_file, 'w') as file:
         file.write(html_content)
 
-def make_analyze_tag_group_graph(result_list, case_number) :
-    user = user = session.get('username')
+def make_analyze_tag_group_graph(result_list, case_id) :
+    user = session.get('username')
+    case_number = Upload_Case.query.filter_by(id=case_id).first().case_number
     case_folder = os.path.join(os.getcwd(), "uploads", user, case_number)
-
+    output_files = []
     for group_name, group_list in result_list.items() :
         for idx, group in enumerate(group_list) :
             net = Network(height="750px", width="100%", notebook=True)
@@ -90,5 +93,7 @@ def make_analyze_tag_group_graph(result_list, case_number) :
             """
             net.set_options(physics_options)
             net.save_graph(output_file)
-            modify_html_click(output_file)
+            modify_html_click(output_file, f'{group_name}_{str(idx)}.html')
             print(f'Saved to {output_file}')
+            output_files.append([group_name, output_file])
+    return output_files
