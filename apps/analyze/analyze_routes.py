@@ -9,6 +9,7 @@ from apps.analyze.analyze_usb import usb_connection
 from apps.analyze.analyze_filtering import analyze_case_filtering, analyze_case_filtering_to_minutes
 from apps.analyze.analyze_tagging import all_table_parsing, all_tag_process
 from apps.analyze.analyze_util import *
+from apps.analyze.analyze_tag_group_graph import *
 import threading
 
 from flask import current_app
@@ -112,6 +113,14 @@ def redirect_case_analyze_group_result(id) :
     gmail_subject_to_google_drive_sharing = json.loads(group_data.result2)
     gmail_subject_to_google_redirection = json.loads(group_data.result3)
     file_web_access_to_pdf_document = json.loads(group_data.result4)
+    result_dict = {}
+    result_dict['gmail_subject_to_web_pdf_download'] = gmail_subject_to_web_pdf_download
+    result_dict['gmail_subject_to_google_drive_sharing'] = gmail_subject_to_google_drive_sharing
+    result_dict['gmail_subject_to_google_redirection'] = gmail_subject_to_google_redirection
+    result_dict['file_web_access_to_pdf_document'] = file_web_access_to_pdf_document
+    
+    make_analyze_tag_group_graph(result_dict, str(id))
+    
     return render_template('analyze/group_result.html', 
                            gmail_pdf=gmail_subject_to_web_pdf_download,
                            google_drive=gmail_subject_to_google_drive_sharing,
