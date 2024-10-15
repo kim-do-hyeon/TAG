@@ -62,11 +62,7 @@ def make_analyze_tag_group_graph(result_list, case_number) :
                 net.add_node(log, label=log, title=title, color='skyblue', shape='ellipse', size=150, font={'size' : 20})
                 
                 if prev_log is not None :
-                    edge_label = 'edge'
-                    if 'Title' in attributes.keys() :
-                        edge_label = attributes['Title']
-                    elif 'Title' in group[log].keys() :
-                        edge_label = group[log]['Title']
+                    edge_label = group_name
                     net.add_edge(prev_log, log, arrows='to', label=edge_label)
                 
                 prev_log = log
@@ -83,11 +79,12 @@ def make_analyze_tag_group_graph(result_list, case_number) :
             "physics": {
                 "forceAtlas2Based": {
                 "centralGravity": 0.005,
-                "springLength": 200,
+                "springLength": 250,
                 "springConstant": 0.12
                 },
                 "minVelocity": 0.75,
-                "solver": "forceAtlas2Based"
+                "solver": "forceAtlas2Based",
+                "avoidOverlap": 1
             }
             }
             """
