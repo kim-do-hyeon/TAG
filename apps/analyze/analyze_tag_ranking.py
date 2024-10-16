@@ -217,12 +217,12 @@ def ranking_run(senario, case_id) :
         "Edge Chromium Current Session": "Last_Visited_Date/Time_-_UTC_(yyyy-mm-dd)",
         "Edge Chromium Downloads": "Start_Time_Date/Time_-_UTC_(yyyy-mm-dd)"
     }
-
+    
     # 우선순위 분석 실행 여부를 사용자에게 선택
     #user_choice = input("우선순위 분석을 실행하시겠습니까? (y/n): ").strip().lower()
     
-    if True:
-        result = tag_priority_manager.run_priority_analysis(artifact_to_date_key)
-    else:
-        print("우선순위 분석이 실행되지 않았습니다.")
+    # if True:
+    #     result = tag_priority_manager.run_priority_analysis(artifact_to_date_key)
+    # else:
+    #     print("우선순위 분석이 실행되지 않았습니다.")
 

@@ -189,7 +189,19 @@ def redirect_case_analyze_group_result(id) :
         })
     sorted_structured_data_dynamic = sorted(structured_data_dynamic, key=lambda x: x['group'])
 
+    tag_count_dict = {}
+
+    for category, items in result_dict.items():
+        for item in items:
+            for key, value in item.items():
+                if isinstance(value, dict) and '_Tag_' in value:
+                    tag = value['_Tag_']
+                    if tag in tag_count_dict:
+                        tag_count_dict[tag] += 1
+                    else:
+                        tag_count_dict[tag] = 1
+
 
     return render_template('analyze/group_result.html', 
                            result_dict = result_dict,
-                           sorted_structured_data_dynamic = sorted_structured_data_dynamic)
+                           sorted_structured_data_dynamic = sorted_structured_data_dynamic, tag_count_dict = tag_count_dict)
