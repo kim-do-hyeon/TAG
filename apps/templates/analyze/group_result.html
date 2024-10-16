@@ -3,6 +3,9 @@
 {% block title %} Case Analyze {% endblock %}
 
 {% block content %}
+<!-- Font Awesome 아이콘 사용을 위한 추가 -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlrZj/k7ujTnHq6j6hZT24ABWcT2phV6lEMAx+aAXeqDYX1wWYZQJTxihZ8t8Od8P7xgnDaQ6EwtEJBePbg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
 <div class="pcoded-main-container">
     <div class="pcoded-content">
         <!-- [ breadcrumb ] start -->
@@ -35,367 +38,123 @@
                     <div class="card-body">
 
                         <!-- Gmail Subject to Web PDF Download -->
-                        <h5>
-                            <a data-bs-toggle="collapse" href="#collapseGmailPDF" role="button" aria-expanded="false" aria-controls="collapseGmailPDF">
-                                Gmail Subject to Web PDF Download
-                            </a>
-                        </h5>
-                        <div class="row">
-                            {% if graph_datas.gmail_subject_to_web_pdf_download %}
-                                {% for body_html, scripts_html in graph_datas.gmail_subject_to_web_pdf_download %}
-                                    <div class="col-12">
-                                        <div class="graph-content">
-                                            {{ body_html | safe }}
-                                            {{ scripts_html | safe }}
-                                        </div>
-                                    </div>
-                                {% endfor %}
-                            {% else %}
-                                <p>그래프 데이터를 찾을 수 없습니다.</p>
-                            {% endif %}
-                        </div>
-                            <!-- <div class="row">
-                                <div class="col-md-6">
-                                    <h5>Gmail Log</h5>
-                                    {% if gmail_pdf %}
-                                        <div class="table-responsive">
-                                            <table class="table table-bordered">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Key</th>
-                                                        <th>Value</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {% for item in gmail_pdf %}
-                                                        {% if item.gmail_log %}
-                                                            {% for key, value in item.gmail_log.items() %}
-                                                            <tr>
-                                                                <td>{{ key }}</td>
-                                                                <td style="word-wrap: break-word; max-width: 200px;">{{ value }}</td>
-                                                            </tr>
-                                                            {% endfor %}
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    {% else %}
-                                        <p>데이터가 없습니다.</p>
-                                    {% endif %}
-                                </div>
-
-                                <div class="col-md-6">
-                                    <h5>PDF Log</h5>
-                                    {% if gmail_pdf %}
-                                        <div class="table-responsive">
-                                            <table class="table table-bordered">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Key</th>
-                                                        <th>Value</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {% for item in gmail_pdf %}
-                                                        {% if item.pdf_log %}
-                                                            {% for key, value in item.pdf_log.items() %}
-                                                            <tr>
-                                                                <td>{{ key }}</td>
-                                                                <td style="word-wrap: break-word; max-width: 200px;">{{ value }}</td>
-                                                            </tr>
-                                                            {% endfor %}
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    {% else %}
-                                        <p>데이터가 없습니다.</p>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div> -->
-
-                        <!-- Gmail Subject to Google Drive Sharing -->
-                        <h5>
-                            <a data-bs-toggle="collapse" href="#collapseGoogleDrive" role="button" aria-expanded="false" aria-controls="collapseGoogleDrive">
-                                Gmail Subject to Google Drive Sharing
-                            </a>
-                        </h5>
-                        <div class="row">
-                            {% if graph_datas.gmail_subject_to_google_drive_sharing %}
-                                {% for body_html, scripts_html in graph_datas.gmail_subject_to_google_drive_sharing %}
-                                    <div class="col-12">
-                                        <div class="graph-content">
-                                            {{ body_html | safe }}
-                                            {{ scripts_html | safe }}
-                                        </div>
-                                    </div>
-                                {% endfor %}
-                            {% else %}
-                                <p>그래프 데이터를 찾을 수 없습니다.</p>
-                            {% endif %}
-                        </div>
-                            <!-- <div class="row">
-                                <div class="col-md-6">
-                                    <h5>Gmail Log</h5>
-                                    {% if google_drive %}
-                                        <div class="table-responsive">
-                                            <table class="table table-bordered">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Key</th>
-                                                        <th>Value</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {% for item in google_drive %}
-                                                        {% if item.gmail_log %}
-                                                            <tr>
-                                                                <td>URL</td>
-                                                                <td style="word-wrap: break-word; max-width: 200px;">{{ item.gmail_log.URL }}</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>Title</td>
-                                                                <td>{{ item.gmail_log.Title }}</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>Date Visited</td>
-                                                                <td>{{ item.gmail_log['Date_Visited_Date/Time_-_UTC_(yyyy-mm-dd)'] }}</td>
-                                                            </tr>
-                                                        {% else %}
-                                                            <tr>
-                                                                <td colspan="2">No Gmail Log available.</td>
-                                                            </tr>
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    {% else %}
-                                        <p>데이터가 없습니다.</p>
-                                    {% endif %}
-                                </div>
-
-                                <div class="col-md-6">
-                                    <h5>Drive Sharing Log</h5>
-                                    {% if google_drive %}
-                                        <div class="table-responsive">
-                                            <table class="table table-bordered">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Key</th>
-                                                        <th>Value</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {% for item in google_drive %}
-                                                        {% if item.drive_sharing_log %}
-                                                            <tr>
-                                                                <td>URL</td>
-                                                                <td style="word-wrap: break-word; max-width: 200px;">{{ item.drive_sharing_log.URL }}</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>Title</td>
-                                                                <td>{{ item.drive_sharing_log.Title }}</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>Date Visited</td>
-                                                                <td>{{ item.drive_sharing_log['Date_Visited_Date/Time_-_UTC_(yyyy-mm-dd)'] }}</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>Transition Type</td>
-                                                                <td>{{ item.drive_sharing_log.Transition_Type }}</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>Artifact Name</td>
-                                                                <td>{{ item.drive_sharing_log.artifact_name }}</td>
-                                                            </tr>
-                                                        {% else %}
-                                                            <tr>
-                                                                <td colspan="2">No Drive Sharing Log available.</td>
-                                                            </tr>
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    {% else %}
-                                        <p>데이터가 없습니다.</p>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div> -->
-
-
-                        <!-- Gmail Subject to Google Redirection -->
-                        <h5>
-                            <a data-bs-toggle="collapse" href="#collapseGoogleRedirect" role="button" aria-expanded="false" aria-controls="collapseGoogleRedirect">
-                                Gmail Subject to Google Redirection
-                            </a>
-                        </h5>
-                        <div class="row">
-                            {% if graph_datas.gmail_subject_to_google_redirection %}
-                                {% for body_html, scripts_html in graph_datas.gmail_subject_to_google_redirection %}
-                                    <div class="col-12">
-                                        <div class="graph-content">
-                                            {{ body_html | safe }}
-                                            {{ scripts_html | safe }}
-                                        </div>
-                                    </div>
-                                {% endfor %}
-                            {% else %}
-                                <p>그래프 데이터를 찾을 수 없습니다.</p>
-                            {% endif %}
-                        </div>
-                            <!-- <div class="row">
-                                <div class="col-md-6">
-                                    <h5>Gmail Log</h5>
-                                    {% if google_redirect %}
-                                        <div class="table-responsive">
-                                            <table class="table table-bordered">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Key</th>
-                                                        <th>Value</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {% for item in google_redirect %}
-                                                        {% if item.gmail_log %}
-                                                            {% for key, value in item.gmail_log.items() %}
-                                                            <tr>
-                                                                <td>{{ key }}</td>
-                                                                <td style="word-wrap: break-word; max-width: 200px;">{{ value }}</td>
-                                                            </tr>
-                                                            {% endfor %}
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    {% else %}
-                                        <p>데이터가 없습니다.</p>
-                                    {% endif %}
-                                </div>
-
-                                <div class="col-md-6">
-                                    <h5>Redirection Log</h5>
-                                    {% if google_redirect %}
-                                        <div class="table-responsive">
-                                            <table class="table table-bordered">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Key</th>
-                                                        <th>Value</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {% for item in google_redirect %}
-                                                        {% if item.redirection_log %}
-                                                            {% for key, value in item.redirection_log.items() %}
-                                                            <tr>
-                                                                <td>{{ key }}</td>
-                                                                <td style="word-wrap: break-word; max-width: 200px;">{{ value }}</td>
-                                                            </tr>
-                                                            {% endfor %}
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    {% else %}
-                                        <p>데이터가 없습니다.</p>
-                                    {% endif %}
-                                </div>
-                            </div> -->
-                        </div>
-
-                        <!-- File Web Access to PDF Document -->
-                        <h5>
-                            <a data-bs-toggle="collapse" href="#collapsePDFDocument" role="button" aria-expanded="false" aria-controls="collapsePDFDocument">
-                                File Web Access to PDF Document
-                            </a>
-                        </h5>
-                        
-    <div class="row">
-        {% if graph_datas.file_web_access_to_pdf_document %}
-            {% for body_html, scripts_html in graph_datas.file_web_access_to_pdf_document %}
-                <div class="col-12">
-                    <div class="graph-content">
-                        {{ body_html | safe }}
-                        {{ scripts_html | safe }}
-                    </div>
-                </div>
-            {% endfor %}
-        {% else %}
-            <p>그래프 데이터를 찾을 수 없습니다.</p>
-        {% endif %}
-    </div>
-                            <!-- {% if pdf_access %}
-                                {% for item in pdf_access %}
-                                    <div class="row mb-4">
-                                        <div class="col-md-6">
-                                            <h5>PDF Document Access Log</h5>
-                                            {% if 'pdf_document_access_log' in item %}
-                                                <div class="table-responsive">
-                                                    <table class="table table-bordered">
-                                                        <thead>
-                                                            <tr>
-                                                                <th>Key</th>
-                                                                <th>Value</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            {% for key, value in item['pdf_document_access_log'].items() %}
-                                                                <tr>
-                                                                    <td>{{ key }}</td>
-                                                                    <td style="word-wrap: break-word; max-width: 200px;">{{ value }}</td>
-                                                                </tr>
-                                                            {% endfor %}
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            {% else %}
-                                                <p>No PDF Document Access Log available.</p>
-                                            {% endif %}
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <h5>PDF Web Access Log</h5>
-                                            {% if 'pdf_web_access_log' in item %}
-                                                <div class="table-responsive">
-                                                    <table class="table table-bordered">
-                                                        <thead>
-                                                            <tr>
-                                                                <th>Key</th>
-                                                                <th>Value</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            {% for key, value in item['pdf_web_access_log'].items() %}
-                                                                <tr>
-                                                                    <td>{{ key }}</td>
-                                                                    <td style="word-wrap: break-word; max-width: 200px;">{{ value }}</td>
-                                                                </tr>
-                                                            {% endfor %}
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            {% else %}
-                                                <p>No PDF Web Access Log available.</p>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                {% endfor %}
-                            {% else %}
-                                <p>데이터가 없습니다.</p>
-                            {% endif %}
-                        </div> -->
-
                         
+                        <style>
+                            /* 테이블 셀 내에서 긴 텍스트 줄바꿈 */
+                            table.table td {
+                                word-wrap: break-word;
+                                white-space: normal;
+                                max-width: 400px; /* 텍스트가 줄바꿈될 최대 너비 */
+                                overflow-wrap: break-word; /* 긴 단어도 줄바꿈 */
+                            }
+                            /* 화살표 스타일 */
+                            .arrow-icon {
+                                font-size: 24px;
+                                color: #333;
+                                text-align: center;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                            }
+                        </style>
+                        
+                        <div class="row">
+                            {% for key, value in result_dict.items() %}
+                                <div class="col-md-12">
+                                    <div class="row">
+                                        {% for key, value in result_dict.items() %}
+                                        <h5>
+                                            <a data-bs-toggle="collapse" href="#{{key}}" role="button" aria-expanded="false" aria-controls="collapseGmailPDF">
+                                                {{key }}
+                                            </a>
+                                        </h5>
+                                            <div class="col-md-12">
+                                                {% if value is iterable and not value is string %}
+                                                    <!-- 리스트일 경우 각 항목을 순회 -->
+                                                    {% for item in value %}
+                                                        <!-- item이 딕셔너리인 경우 처리 -->
+                                                        {% if item is mapping %}
+                                                            <h4>{{ loop.index }}번째 항목 Node </h4>
+                                                            
+                                                            {% if 'body' in item %}
+                                                                <div>
+                                                                    {{ item['body']|safe }}
+                                                                </div>
+                                                            {% endif %}
+                                                    
+                                                            {% if 'script' in item %}
+                                                                <div>
+                                                                    {{ item['script']|safe }}
+                                                                </div>
+                                                            {% endif %}
+                                                    
+                                                            <!-- 나머지 데이터를 테이블로 출력 -->
+                                                            <div class="row">
+                                                                {% set index = 0 %}
+                                                                {% for key, value in item.items() %}
+                                                                    {% if key != 'body' and key != 'script' %}
+                                                                        <!-- 좌우로 나누기 위해 index를 기준으로 나눔 -->
+                                                                        <div class="col-md-5">
+                                                                            <!-- 각 key를 기준으로 테이블 생성 -->
+                                                                            <h4>{{ key|capitalize }} Log</h4>
+                                                                            <table class="table table-striped">
+                                                                                <thead>
+                                                                                    <tr>
+                                                                                        <th>Key</th>
+                                                                                        <th>Value</th>
+                                                                                    </tr>
+                                                                                </thead>
+                                                                                <tbody>
+                                                                                    {% if value is mapping %}
+                                                                                        <!-- value가 딕셔너리일 때만 순회 -->
+                                                                                        {% for subkey, subvalue in value.items() %}
+                                                                                            {% if subkey != 'body' and subkey != 'script' %}
+                                                                                                <tr>
+                                                                                                    <td>{{ subkey }}</td>
+                                                                                                    <td>{{ subvalue }}</td>
+                                                                                                </tr>
+                                                                                            {% endif %}
+                                                                                        {% endfor %}
+                                                                                    {% else %}
+                                                                                        <tr>
+                                                                                            <td colspan="2">{{ value }}</td>
+                                                                                        </tr>
+                                                                                    {% endif %}
+                                                                                </tbody>
+                                                                            </table>
+                                                                        </div>
 
+                                                                        <!-- 화살표 추가 -->
+                                                                        {% if index is divisibleby 2 %}
+                                                                        <div class="col-md-2 arrow-icon">
+                                                                            <i class="fas fa-arrow-right"></i>
+                                                                        </div>
+                                                                        {% endif %}
+
+                                                                        {% set index = index + 1 %}
+                                                                    
+                                                                        <!-- 두 테이블마다 새로운 row를 시작하여 좌우 테이블 나누기 -->
+                                                                        {% if index is divisibleby 2 %}
+                                                                            </div><div class="row">
+                                                                        {% endif %}
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            </div>
+                                                        {% else %}
+                                                            <!-- item이 딕셔너리가 아닌 경우 -->
+                                                            <p>{{ item }}</p>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                {% else %}
+                                                    <!-- value가 리스트가 아닌 경우 처리 -->
+                                                    <p>{{ value }}</p>
+                                                {% endif %}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div> 
                     </div>
                 </div>
             </div>

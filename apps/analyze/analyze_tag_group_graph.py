@@ -39,8 +39,14 @@ def modify_html_click(output_file, id_change) :
         """
 
     # 특정 위치에 스크립트 삽입 (예: </body> 태그 직전에 삽입)
-    html_content = html_content.replace('</body>', additional_script + '</body>')
+    # html_content = html_content.replace('</body>', additional_script + '</body>')
     html_content = html_content.replace("mynetwork", id_change)
+    html_content = html_content.replace("lib/bindings/utils.js", "/static/assets/lib/bindings/utils.js")
+    html_content = html_content.replace("drawGraph", "drawGraph_" + str(id_change.split(".")[0]))
+    html_content = html_content.replace(
+    "drawGraph_" + str(id_change.split(".")[0]) + "();", 
+    '</script><script>document.addEventListener("DOMContentLoaded", function() { %s });</script>' % ("drawGraph_" + str(id_change.split(".")[0]) + "();")
+)
 
     # 수정된 HTML 파일 다시 저장
     with open(output_file, 'w') as file:
@@ -86,8 +92,7 @@ def make_analyze_tag_group_graph(result_list, case_id) :
                 "springConstant": 0.12
                 },
                 "minVelocity": 0.75,
-                "solver": "forceAtlas2Based",
-                "avoidOverlap": 1
+                "solver": "forceAtlas2Based"
             }
             }
             """
