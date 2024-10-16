@@ -118,7 +118,7 @@ def redirect_case_analyze_group_result(id) :
     result_dict['gmail_subject_to_google_drive_sharing'] = gmail_subject_to_google_drive_sharing
     result_dict['gmail_subject_to_google_redirection'] = gmail_subject_to_google_redirection
     result_dict['file_web_access_to_pdf_document'] = file_web_access_to_pdf_document
-    print(result_dict)
+
     html_files = make_analyze_tag_group_graph(result_dict, str(id))
     graph_datas = {"gmail_subject_to_web_pdf_download" : [],
                    "gmail_subject_to_google_drive_sharing" : [],
@@ -134,11 +134,24 @@ def redirect_case_analyze_group_result(id) :
         body_html = str(body_content)
         scripts_html = ''.join([str(script) for script in scripts])
         graph_datas[group_name].append([body_html, scripts_html])
-    print(graph_datas)
+
+    for i in range(len(result_dict['gmail_subject_to_web_pdf_download'])) :
+        result_dict['gmail_subject_to_web_pdf_download'][i]['body'] = graph_datas['gmail_subject_to_web_pdf_download'][i][0]
+        result_dict['gmail_subject_to_web_pdf_download'][i]['script'] = graph_datas['gmail_subject_to_web_pdf_download'][i][1]
     
+
+    for i in range(len(result_dict['gmail_subject_to_google_drive_sharing'])) :
+        result_dict['gmail_subject_to_google_drive_sharing'][i]['body'] = graph_datas['gmail_subject_to_google_drive_sharing'][i][0]
+        result_dict['gmail_subject_to_google_drive_sharing'][i]['script'] = graph_datas['gmail_subject_to_google_drive_sharing'][i][1]
+    
+    for i in range(len(result_dict['gmail_subject_to_google_redirection'])) :
+        result_dict['gmail_subject_to_google_redirection'][i]['body'] = graph_datas['gmail_subject_to_google_redirection'][i][0]
+        result_dict['gmail_subject_to_google_redirection'][i]['script'] = graph_datas['gmail_subject_to_google_redirection'][i][1]
+    
+    for i in range(len(result_dict['file_web_access_to_pdf_document'])) :
+        result_dict['file_web_access_to_pdf_document'][i]['body'] = graph_datas['file_web_access_to_pdf_document'][i][0]
+        result_dict['file_web_access_to_pdf_document'][i]['script'] = graph_datas['file_web_access_to_pdf_document'][i][1]
+    
+
     return render_template('analyze/group_result.html', 
-                           gmail_pdf=gmail_subject_to_web_pdf_download,
-                           google_drive=gmail_subject_to_google_drive_sharing,
-                           google_redirect=gmail_subject_to_google_redirection,
-                           pdf_access=file_web_access_to_pdf_document,
-                           graph_datas = graph_datas)
+                           result_dict = result_dict)
