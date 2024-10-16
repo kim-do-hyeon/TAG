@@ -88,6 +88,7 @@ class LogTagger:
             log['_Tag_'] = 'Google_Login'
         elif self.patterns["gmail_inbox_pattern"].search(title_value):
             log['_Tag_'] = 'Gmail_Inbox'
+
         elif self.patterns["gmail_sentmail_pattern"].search(title_value):
             log['_Tag_'] = 'Gmail_Sent'
         elif self.patterns["gmail_subject_pattern"].search(title_value):

@@ -10,6 +10,7 @@ from apps.analyze.analyze_filtering import analyze_case_filtering, analyze_case_
 from apps.analyze.analyze_tagging import all_table_parsing, all_tag_process
 from apps.analyze.analyze_util import *
 from apps.analyze.analyze_tag_group_graph import *
+from apps.analyze.analyze_tag_ranking import *
 import threading
 
 from flask import current_app
@@ -144,6 +145,8 @@ def redirect_case_analyze_group_result(id) :
         result_dict['gmail_subject_to_google_drive_sharing'][i]['body'] = graph_datas['gmail_subject_to_google_drive_sharing'][i][0]
         result_dict['gmail_subject_to_google_drive_sharing'][i]['script'] = graph_datas['gmail_subject_to_google_drive_sharing'][i][1]
     
+    ranking_run('파일이 Gmail Drive를 통해 외부로 유출될 가능성이 있습니다.', case_id=id)
+   
     for i in range(len(result_dict['gmail_subject_to_google_redirection'])) :
         result_dict['gmail_subject_to_google_redirection'][i]['body'] = graph_datas['gmail_subject_to_google_redirection'][i][0]
         result_dict['gmail_subject_to_google_redirection'][i]['script'] = graph_datas['gmail_subject_to_google_redirection'][i][1]
@@ -152,6 +155,5 @@ def redirect_case_analyze_group_result(id) :
         result_dict['file_web_access_to_pdf_document'][i]['body'] = graph_datas['file_web_access_to_pdf_document'][i][0]
         result_dict['file_web_access_to_pdf_document'][i]['script'] = graph_datas['file_web_access_to_pdf_document'][i][1]
     
-
     return render_template('analyze/group_result.html', 
                            result_dict = result_dict)
