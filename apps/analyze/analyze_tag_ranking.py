@@ -152,6 +152,7 @@ class TagPriorityManager:
                 self.print_grouped_result(matched_tag, priority_groups)
             else :
                 print(hit_id, artifact_name, date_key, date_value, matched_tag, '데이터 없음')
+        return result
 
 
 def ranking_run(senario, case_id) :
@@ -221,7 +222,7 @@ def ranking_run(senario, case_id) :
     #user_choice = input("우선순위 분석을 실행하시겠습니까? (y/n): ").strip().lower()
     
     if True:
-        tag_priority_manager.run_priority_analysis(artifact_to_date_key)
+        result = tag_priority_manager.run_priority_analysis(artifact_to_date_key)
     else:
         print("우선순위 분석이 실행되지 않았습니다.")
 
