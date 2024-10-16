@@ -37,46 +37,46 @@ class LogTagger:
         if not title_value or not url_value:
             return
         if self.patterns["google_login_pattern"].search(title_value):
-            log['Tag'] = 'Google_Login'
+            log['_Tag_'] = 'Google_Login'
         # elif self.patterns["gmail_inbox_pattern"].search(title_value):
-        #     log['Tag'] = 'Gmail_Inbox'
+        #     log['_Tag_'] = 'Gmail_Inbox'
         elif self.patterns["gmail_sentmail_pattern"].search(title_value):
-            log['Tag'] = 'Gmail_Sent'
+            log['_Tag_'] = 'Gmail_Sent'
         elif self.patterns["gmail_subject_pattern"].search(title_value):
-            log['Tag'] = 'Gmail_Subject'
+            log['_Tag_'] = 'Gmail_Subject'
         elif self.patterns["search_pattern"].search(title_value):
-            log['Tag'] = 'Web_Search'
+            log['_Tag_'] = 'Web_Search'
         elif self.patterns["pdf_pattern"].search(title_value):
-            log['Tag'] = 'Web_PDF'
+            log['_Tag_'] = 'Web_PDF'
         if self.patterns["gmail_drive_sharing_pattern"].search(url_value):
-            log['Tag'] = 'Gmail_Drive_Sharing'
+            log['_Tag_'] = 'Gmail_Drive_Sharing'
         elif self.patterns["new_mail_create_pattern"].search(url_value):
-            log['Tag'] = 'Gmail_Create_New_mail'
+            log['_Tag_'] = 'Gmail_Create_New_mail'
         if self.patterns["google_redirection_pattern"].search(url_value):
-            log['Tag'] = 'Google_Redirection'
+            log['_Tag_'] = 'Google_Redirection'
         if self.patterns["file_web_access"].search(url_value):
-            log['Tag'] = 'File_Web_Access'
+            log['_Tag_'] = 'File_Web_Access'
 
     def tag_Edge_Chromium_Cache_Records(self, log):
         url_value = log.get("URL")
         if url_value is None:
             return
         if self.patterns["google_drive_upload_pattern"].search(url_value):
-            log['Tag'] = 'Google_Drive_Upload'
+            log['_Tag_'] = 'Google_Drive_Upload'
 
     def tag_usb_device(self, log):
         manufacturer_value = log.get("Manufacturer")
         if manufacturer_value is None:
             return
         if self.patterns["usb_device_pattern"].search(manufacturer_value):
-            log['Tag'] = 'User_USB'
+            log['_Tag_'] = 'User_USB'
 
     def tag_recycle_bin(self, log):
         artifact_name_value = log.get("artifact_name")
         if artifact_name_value is None:
             return
         if self.patterns["remove_pattern"].search(artifact_name_value):
-            log['Tag'] = 'File_Remove'
+            log['_Tag_'] = 'File_Remove'
 
     def tag_edge_chromium_current_Last_session(self, log):
         title_value = log.get("Title")
@@ -85,36 +85,36 @@ class LogTagger:
         if not title_value or not URL_value:  # 두 값 중 하나라도 None이면 처리하지 않음
             return
         if self.patterns["google_login_pattern"].search(title_value):
-            log['Tag'] = 'Google_Login'
+            log['_Tag_'] = 'Google_Login'
         # elif self.patterns["gmail_inbox_pattern"].search(title_value):
-        #     log['Tag'] = 'Gmail_Inbox'
+        #     log['_Tag_'] = 'Gmail_Inbox'
         elif self.patterns["gmail_sentmail_pattern"].search(title_value):
-            log['Tag'] = 'Gmail_Sent'
+            log['_Tag_'] = 'Gmail_Sent'
         elif self.patterns["gmail_subject_pattern"].search(title_value):
-            log['Tag'] = 'Gmail_Subject'
+            log['_Tag_'] = 'Gmail_Subject'
         elif self.patterns["search_pattern"].search(title_value):
-            log['Tag'] = 'Web_Search'
+            log['_Tag_'] = 'Web_Search'
         elif self.patterns["pdf_pattern"].search(title_value):
-            log['Tag'] = 'Web_PDF'
+            log['_Tag_'] = 'Web_PDF'
         if self.patterns["tistory_pattern"].search(URL_value):
-            log['Tag'] = 'Tistory_Blog'
+            log['_Tag_'] = 'Tistory_Blog'
         if self.patterns["google_redirection_pattern"].search(redirect_url_value):
-            log['Tag'] = 'Google_Redirection'
+            log['_Tag_'] = 'Google_Redirection'
 
     def tag_edge_chromium_downloads(self, log):
         file_name_value = log.get("File_Name")
         if file_name_value is None:
             return
         if self.patterns["web_pdf_download_pattern"].search(file_name_value):
-            log['Tag'] = 'Web_PDF_Download'
+            log['_Tag_'] = 'Web_PDF_Download'
         elif self.patterns["web_exe_download_pattern"].search(file_name_value):
-            log['Tag'] = 'Web_EXE_Download'
+            log['_Tag_'] = 'Web_EXE_Download'
         elif self.patterns["web_hwp_download_pattern"].search(file_name_value):
-            log['Tag'] = 'Web_HWP_Download'
+            log['_Tag_'] = 'Web_HWP_Download'
         elif self.patterns["web_doc_download_pattern"].search(file_name_value):
-            log['Tag'] = 'Web_DOC_Download'
+            log['_Tag_'] = 'Web_DOC_Download'
         elif self.patterns["web_docs_download_pattern"].search(file_name_value):
-            log['Tag'] = 'Web_DOCS_Download'
+            log['_Tag_'] = 'Web_DOCS_Download'
 
     def apply_tags(self):
         for top_level_key, top_level_value in self.data.items():
@@ -164,7 +164,7 @@ class LogTagger_1:
         gmail_logs = []
         for log in self.data.get("Edge_Chromium_Web_Visits", []):
             if isinstance(log, dict):
-                if log.get('Tag') == 'Gmail_Subject' and log.get('Date_Visited_Date/Time_-_UTC_(yyyy-mm-dd)') is not None:
+                if log.get('_Tag_') == 'Gmail_Subject' and log.get('Date_Visited_Date/Time_-_UTC_(yyyy-mm-dd)') is not None:
                     gmail_logs.append(log)
         return gmail_logs
 
@@ -173,7 +173,7 @@ class LogTagger_1:
         pdf_logs = []
         for log in self.data.get("Edge_Chromium_Downloads", []):
             if isinstance(log, dict):
-                if log.get('Tag') == 'Web_PDF_Download' and log.get('Start_Time_Date/Time_-_UTC_(yyyy-mm-dd)') is not None:
+                if log.get('_Tag_') == 'Web_PDF_Download' and log.get('Start_Time_Date/Time_-_UTC_(yyyy-mm-dd)') is not None:
                     pdf_logs.append(log)
         return pdf_logs
 
@@ -192,9 +192,9 @@ class LogTagger_1:
         current_gmail_log = None
 
         for log in logs:
-            if log.get('Tag') == 'Gmail_Subject':
+            if log.get('_Tag_') == 'Gmail_Subject':
                 current_gmail_log = log
-            elif log.get('Tag') == 'Web_PDF_Download' and current_gmail_log:
+            elif log.get('_Tag_') == 'Web_PDF_Download' and current_gmail_log:
                 grouped_downloads.append({
                     'gmail_log': current_gmail_log,
                     'pdf_log': log
@@ -234,7 +234,7 @@ class LogTagger_1_1:
         gmail_logs = []
         for log in self.data.get("Edge_Chromium_Web_Visits", []):
             if isinstance(log, dict):
-                if log.get('Tag') == 'Gmail_Create_New_mail' and log.get('Date_Visited_Date/Time_-_UTC_(yyyy-mm-dd)') is not None:
+                if log.get('_Tag_') == 'Gmail_Create_New_mail' and log.get('Date_Visited_Date/Time_-_UTC_(yyyy-mm-dd)') is not None:
                     gmail_logs.append(log)
         return gmail_logs
 
@@ -243,7 +243,7 @@ class LogTagger_1_1:
         pdf_logs = []
         for log in self.data.get("Edge_Chromium_Web_Visits", []):
             if isinstance(log, dict):
-                if log.get('Tag') == 'Gmail_Drive_Sharing' and log.get('Date_Visited_Date/Time_-_UTC_(yyyy-mm-dd)') is not None:
+                if log.get('_Tag_') == 'Gmail_Drive_Sharing' and log.get('Date_Visited_Date/Time_-_UTC_(yyyy-mm-dd)') is not None:
                     pdf_logs.append(log)
         return pdf_logs
 
@@ -261,9 +261,9 @@ class LogTagger_1_1:
         current_gmail_log = None
 
         for log in logs:
-            if log.get('Tag') == 'Gmail_Create_New_mail':
+            if log.get('_Tag_') == 'Gmail_Create_New_mail':
                 current_gmail_log = log
-            elif log.get('Tag') == 'Gmail_Drive_Sharing' and current_gmail_log:
+            elif log.get('_Tag_') == 'Gmail_Drive_Sharing' and current_gmail_log:
                 grouped_logs.append({
                     'gmail_log': current_gmail_log,
                     'drive_sharing_log': log
@@ -304,7 +304,7 @@ class LogTagger_1_2:
         gmail_logs = []
         for log in self.data.get("Edge_Chromium_Web_Visits", []):
             if isinstance(log, dict):
-                if log.get('Tag') == 'Gmail_Subject' and log.get('Date_Visited_Date/Time_-_UTC_(yyyy-mm-dd)') is not None:
+                if log.get('_Tag_') == 'Gmail_Subject' and log.get('Date_Visited_Date/Time_-_UTC_(yyyy-mm-dd)') is not None:
                     gmail_logs.append(log)
         return gmail_logs
 
@@ -313,7 +313,7 @@ class LogTagger_1_2:
         redirection_logs = []
         for log in self.data.get("Edge_Chromium_Last_Session", []):
             if isinstance(log, dict):
-                if log.get('Tag') == 'Google_Redirection' and log.get('Last_Visited_Date/Time_-_UTC_(yyyy-mm-dd)') is not None:
+                if log.get('_Tag_') == 'Google_Redirection' and log.get('Last_Visited_Date/Time_-_UTC_(yyyy-mm-dd)') is not None:
                     redirection_logs.append(log)
         return redirection_logs
 
@@ -332,9 +332,9 @@ class LogTagger_1_2:
         current_gmail_log = None
 
         for log in logs:
-            if log.get('Tag') == 'Gmail_Subject':
+            if log.get('_Tag_') == 'Gmail_Subject':
                 current_gmail_log = log
-            elif log.get('Tag') == 'Google_Redirection' and current_gmail_log:
+            elif log.get('_Tag_') == 'Google_Redirection' and current_gmail_log:
                 grouped_logs.append({
                     'gmail_log': current_gmail_log,
                     'redirection_log': log
@@ -374,7 +374,7 @@ class LogTagger_1_3:
         file_web_access_logs = []
         for log in self.data.get("Edge_Chromium_Web_Visits", []):
             if isinstance(log, dict):
-                if log.get('Tag') == 'File_Web_Access' and log.get('Date_Visited_Date/Time_-_UTC_(yyyy-mm-dd)') is not None:
+                if log.get('_Tag_') == 'File_Web_Access' and log.get('Date_Visited_Date/Time_-_UTC_(yyyy-mm-dd)') is not None:
                     file_web_access_logs.append(log)
         return file_web_access_logs
 
@@ -463,7 +463,7 @@ class LogTagger_2:
         for log in self.data.get("Edge_Chromium_Web_Visits", []):
             if isinstance(log, dict):
                 title_value = log.get('Title')  # 타이틀 값을 가져옴
-                if log.get('Tag') == 'Web_Search' and log.get('Date_Visited_Date/Time_-_UTC_(yyyy-mm-dd)') is not None:
+                if log.get('_Tag_') == 'Web_Search' and log.get('Date_Visited_Date/Time_-_UTC_(yyyy-mm-dd)') is not None:
                     # " - 검색" 앞의 문자열 추출
                     keyword = title_value.split(" - 검색")[0] if " - 검색" in title_value else None
                     if keyword:
@@ -487,7 +487,7 @@ class LogTagger_2:
         for log in self.data.get("Edge_Chromium_Web_Visits", []):
             if isinstance(log, dict):
                 title_value = log.get('Title')  # 타이틀 값을 가져옴
-                if log.get('Tag') == 'Gmail_Subject' and log.get('Date_Visited_Date/Time_-_UTC_(yyyy-mm-dd)') is not None:
+                if log.get('_Tag_') == 'Gmail_Subject' and log.get('Date_Visited_Date/Time_-_UTC_(yyyy-mm-dd)') is not None:
                     match = re.match(r"(.+?)\s-\s[\w.-]+@[\w.-]+", title_value)
                     if match:
                         keyword = match.group(1)  # 이메일 앞부분의 텍스트만 추출
