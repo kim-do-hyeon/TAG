@@ -10,6 +10,7 @@ from apps.analyze.analyze_filtering import analyze_case_filtering, analyze_case_
 from apps.analyze.analyze_tagging import all_table_parsing, all_tag_process
 from apps.analyze.analyze_util import *
 from apps.analyze.analyze_tag_group_graph import *
+from apps.analyze.analyze_tag_ranking import *
 import threading
 
 from flask import current_app
@@ -135,6 +136,8 @@ def redirect_case_analyze_group_result(id) :
         scripts_html = ''.join([str(script) for script in scripts])
         graph_datas[group_name].append([body_html, scripts_html])
     print(graph_datas)
+    
+    ranking_run('파일이 Gmail Drive를 통해 외부로 유출될 가능성이 있습니다.', case_id=id)
     
     return render_template('analyze/group_result.html', 
                            gmail_pdf=gmail_subject_to_web_pdf_download,
