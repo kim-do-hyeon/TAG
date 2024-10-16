@@ -145,8 +145,6 @@ def redirect_case_analyze_group_result(id) :
         result_dict['gmail_subject_to_google_drive_sharing'][i]['body'] = graph_datas['gmail_subject_to_google_drive_sharing'][i][0]
         result_dict['gmail_subject_to_google_drive_sharing'][i]['script'] = graph_datas['gmail_subject_to_google_drive_sharing'][i][1]
     
-    ranking_run('파일이 Gmail Drive를 통해 외부로 유출될 가능성이 있습니다.', case_id=id)
-   
     for i in range(len(result_dict['gmail_subject_to_google_redirection'])) :
         result_dict['gmail_subject_to_google_redirection'][i]['body'] = graph_datas['gmail_subject_to_google_redirection'][i][0]
         result_dict['gmail_subject_to_google_redirection'][i]['script'] = graph_datas['gmail_subject_to_google_redirection'][i][1]
@@ -155,5 +153,43 @@ def redirect_case_analyze_group_result(id) :
         result_dict['file_web_access_to_pdf_document'][i]['body'] = graph_datas['file_web_access_to_pdf_document'][i][0]
         result_dict['file_web_access_to_pdf_document'][i]['script'] = graph_datas['file_web_access_to_pdf_document'][i][1]
     
+    ranking_run('파일이 Gmail Drive를 통해 외부로 유출될 가능성이 있습니다.', case_id=id)
+
+    def classify_priority_dynamic(priority, total_priorities):
+        # Calculate thresholds for High, Medium, Low groups based on total priorities
+        high_threshold = int(total_priorities * 0.33)
+        medium_threshold = int(total_priorities * 0.66)
+        
+        if priority <= high_threshold:
+            return 'High'
+        elif high_threshold < priority <= medium_threshold:
+            return 'Medium'
+        else:
+            return 'Low'
+
+    user = session.get('username')
+    case_number = Upload_Case.query.filter_by(id=id).first().case_number
+    data_path = os.path.join(os.getcwd(), "uploads", user, case_number, "tag_priority_data.json")
+    with open(data_path, 'r', encoding='utf-8') as file:
+        data = json.load(file)
+    # Collect all priorities for dynamic classification
+    all_priorities = [value['priority'] for value in data.values()]
+    total_priorities = len(all_priorities)
+
+    # Transforming the data into a structured format with dynamic classification
+    structured_data_dynamic = []
+    for key, value in data.items():
+        priority = value['priority']
+        group = classify_priority_dynamic(priority, total_priorities)
+        structured_data_dynamic.append({
+            'name': key,
+            'priority': priority,
+            'group': group,
+            'description': value['description']
+        })
+    sorted_structured_data_dynamic = sorted(structured_data_dynamic, key=lambda x: x['group'])
+
+
     return render_template('analyze/group_result.html', 
-                           result_dict = result_dict)
+                           result_dict = result_dict,
+                           sorted_structured_data_dynamic = sorted_structured_data_dynamic)

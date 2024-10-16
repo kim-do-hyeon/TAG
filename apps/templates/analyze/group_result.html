@@ -36,7 +36,69 @@
                         <h5>TAG Result</h5>
                     </div>
                     <div class="card-body">
+                        <h5>Priority Classification Table</h5>
 
+                        <!-- Grouped by Group (High, Medium, Low) -->
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>이상수치</th>
+                                        <th>설명</th>
+                                        <th>태그</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- High Group -->
+                                    <tr>
+                                        <td><strong>높음</strong></td>
+                                        <td>
+                                            {% for item in sorted_structured_data_dynamic if item.group == 'High' %}
+                                                <strong>{{ item.description }}</strong>  <br>
+                                            {% endfor %}
+                                        </td>
+                                        <td>
+                                            {% for item in sorted_structured_data_dynamic if item.group == 'High' %}
+                                                <strong>{{ item.name }}</strong>  <br>
+                                            {% endfor %}
+                                        </td>
+                                    </tr>
+
+                                    <!-- Medium Group -->
+                                    <tr>
+                                        <td><strong>중간</strong></td>
+                                        <td>
+                                            {% for item in sorted_structured_data_dynamic if item.group == 'Medium' %}
+                                                <strong>{{ item.description }}</strong>  <br>
+                                            {% endfor %}
+                                        </td>
+                                        <td>
+                                            {% for item in sorted_structured_data_dynamic if item.group == 'Medium' %}
+                                                <strong>{{ item.name }}</strong>  <br>
+                                            {% endfor %}
+                                        </td>
+                                    </tr>
+
+                                    <!-- Low Group -->
+                                    <tr>
+                                        <td><strong>낮음</strong></td>
+                                        <td>
+                                            {% for item in sorted_structured_data_dynamic if item.group == 'Low' %}
+                                                <strong>{{ item.description }}</strong>  <br>
+                                            {% endfor %}
+                                        </td>
+                                        <td>
+                                            {% for item in sorted_structured_data_dynamic if item.group == 'Low' %}
+                                                <strong>{{ item.name }}</strong>  <br>
+                                            {% endfor %}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        
                         <!-- Gmail Subject to Web PDF Download -->
                         
                         <style>
