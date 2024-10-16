@@ -46,6 +46,8 @@
                                         <th>이상수치</th>
                                         <th>설명</th>
                                         <th>태그</th>
+                                        <th>태그 갯수</th>
+                                        <th>그룹</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -59,15 +61,29 @@
                                         </td>
                                         <td>
                                             {% for item in sorted_structured_data_dynamic if item.group == 'High' %}
-                                                <!-- 태그 클릭 시 모달을 띄움 -->
-                                                <a href="#" class="tag-link" data-bs-toggle="modal" data-bs-target="#flashModal" data-tag="{{ item.name }}">
-                                                    <strong>{{ item.name }}</strong>  
-                                                    {% if tag_count_dict[item.name] %}
-                                                        ({{ tag_count_dict[item.name] }})
+                                                <strong>{{ item.name }}</strong><br>
+                                            {% endfor %}
+                                        </td>
+                                        <td>
+                                            {% for item in sorted_structured_data_dynamic if item.group == 'High' %}
+                                                {% if all_tag_count[item.name] %}
+                                                    <a href="#" class="tag-link" data-bs-toggle="modal" data-bs-target="#tagModal" data-tag="{{ item.name }}">
+                                                        <strong>({{ all_tag_count[item.name] }})</strong> 
+                                                    </a> <br>
                                                     {% else %}
-                                                        (0)
+                                                        (0)<br>
                                                     {% endif %}
-                                                </a> <br>
+                                            {% endfor %}
+                                        </td>
+                                        <td>
+                                            {% for item in sorted_structured_data_dynamic if item.group == 'High' %}
+                                                {% if group_tag_count_dict[item.name] %}
+                                                    <a href="#" class="group-link" data-bs-toggle="modal" data-bs-target="#groupModal" data-tag="{{ item.name }}">
+                                                        <strong>({{ group_tag_count_dict[item.name] }})</strong> 
+                                                    </a> <br>
+                                                {% else %}
+                                                    (0)<br>
+                                                {% endif %}
                                             {% endfor %}
                                         </td>
                                     </tr>
@@ -82,14 +98,29 @@
                                         </td>
                                         <td>
                                             {% for item in sorted_structured_data_dynamic if item.group == 'Medium' %}
-                                                <a href="#" class="tag-link" data-bs-toggle="modal" data-bs-target="#flashModal" data-tag="{{ item.name }}">
-                                                    <strong>{{ item.name }}</strong>  
-                                                    {% if tag_count_dict[item.name] %}
-                                                        ({{ tag_count_dict[item.name] }})
+                                                <strong>{{ item.name }}</strong><br>
+                                            {% endfor %}
+                                        </td>
+                                        <td>
+                                            {% for item in sorted_structured_data_dynamic if item.group == 'Medium' %}
+                                                {% if all_tag_count[item.name] %}
+                                                    <a href="#" class="tag-link" data-bs-toggle="modal" data-bs-target="#tagModal" data-tag="{{ item.name }}">
+                                                        <strong>({{ all_tag_count[item.name] }})</strong> 
+                                                    </a> <br>
                                                     {% else %}
-                                                        (0)
+                                                        (0)<br>
                                                     {% endif %}
-                                                </a> <br>
+                                            {% endfor %}
+                                        </td>
+                                        <td>
+                                            {% for item in sorted_structured_data_dynamic if item.group == 'Medium' %}
+                                                {% if group_tag_count_dict[item.name] %}
+                                                    <a href="#" class="group-link" data-bs-toggle="modal" data-bs-target="#groupModal" data-tag="{{ item.name }}">
+                                                        <strong>({{ group_tag_count_dict[item.name] }})</strong> 
+                                                    </a> <br>
+                                                {% else %}
+                                                    (0)<br>
+                                                {% endif %}
                                             {% endfor %}
                                         </td>
                                     </tr>
@@ -104,14 +135,29 @@
                                         </td>
                                         <td>
                                             {% for item in sorted_structured_data_dynamic if item.group == 'Low' %}
-                                                <a href="#" class="tag-link" data-bs-toggle="modal" data-bs-target="#flashModal" data-tag="{{ item.name }}">
-                                                    <strong>{{ item.name }}</strong>  
-                                                    {% if tag_count_dict[item.name] %}
-                                                        ({{ tag_count_dict[item.name] }})
+                                                <strong>{{ item.name }}</strong><br>
+                                            {% endfor %}
+                                        </td>
+                                        <td>
+                                            {% for item in sorted_structured_data_dynamic if item.group == 'Low' %}
+                                                {% if all_tag_count[item.name] %}
+                                                    <a href="#" class="tag-link" data-bs-toggle="modal" data-bs-target="#tagModal" data-tag="{{ item.name }}">
+                                                        <strong>({{ all_tag_count[item.name] }})</strong> 
+                                                    </a> <br>
                                                     {% else %}
-                                                        (0)
+                                                        (0)<br>
                                                     {% endif %}
-                                                </a> <br>
+                                            {% endfor %}
+                                        </td>
+                                        <td>
+                                            {% for item in sorted_structured_data_dynamic if item.group == 'Low' %}
+                                                {% if group_tag_count_dict[item.name] %}
+                                                    <a href="#" class="group-link" data-bs-toggle="modal" data-bs-target="#groupModal" data-tag="{{ item.name }}">
+                                                        <strong>({{ group_tag_count_dict[item.name] }})</strong> 
+                                                    </a> <br>
+                                                {% else %}
+                                                    (0)<br>
+                                                {% endif %}
                                             {% endfor %}
                                         </td>
                                     </tr>
@@ -127,16 +173,34 @@
 </div>
 
 <!-- 모달 HTML -->
-<div class="modal fade" id="flashModal" tabindex="-1" aria-labelledby="flashModalLabel" aria-hidden="true">
+<div class="modal fade" id="groupModal" tabindex="-1" aria-labelledby="groupModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered"> <!-- 모달 크기를 크게 설정 -->
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="flashModalLabel">태그 정보</h5>
+                <h5 class="modal-title" id="groupModalLabel">그룹 태그 정보</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" style="max-height: 500px; overflow-y: auto;"> <!-- 스크롤 추가 -->
-                <!-- 모달에 태그 정보를 동적으로 삽입 -->
-                <div id="modal-tag-content"></div>
+                <!-- 그룹 모달에 태그 정보를 동적으로 삽입 -->
+                <div id="modal-group-content"></div>  <!-- 그룹 모달에 대한 콘텐츠 -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="tagModal" tabindex="-1" aria-labelledby="tagModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered"> <!-- 모달 크기를 크게 설정 -->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="tagModalLabel">태그 정보</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="max-height: 500px; overflow-y: auto;"> <!-- 스크롤 추가 -->
+                <!-- 태그 모달에 태그 정보를 동적으로 삽입 -->
+                <div id="modal-tag-content"></div> <!-- 태그 모달에 대한 콘텐츠 -->
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
@@ -169,36 +233,34 @@
 <!-- JavaScript 코드 -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        var tagLinks = document.querySelectorAll('.tag-link');
-        tagLinks.forEach(function (link) {
+        // 그룹 태그에 대한 클릭 이벤트 처리
+        var groupLinks = document.querySelectorAll('.group-link');
+        groupLinks.forEach(function (link) {
             link.addEventListener('click', function () {
                 var tag = this.getAttribute('data-tag');
-                
-                // 해당 태그에 대한 데이터를 result_dict에서 찾아 모달에 표시
+
+                // 그룹 태그 데이터를 가져옴 (group_tag_count_dict와 연결된 데이터를 사용)
                 var resultDict = {{ result_dict|tojson }};
-                var modalContent = document.getElementById('modal-tag-content');
-                
-                // 모달 본문 초기화
+                var modalContent = document.getElementById('modal-group-content');
+
+                // 모달 초기화
                 modalContent.innerHTML = '';
 
                 // 태그와 관련된 데이터를 담는 배열
                 var foundData = [];
 
-                // 태그와 관련된 모든 데이터를 탐색
+                // 태그에 대한 데이터를 탐색하여 배열에 저장
                 for (var category in resultDict) {
                     resultDict[category].forEach(function (item) {
-                        // 각 item의 모든 키를 순회
                         for (var key in item) {
-                            // 해당 키에 '_Tag_'가 있는지 확인
                             if (item[key] && item[key]['_Tag_'] === tag) {
-                                // 데이터를 배열에 저장
                                 foundData.push({ key: key, data: item[key] });
                             }
                         }
                     });
                 }
 
-                // 모달에 데이터를 테이블로 출력
+                // 데이터를 테이블 형식으로 출력
                 if (foundData.length > 0) {
                     foundData.forEach(function (entry, index) {
                         var tableHTML = `
@@ -212,7 +274,6 @@
                                 </thead>
                                 <tbody>`;
 
-                        // 각 데이터의 키-값 쌍을 테이블 행으로 추가
                         for (var dataKey in entry.data) {
                             tableHTML += `
                                 <tr>
@@ -221,10 +282,7 @@
                                 </tr>`;
                         }
 
-                        tableHTML += `
-                                </tbody>
-                            </table>`;
-
+                        tableHTML += `</tbody></table>`;
                         modalContent.innerHTML += tableHTML;
                     });
                 } else {
@@ -232,7 +290,69 @@
                 }
             });
         });
+
+        // 태그 모달에 대한 클릭 이벤트 처리
+        var tagLinks = document.querySelectorAll('.tag-link');
+            tagLinks.forEach(function (link) {
+                link.addEventListener('click', function () {
+                    var tag = this.getAttribute('data-tag');
+                    
+                    // all_tag_data에서 해당 태그와 관련된 데이터를 찾음
+                    var taggedItemsDict = {{ all_tag_data|tojson }};
+                    var modalContent = document.getElementById('modal-tag-content');
+                    
+                    // 모달 본문 초기화
+                    modalContent.innerHTML = '';
+
+                    // 태그와 관련된 데이터를 담는 배열
+                    var foundData = [];
+
+                    // 태그와 관련된 모든 데이터를 탐색
+                    for (var category in taggedItemsDict) {
+                        taggedItemsDict[category].forEach(function (item) {
+                            // 각 item의 모든 키를 순회하여 '_Tag_' 필드를 확인
+                            if (item['_Tag_'] === tag) {
+                                foundData.push(item);
+                            }
+                        });
+                    }
+
+                    // 모달에 데이터를 테이블로 출력
+                    if (foundData.length > 0) {
+                        foundData.forEach(function (entry, index) {
+                            var tableHTML = `
+                                <h5>` + (index + 1) + ` - ` + tag + `</h5>
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Key</th>
+                                            <th>Value</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>`;
+
+                            // 각 데이터의 키-값 쌍을 테이블 행으로 추가
+                            for (var dataKey in entry) {
+                                tableHTML += `
+                                    <tr>
+                                        <td>` + dataKey + `</td>
+                                        <td>` + entry[dataKey] + `</td>
+                                    </tr>`;
+                            }
+
+                            tableHTML += `
+                                    </tbody>
+                                </table>`;
+
+                            modalContent.innerHTML += tableHTML;
+                        });
+                    } else {
+                        modalContent.innerHTML = '해당 태그에 대한 정보가 없습니다.';
+                    }
+                });
+            });
     });
+
 </script>
 
 

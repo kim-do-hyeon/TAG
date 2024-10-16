@@ -169,16 +169,16 @@ def redirect_case_analyze_group_result(id) :
 
     user = session.get('username')
     case_number = Upload_Case.query.filter_by(id=id).first().case_number
-    data_path = os.path.join(os.getcwd(), "uploads", user, case_number, "tag_priority_data.json")
-    with open(data_path, 'r', encoding='utf-8') as file:
-        data = json.load(file)
+    priority_data_path = os.path.join(os.getcwd(), "uploads", user, case_number, "tag_priority_data.json")
+    with open(priority_data_path, 'r', encoding='utf-8') as file:
+        priority_data = json.load(file)
     # Collect all priorities for dynamic classification
-    all_priorities = [value['priority'] for value in data.values()]
+    all_priorities = [value['priority'] for value in priority_data.values()]
     total_priorities = len(all_priorities)
 
     # Transforming the data into a structured format with dynamic classification
     structured_data_dynamic = []
-    for key, value in data.items():
+    for key, value in priority_data.items():
         priority = value['priority']
         group = classify_priority_dynamic(priority, total_priorities)
         structured_data_dynamic.append({
@@ -189,19 +189,61 @@ def redirect_case_analyze_group_result(id) :
         })
     sorted_structured_data_dynamic = sorted(structured_data_dynamic, key=lambda x: x['group'])
 
-    tag_count_dict = {}
+    group_tag_count_dict = {}
 
     for category, items in result_dict.items():
         for item in items:
             for key, value in item.items():
                 if isinstance(value, dict) and '_Tag_' in value:
                     tag = value['_Tag_']
-                    if tag in tag_count_dict:
-                        tag_count_dict[tag] += 1
+                    if tag in group_tag_count_dict:
+                        group_tag_count_dict[tag] += 1
                     else:
-                        tag_count_dict[tag] = 1
+                        group_tag_count_dict[tag] = 1
 
+    all_tag_data_path = os.path.join(os.getcwd(), "uploads", user, case_number, "tagged_data_add_upload.json")
+    with open(all_tag_data_path, 'r', encoding='utf-8') as file:
+        all_tag_data = json.load(file)
+    tagged_items_dict = {}
+    
+    # 태그별 개수를 저장할 딕셔너리
+    all_tag_count = {}
 
+    # 태그가 포함된 아이템을 추출
+    for category, items in all_tag_data.items():
+        for item in items:
+            # 태그가 포함된 아이템만 따로 저장
+            for key, value in item.items():
+                if isinstance(value, dict) and '_Tag_' in value:
+                    tag = value['_Tag_']
+                    # 태그가 있는 아이템을 따로 저장
+                    if tag not in tagged_items_dict:
+                        tagged_items_dict[tag] = []
+                    tagged_items_dict[tag].append({key: value})
+
+                    # 태그 개수 카운팅
+                    if tag in all_tag_count:
+                        all_tag_count[tag] += 1
+                    else:
+                        all_tag_count[tag] = 1
+
+                # '_Tag_'가 최상위에 있을 경우 처리
+                elif key == '_Tag_':
+                    tag = value
+                    # 태그가 있는 최상위 아이템을 따로 저장
+                    if tag not in tagged_items_dict:
+                        tagged_items_dict[tag] = []
+                    tagged_items_dict[tag].append(item)
+
+                    # 태그 개수 카운팅
+                    if tag in all_tag_count:
+                        all_tag_count[tag] += 1
+                    else:
+                        all_tag_count[tag] = 1
+    print(tagged_items_dict)
     return render_template('analyze/group_result.html', 
                            result_dict = result_dict,
-                           sorted_structured_data_dynamic = sorted_structured_data_dynamic, tag_count_dict = tag_count_dict)
+                           sorted_structured_data_dynamic = sorted_structured_data_dynamic,
+                           group_tag_count_dict = group_tag_count_dict,
+                           all_tag_count = all_tag_count,
+                           all_tag_data = tagged_items_dict)
