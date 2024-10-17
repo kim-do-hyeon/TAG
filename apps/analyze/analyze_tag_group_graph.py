@@ -59,16 +59,18 @@ def make_analyze_tag_group_graph(result_list, case_id) :
     output_files = []
     for group_name, group_list in result_list.items() :
         for idx, group in enumerate(group_list) :
-            net = Network(height="750px", width="100%", notebook=True)
+            net = Network(height="1000px", width="100%", notebook=True)
             net.force_atlas_2based()
             prev_log = None
+            node_x = 0
             for log, attributes in group.items() :
                 title = ''
                 for col, data in attributes.items() :
                     if data :
                         row = insert_char_enter(f'{col} : {str(data)}')
                         title += row + '\n\n'
-                net.add_node(log, label=log, title=title, color='skyblue', shape='ellipse', size=150, font={'size' : 20})
+                net.add_node(log, label=log, color='skyblue', shape='ellipse', size=150, font={'size' : 20})
+                node_x += 30
                 
                 if prev_log is not None :
                     edge_label = group_name
@@ -84,16 +86,24 @@ def make_analyze_tag_group_graph(result_list, case_id) :
             output_file = os.path.join(case_folder, f'{group_name}_{str(idx)}.html')
             #net.show_buttons(filter_=['physics'])
             physics_options = """
-            var options = {
-            "physics": {
-                "forceAtlas2Based": {
-                "centralGravity": 0.005,
-                "springLength": 250,
-                "springConstant": 0.12
-                },
-                "minVelocity": 0.75,
-                "solver": "forceAtlas2Based"
-            }
+            {
+                "physics": {
+                    "enabled": true,
+                    "forceAtlas2Based": {
+                        "gravitationalConstant": -50,
+                        "centralGravity": 0.005,
+                        "springLength": 230,
+                        "springConstant": 0.06
+                    },
+                    "minVelocity": 0.75,
+                    "solver": "forceAtlas2Based",
+                    "timestep": 0.35,
+                    "stabilization": {
+                        "enabled": true,
+                        "iterations": 1000,
+                        "updateInterval": 25
+                    }
+                }
             }
             """
             net.set_options(physics_options)
