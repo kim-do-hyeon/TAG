@@ -10,7 +10,6 @@ from apps.analyze.analyze_filtering import analyze_case_filtering, analyze_case_
 from apps.analyze.analyze_tagging import all_table_parsing, all_tag_process
 from apps.analyze.analyze_util import *
 from apps.analyze.analyze_tag_group_graph import *
-from apps.manager.progress_bar import ProgressBar
 import threading
 
 from flask import current_app
@@ -102,12 +101,10 @@ def redirect_case_analyze_filtering_history_view(id) :
     return render_template('analyze/filtering.html', body_html=body_html, scripts_html=scripts_html,  tables=tables)
 
 def redirect_analyze_case_group(data) :
-    ProgressBar().reset_progress()
     output_path = all_table_parsing(data)
     with open(output_path, 'r', encoding='utf-8') as f:
         json_data = json.load(f)
     tag_process = all_tag_process(data, json_data, output_path)
-    ProgressBar().progress_end()
     return jsonify({'success': True})
 
 def redirect_case_analyze_group_result(id) :

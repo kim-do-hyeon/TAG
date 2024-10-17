@@ -3,6 +3,9 @@
 {% block title %} Case Analyze {% endblock %}
 
 {% block content %}
+<!-- Font Awesome 아이콘 사용을 위한 추가 -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlrZj/k7ujTnHq6j6hZT24ABWcT2phV6lEMAx+aAXeqDYX1wWYZQJTxihZ8t8Od8P7xgnDaQ6EwtEJBePbg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
 <div class="pcoded-main-container">
     <div class="pcoded-content">
         <!-- [ breadcrumb ] start -->
@@ -33,316 +36,134 @@
                         <h5>TAG Result</h5>
                     </div>
                     <div class="card-body">
+                        <h5>Priority Classification Table</h5>
 
-                        <!-- Gmail Subject to Web PDF Download -->
-                        <h5>
-                            <a data-bs-toggle="collapse" href="#collapseGmailPDF" role="button" aria-expanded="false" aria-controls="collapseGmailPDF">
-                                Gmail Subject to Web PDF Download
-                            </a>
-                        </h5>
-                        <div class="collapse" id="collapseGmailPDF">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <h5>Gmail Log</h5>
-                                    {% if gmail_pdf %}
-                                        <div class="table-responsive">
-                                            <table class="table table-bordered">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Key</th>
-                                                        <th>Value</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {% for item in gmail_pdf %}
-                                                        {% if item.gmail_log %}
-                                                            {% for key, value in item.gmail_log.items() %}
-                                                            <tr>
-                                                                <td>{{ key }}</td>
-                                                                <td style="word-wrap: break-word; max-width: 200px;">{{ value }}</td>
-                                                            </tr>
-                                                            {% endfor %}
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    {% else %}
-                                        <p>데이터가 없습니다.</p>
-                                    {% endif %}
-                                </div>
+                        <!-- Grouped by Group (High, Medium, Low) -->
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>이상수치</th>
+                                        <th>설명</th>
+                                        <th>태그</th>
+                                        <th>태그 갯수</th>
+                                        <th>그룹</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- High Group -->
+                                    <tr>
+                                        <td><strong>높음</strong></td>
+                                        <td>
+                                            {% for item in sorted_structured_data_dynamic if item.group == 'High' %}
+                                                <strong>{{ item.description }}</strong>  <br>
+                                            {% endfor %}
+                                        </td>
+                                        <td>
+                                            {% for item in sorted_structured_data_dynamic if item.group == 'High' %}
+                                                <strong>{{ item.name }}</strong><br>
+                                            {% endfor %}
+                                        </td>
+                                        <td>
+                                            {% for item in sorted_structured_data_dynamic if item.group == 'High' %}
+                                                {% if all_tag_count[item.name] %}
+                                                    <a href="#" class="tag-link" data-bs-toggle="modal" data-bs-target="#tagModal" data-tag="{{ item.name }}">
+                                                        <strong>({{ all_tag_count[item.name] }})</strong> 
+                                                    </a> <br>
+                                                    {% else %}
+                                                        (0)<br>
+                                                    {% endif %}
+                                            {% endfor %}
+                                        </td>
+                                        <td>
+                                            {% for item in sorted_structured_data_dynamic if item.group == 'High' %}
+                                                {% if group_tag_count_dict[item.name] %}
+                                                    <a href="#" class="group-link" data-bs-toggle="modal" data-bs-target="#groupModal" data-tag="{{ item.name }}">
+                                                        <strong>({{ group_tag_count_dict[item.name] }})</strong> 
+                                                    </a> <br>
+                                                {% else %}
+                                                    (0)<br>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </td>
+                                    </tr>
 
-                                <div class="col-md-6">
-                                    <h5>PDF Log</h5>
-                                    {% if gmail_pdf %}
-                                        <div class="table-responsive">
-                                            <table class="table table-bordered">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Key</th>
-                                                        <th>Value</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {% for item in gmail_pdf %}
-                                                        {% if item.pdf_log %}
-                                                            {% for key, value in item.pdf_log.items() %}
-                                                            <tr>
-                                                                <td>{{ key }}</td>
-                                                                <td style="word-wrap: break-word; max-width: 200px;">{{ value }}</td>
-                                                            </tr>
-                                                            {% endfor %}
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    {% else %}
-                                        <p>데이터가 없습니다.</p>
-                                    {% endif %}
-                                </div>
-                            </div>
+                                    <!-- Medium Group -->
+                                    <tr>
+                                        <td><strong>중간</strong></td>
+                                        <td>
+                                            {% for item in sorted_structured_data_dynamic if item.group == 'Medium' %}
+                                                <strong>{{ item.description }}</strong>  <br>
+                                            {% endfor %}
+                                        </td>
+                                        <td>
+                                            {% for item in sorted_structured_data_dynamic if item.group == 'Medium' %}
+                                                <strong>{{ item.name }}</strong><br>
+                                            {% endfor %}
+                                        </td>
+                                        <td>
+                                            {% for item in sorted_structured_data_dynamic if item.group == 'Medium' %}
+                                                {% if all_tag_count[item.name] %}
+                                                    <a href="#" class="tag-link" data-bs-toggle="modal" data-bs-target="#tagModal" data-tag="{{ item.name }}">
+                                                        <strong>({{ all_tag_count[item.name] }})</strong> 
+                                                    </a> <br>
+                                                    {% else %}
+                                                        (0)<br>
+                                                    {% endif %}
+                                            {% endfor %}
+                                        </td>
+                                        <td>
+                                            {% for item in sorted_structured_data_dynamic if item.group == 'Medium' %}
+                                                {% if group_tag_count_dict[item.name] %}
+                                                    <a href="#" class="group-link" data-bs-toggle="modal" data-bs-target="#groupModal" data-tag="{{ item.name }}">
+                                                        <strong>({{ group_tag_count_dict[item.name] }})</strong> 
+                                                    </a> <br>
+                                                {% else %}
+                                                    (0)<br>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </td>
+                                    </tr>
+
+                                    <!-- Low Group -->
+                                    <tr>
+                                        <td><strong>낮음</strong></td>
+                                        <td>
+                                            {% for item in sorted_structured_data_dynamic if item.group == 'Low' %}
+                                                <strong>{{ item.description }}</strong>  <br>
+                                            {% endfor %}
+                                        </td>
+                                        <td>
+                                            {% for item in sorted_structured_data_dynamic if item.group == 'Low' %}
+                                                <strong>{{ item.name }}</strong><br>
+                                            {% endfor %}
+                                        </td>
+                                        <td>
+                                            {% for item in sorted_structured_data_dynamic if item.group == 'Low' %}
+                                                {% if all_tag_count[item.name] %}
+                                                    <a href="#" class="tag-link" data-bs-toggle="modal" data-bs-target="#tagModal" data-tag="{{ item.name }}">
+                                                        <strong>({{ all_tag_count[item.name] }})</strong> 
+                                                    </a> <br>
+                                                    {% else %}
+                                                        (0)<br>
+                                                    {% endif %}
+                                            {% endfor %}
+                                        </td>
+                                        <td>
+                                            {% for item in sorted_structured_data_dynamic if item.group == 'Low' %}
+                                                {% if group_tag_count_dict[item.name] %}
+                                                    <a href="#" class="group-link" data-bs-toggle="modal" data-bs-target="#groupModal" data-tag="{{ item.name }}">
+                                                        <strong>({{ group_tag_count_dict[item.name] }})</strong> 
+                                                    </a> <br>
+                                                {% else %}
+                                                    (0)<br>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
-
-                        <!-- Gmail Subject to Google Drive Sharing -->
-                        <h5>
-                            <a data-bs-toggle="collapse" href="#collapseGoogleDrive" role="button" aria-expanded="false" aria-controls="collapseGoogleDrive">
-                                Gmail Subject to Google Drive Sharing
-                            </a>
-                        </h5>
-                        <div class="collapse" id="collapseGoogleDrive">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <h5>Gmail Log</h5>
-                                    {% if google_drive %}
-                                        <div class="table-responsive">
-                                            <table class="table table-bordered">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Key</th>
-                                                        <th>Value</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {% for item in google_drive %}
-                                                        {% if item.gmail_log %}
-                                                            <tr>
-                                                                <td>URL</td>
-                                                                <td style="word-wrap: break-word; max-width: 200px;">{{ item.gmail_log.URL }}</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>Title</td>
-                                                                <td>{{ item.gmail_log.Title }}</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>Date Visited</td>
-                                                                <td>{{ item.gmail_log['Date_Visited_Date/Time_-_UTC_(yyyy-mm-dd)'] }}</td>
-                                                            </tr>
-                                                        {% else %}
-                                                            <tr>
-                                                                <td colspan="2">No Gmail Log available.</td>
-                                                            </tr>
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    {% else %}
-                                        <p>데이터가 없습니다.</p>
-                                    {% endif %}
-                                </div>
-
-                                <div class="col-md-6">
-                                    <h5>Drive Sharing Log</h5>
-                                    {% if google_drive %}
-                                        <div class="table-responsive">
-                                            <table class="table table-bordered">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Key</th>
-                                                        <th>Value</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {% for item in google_drive %}
-                                                        {% if item.drive_sharing_log %}
-                                                            <tr>
-                                                                <td>URL</td>
-                                                                <td style="word-wrap: break-word; max-width: 200px;">{{ item.drive_sharing_log.URL }}</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>Title</td>
-                                                                <td>{{ item.drive_sharing_log.Title }}</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>Date Visited</td>
-                                                                <td>{{ item.drive_sharing_log['Date_Visited_Date/Time_-_UTC_(yyyy-mm-dd)'] }}</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>Transition Type</td>
-                                                                <td>{{ item.drive_sharing_log.Transition_Type }}</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>Artifact Name</td>
-                                                                <td>{{ item.drive_sharing_log.artifact_name }}</td>
-                                                            </tr>
-                                                        {% else %}
-                                                            <tr>
-                                                                <td colspan="2">No Drive Sharing Log available.</td>
-                                                            </tr>
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    {% else %}
-                                        <p>데이터가 없습니다.</p>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-
-
-                        <!-- Gmail Subject to Google Redirection -->
-                        <h5>
-                            <a data-bs-toggle="collapse" href="#collapseGoogleRedirect" role="button" aria-expanded="false" aria-controls="collapseGoogleRedirect">
-                                Gmail Subject to Google Redirection
-                            </a>
-                        </h5>
-                        <div class="collapse" id="collapseGoogleRedirect">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <h5>Gmail Log</h5>
-                                    {% if google_redirect %}
-                                        <div class="table-responsive">
-                                            <table class="table table-bordered">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Key</th>
-                                                        <th>Value</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {% for item in google_redirect %}
-                                                        {% if item.gmail_log %}
-                                                            {% for key, value in item.gmail_log.items() %}
-                                                            <tr>
-                                                                <td>{{ key }}</td>
-                                                                <td style="word-wrap: break-word; max-width: 200px;">{{ value }}</td>
-                                                            </tr>
-                                                            {% endfor %}
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    {% else %}
-                                        <p>데이터가 없습니다.</p>
-                                    {% endif %}
-                                </div>
-
-                                <div class="col-md-6">
-                                    <h5>Redirection Log</h5>
-                                    {% if google_redirect %}
-                                        <div class="table-responsive">
-                                            <table class="table table-bordered">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Key</th>
-                                                        <th>Value</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {% for item in google_redirect %}
-                                                        {% if item.redirection_log %}
-                                                            {% for key, value in item.redirection_log.items() %}
-                                                            <tr>
-                                                                <td>{{ key }}</td>
-                                                                <td style="word-wrap: break-word; max-width: 200px;">{{ value }}</td>
-                                                            </tr>
-                                                            {% endfor %}
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    {% else %}
-                                        <p>데이터가 없습니다.</p>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- File Web Access to PDF Document -->
-                        <h5>
-                            <a data-bs-toggle="collapse" href="#collapsePDFDocument" role="button" aria-expanded="false" aria-controls="collapsePDFDocument">
-                                File Web Access to PDF Document
-                            </a>
-                        </h5>
-                        <div class="collapse" id="collapsePDFDocument">
-                            {% if pdf_access %}
-                                {% for item in pdf_access %}
-                                    <div class="row mb-4">
-                                        <div class="col-md-6">
-                                            <h5>PDF Document Access Log</h5>
-                                            {% if 'pdf_document_access_log' in item %}
-                                                <div class="table-responsive">
-                                                    <table class="table table-bordered">
-                                                        <thead>
-                                                            <tr>
-                                                                <th>Key</th>
-                                                                <th>Value</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            {% for key, value in item['pdf_document_access_log'].items() %}
-                                                                <tr>
-                                                                    <td>{{ key }}</td>
-                                                                    <td style="word-wrap: break-word; max-width: 200px;">{{ value }}</td>
-                                                                </tr>
-                                                            {% endfor %}
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            {% else %}
-                                                <p>No PDF Document Access Log available.</p>
-                                            {% endif %}
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <h5>PDF Web Access Log</h5>
-                                            {% if 'pdf_web_access_log' in item %}
-                                                <div class="table-responsive">
-                                                    <table class="table table-bordered">
-                                                        <thead>
-                                                            <tr>
-                                                                <th>Key</th>
-                                                                <th>Value</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            {% for key, value in item['pdf_web_access_log'].items() %}
-                                                                <tr>
-                                                                    <td>{{ key }}</td>
-                                                                    <td style="word-wrap: break-word; max-width: 200px;">{{ value }}</td>
-                                                                </tr>
-                                                            {% endfor %}
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            {% else %}
-                                                <p>No PDF Web Access Log available.</p>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                {% endfor %}
-                            {% else %}
-                                <p>데이터가 없습니다.</p>
-                            {% endif %}
-                        </div>
-
-                        
-
                     </div>
                 </div>
             </div>
@@ -350,5 +171,191 @@
         <!-- [ Main Content ] end -->
     </div>
 </div>
+
+<!-- 모달 HTML -->
+<div class="modal fade" id="groupModal" tabindex="-1" aria-labelledby="groupModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered"> <!-- 모달 크기를 크게 설정 -->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="groupModalLabel">그룹 태그 정보</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="max-height: 500px; overflow-y: auto;"> <!-- 스크롤 추가 -->
+                <!-- 그룹 모달에 태그 정보를 동적으로 삽입 -->
+                <div id="modal-group-content"></div>  <!-- 그룹 모달에 대한 콘텐츠 -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="tagModal" tabindex="-1" aria-labelledby="tagModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered"> <!-- 모달 크기를 크게 설정 -->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="tagModalLabel">태그 정보</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="max-height: 500px; overflow-y: auto;"> <!-- 스크롤 추가 -->
+                <!-- 태그 모달에 태그 정보를 동적으로 삽입 -->
+                <div id="modal-tag-content"></div> <!-- 태그 모달에 대한 콘텐츠 -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CSS 스타일 추가 -->
+<style>
+    /* 모달 크기 조정 */
+    .modal-lg {
+        max-width: 50%; /* 모달의 최대 너비 설정 */
+    }
+
+    /* 테이블 너비 및 스크롤 처리 */
+    .modal-body {
+        word-wrap: break-word;
+    }
+
+    /* 긴 텍스트 줄바꿈 및 테이블 안에 넘치지 않도록 설정 */
+    table.table td {
+        word-wrap: break-word;
+        white-space: normal;
+        max-width: 400px; /* 텍스트가 줄바꿈될 최대 너비 */
+        overflow-wrap: break-word;
+    }
+</style>
+
+<!-- JavaScript 코드 -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // 그룹 태그에 대한 클릭 이벤트 처리
+        var groupLinks = document.querySelectorAll('.group-link');
+        groupLinks.forEach(function (link) {
+            link.addEventListener('click', function () {
+                var tag = this.getAttribute('data-tag');
+
+                // 그룹 태그 데이터를 가져옴 (group_tag_count_dict와 연결된 데이터를 사용)
+                var resultDict = {{ result_dict|tojson }};
+                var modalContent = document.getElementById('modal-group-content');
+
+                // 모달 초기화
+                modalContent.innerHTML = '';
+
+                // 태그와 관련된 데이터를 담는 배열
+                var foundData = [];
+
+                // 태그에 대한 데이터를 탐색하여 배열에 저장
+                for (var category in resultDict) {
+                    resultDict[category].forEach(function (item) {
+                        for (var key in item) {
+                            if (item[key] && item[key]['_Tag_'] === tag) {
+                                foundData.push({ key: key, data: item[key] });
+                            }
+                        }
+                    });
+                }
+
+                // 데이터를 테이블 형식으로 출력
+                if (foundData.length > 0) {
+                    foundData.forEach(function (entry, index) {
+                        var tableHTML = `
+                            <h5>` + (index + 1) + `. ` + entry.key + `</h5>
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Key</th>
+                                        <th>Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody>`;
+
+                        for (var dataKey in entry.data) {
+                            tableHTML += `
+                                <tr>
+                                    <td>` + dataKey + `</td>
+                                    <td>` + entry.data[dataKey] + `</td>
+                                </tr>`;
+                        }
+
+                        tableHTML += `</tbody></table>`;
+                        modalContent.innerHTML += tableHTML;
+                    });
+                } else {
+                    modalContent.innerHTML = '해당 태그에 대한 정보가 없습니다.';
+                }
+            });
+        });
+
+        // 태그 모달에 대한 클릭 이벤트 처리
+        var tagLinks = document.querySelectorAll('.tag-link');
+            tagLinks.forEach(function (link) {
+                link.addEventListener('click', function () {
+                    var tag = this.getAttribute('data-tag');
+                    
+                    // all_tag_data에서 해당 태그와 관련된 데이터를 찾음
+                    var taggedItemsDict = {{ all_tag_data|tojson }};
+                    var modalContent = document.getElementById('modal-tag-content');
+                    
+                    // 모달 본문 초기화
+                    modalContent.innerHTML = '';
+
+                    // 태그와 관련된 데이터를 담는 배열
+                    var foundData = [];
+
+                    // 태그와 관련된 모든 데이터를 탐색
+                    for (var category in taggedItemsDict) {
+                        taggedItemsDict[category].forEach(function (item) {
+                            // 각 item의 모든 키를 순회하여 '_Tag_' 필드를 확인
+                            if (item['_Tag_'] === tag) {
+                                foundData.push(item);
+                            }
+                        });
+                    }
+
+                    // 모달에 데이터를 테이블로 출력
+                    if (foundData.length > 0) {
+                        foundData.forEach(function (entry, index) {
+                            var tableHTML = `
+                                <h5>` + (index + 1) + ` - ` + tag + `</h5>
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Key</th>
+                                            <th>Value</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>`;
+
+                            // 각 데이터의 키-값 쌍을 테이블 행으로 추가
+                            for (var dataKey in entry) {
+                                tableHTML += `
+                                    <tr>
+                                        <td>` + dataKey + `</td>
+                                        <td>` + entry[dataKey] + `</td>
+                                    </tr>`;
+                            }
+
+                            tableHTML += `
+                                    </tbody>
+                                </table>`;
+
+                            modalContent.innerHTML += tableHTML;
+                        });
+                    } else {
+                        modalContent.innerHTML = '해당 태그에 대한 정보가 없습니다.';
+                    }
+                });
+            });
+    });
+
+</script>
+
+
+
 
 {% endblock content %}
