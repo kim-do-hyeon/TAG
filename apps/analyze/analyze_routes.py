@@ -10,6 +10,7 @@ from apps.analyze.analyze_filtering import analyze_case_filtering, analyze_case_
 from apps.analyze.analyze_tagging import all_table_parsing, all_tag_process
 from apps.analyze.analyze_util import *
 from apps.analyze.analyze_tag_group_graph import *
+from apps.analyze.analyze_tag_ranking import *
 import threading
 
 from flask import current_app
@@ -118,11 +119,131 @@ def redirect_case_analyze_group_result(id) :
     result_dict['gmail_subject_to_google_drive_sharing'] = gmail_subject_to_google_drive_sharing
     result_dict['gmail_subject_to_google_redirection'] = gmail_subject_to_google_redirection
     result_dict['file_web_access_to_pdf_document'] = file_web_access_to_pdf_document
+
+    html_files = make_analyze_tag_group_graph(result_dict, str(id))
+    graph_datas = {"gmail_subject_to_web_pdf_download" : [],
+                   "gmail_subject_to_google_drive_sharing" : [],
+                   "gmail_subject_to_google_redirection" : [],
+                   "file_web_access_to_pdf_document" : []
+                    }
+    for group_name, code in html_files : 
+        with open(code, 'r') as file:
+            html_content = file.read()
+        soup = BeautifulSoup(html_content, 'html.parser')
+        body_content = soup.body
+        scripts = soup.find_all('script')
+        body_html = str(body_content)
+        scripts_html = ''.join([str(script) for script in scripts])
+        graph_datas[group_name].append([body_html, scripts_html])
+
+    for i in range(len(result_dict['gmail_subject_to_web_pdf_download'])) :
+        result_dict['gmail_subject_to_web_pdf_download'][i]['body'] = graph_datas['gmail_subject_to_web_pdf_download'][i][0]
+        result_dict['gmail_subject_to_web_pdf_download'][i]['script'] = graph_datas['gmail_subject_to_web_pdf_download'][i][1]
     
-    make_analyze_tag_group_graph(result_dict, str(id))
+
+    for i in range(len(result_dict['gmail_subject_to_google_drive_sharing'])) :
+        result_dict['gmail_subject_to_google_drive_sharing'][i]['body'] = graph_datas['gmail_subject_to_google_drive_sharing'][i][0]
+        result_dict['gmail_subject_to_google_drive_sharing'][i]['script'] = graph_datas['gmail_subject_to_google_drive_sharing'][i][1]
     
+    for i in range(len(result_dict['gmail_subject_to_google_redirection'])) :
+        result_dict['gmail_subject_to_google_redirection'][i]['body'] = graph_datas['gmail_subject_to_google_redirection'][i][0]
+        result_dict['gmail_subject_to_google_redirection'][i]['script'] = graph_datas['gmail_subject_to_google_redirection'][i][1]
+    
+    for i in range(len(result_dict['file_web_access_to_pdf_document'])) :
+        result_dict['file_web_access_to_pdf_document'][i]['body'] = graph_datas['file_web_access_to_pdf_document'][i][0]
+        result_dict['file_web_access_to_pdf_document'][i]['script'] = graph_datas['file_web_access_to_pdf_document'][i][1]
+    
+    ranking_run('파일이 Gmail Drive를 통해 외부로 유출될 가능성이 있습니다.', case_id=id)
+
+    def classify_priority_dynamic(priority, total_priorities):
+        # Calculate thresholds for High, Medium, Low groups based on total priorities
+        high_threshold = int(total_priorities * 0.33)
+        medium_threshold = int(total_priorities * 0.66)
+        
+        if priority <= high_threshold:
+            return 'High'
+        elif high_threshold < priority <= medium_threshold:
+            return 'Medium'
+        else:
+            return 'Low'
+
+    user = session.get('username')
+    case_number = Upload_Case.query.filter_by(id=id).first().case_number
+    priority_data_path = os.path.join(os.getcwd(), "uploads", user, case_number, "tag_priority_data.json")
+    with open(priority_data_path, 'r', encoding='utf-8') as file:
+        priority_data = json.load(file)
+    # Collect all priorities for dynamic classification
+    all_priorities = [value['priority'] for value in priority_data.values()]
+    total_priorities = len(all_priorities)
+
+    # Transforming the data into a structured format with dynamic classification
+    structured_data_dynamic = []
+    for key, value in priority_data.items():
+        priority = value['priority']
+        group = classify_priority_dynamic(priority, total_priorities)
+        structured_data_dynamic.append({
+            'name': key,
+            'priority': priority,
+            'group': group,
+            'description': value['description']
+        })
+    sorted_structured_data_dynamic = sorted(structured_data_dynamic, key=lambda x: x['group'])
+
+    group_tag_count_dict = {}
+
+    for category, items in result_dict.items():
+        for item in items:
+            for key, value in item.items():
+                if isinstance(value, dict) and '_Tag_' in value:
+                    tag = value['_Tag_']
+                    if tag in group_tag_count_dict:
+                        group_tag_count_dict[tag] += 1
+                    else:
+                        group_tag_count_dict[tag] = 1
+
+    all_tag_data_path = os.path.join(os.getcwd(), "uploads", user, case_number, "tagged_data_add_upload.json")
+    with open(all_tag_data_path, 'r', encoding='utf-8') as file:
+        all_tag_data = json.load(file)
+    tagged_items_dict = {}
+    
+    # 태그별 개수를 저장할 딕셔너리
+    all_tag_count = {}
+
+    # 태그가 포함된 아이템을 추출
+    for category, items in all_tag_data.items():
+        for item in items:
+            # 태그가 포함된 아이템만 따로 저장
+            for key, value in item.items():
+                if isinstance(value, dict) and '_Tag_' in value:
+                    tag = value['_Tag_']
+                    # 태그가 있는 아이템을 따로 저장
+                    if tag not in tagged_items_dict:
+                        tagged_items_dict[tag] = []
+                    tagged_items_dict[tag].append({key: value})
+
+                    # 태그 개수 카운팅
+                    if tag in all_tag_count:
+                        all_tag_count[tag] += 1
+                    else:
+                        all_tag_count[tag] = 1
+
+                # '_Tag_'가 최상위에 있을 경우 처리
+                elif key == '_Tag_':
+                    tag = value
+                    # 태그가 있는 최상위 아이템을 따로 저장
+                    if tag not in tagged_items_dict:
+                        tagged_items_dict[tag] = []
+                    tagged_items_dict[tag].append(item)
+
+                    # 태그 개수 카운팅
+                    if tag in all_tag_count:
+                        all_tag_count[tag] += 1
+                    else:
+                        all_tag_count[tag] = 1
+    print(tagged_items_dict)
     return render_template('analyze/group_result.html', 
-                           gmail_pdf=gmail_subject_to_web_pdf_download,
-                           google_drive=gmail_subject_to_google_drive_sharing,
-                           google_redirect=gmail_subject_to_google_redirection,
-                           pdf_access=file_web_access_to_pdf_document)
+                           result_dict = result_dict,
+                           sorted_structured_data_dynamic = sorted_structured_data_dynamic,
+                           group_tag_count_dict = group_tag_count_dict,
+                           all_tag_count = all_tag_count,
+                           all_tag_data = tagged_items_dict)
