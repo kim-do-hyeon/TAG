@@ -4,7 +4,7 @@ import json
 import datetime
 import openai
 import urllib.parse
-
+from apps.manager.progress_bar import ProgressBar
 class LogTagger:
     def __init__(self, data):
         self.data = data
@@ -117,7 +117,9 @@ class LogTagger:
             log['_Tag_'] = 'Web_DOCS_Download'
 
     def apply_tags(self):
-        for top_level_key, top_level_value in self.data.items():
+        progress_bar = ProgressBar.get_instance()
+        item_len = len(self.data)
+        for idx, top_level_key, top_level_value in enumerate(self.data.items()):
             if top_level_key == "Edge_Chromium_Web_Visits":
                 for log in top_level_value:
                     self.tag_edge_chromium_web_visits(log)
@@ -139,6 +141,7 @@ class LogTagger:
             elif top_level_key == "Edge_Chromium_Cache_Records":
                 for log in top_level_value:
                     self.tag_Edge_Chromium_Cache_Records(log)
+            progress_bar.set_progress(round(((idx/item_len) / progress_bar.num_of_task) *100 + progress_bar.progress, 2))
 
     def save_data(self, output_path):
         with open(output_path, 'w', encoding='utf-8') as f:
@@ -191,7 +194,9 @@ class LogTagger_1:
         grouped_downloads = []
         current_gmail_log = None
 
-        for log in logs:
+        progress_bar = ProgressBar.get_instance()
+        item_len = len(logs)
+        for idx, log in enumerate(logs):
             if log.get('_Tag_') == 'Gmail_Subject':
                 current_gmail_log = log
             elif log.get('_Tag_') == 'Web_PDF_Download' and current_gmail_log:
@@ -200,6 +205,7 @@ class LogTagger_1:
                     'pdf_log': log
                 })
                 current_gmail_log = None
+            progress_bar.set_progress(round(((idx/item_len)/progress_bar.num_of_task)*100+progress_bar.progress, 2))
 
         return grouped_downloads
     def apply_tags(self):
@@ -260,7 +266,9 @@ class LogTagger_1_1:
         grouped_logs = []
         current_gmail_log = None
 
-        for log in logs:
+        progress_bar = ProgressBar.get_instance()
+        item_len = len(logs)
+        for idx, log in enumerate(logs):
             if log.get('_Tag_') == 'Gmail_Create_New_mail':
                 current_gmail_log = log
             elif log.get('_Tag_') == 'Gmail_Drive_Sharing' and current_gmail_log:
@@ -269,6 +277,7 @@ class LogTagger_1_1:
                     'drive_sharing_log': log
                 })
                 current_gmail_log = None
+            progress_bar.set_progress(round(((idx/item_len)/progress_bar.num_of_task)*100+progress_bar.progress, 2))
 
         return grouped_logs
 
@@ -331,7 +340,9 @@ class LogTagger_1_2:
         grouped_logs = []
         current_gmail_log = None
 
-        for log in logs:
+        item_len = len(logs)
+        progress_bar = ProgressBar.get_instance()
+        for idx, log in enumerate(logs):
             if log.get('_Tag_') == 'Gmail_Subject':
                 current_gmail_log = log
             elif log.get('_Tag_') == 'Google_Redirection' and current_gmail_log:
@@ -340,6 +351,7 @@ class LogTagger_1_2:
                     'redirection_log': log
                 })
                 current_gmail_log = None
+            progress_bar.set_progress(round(((idx/item_len)/progress_bar.num_of_task)*100+progress_bar.progress, 2))
 
         return grouped_logs
 
@@ -403,7 +415,9 @@ class LogTagger_1_3:
         logs = sorted(logs, key=lambda x: self.parse_datetime(x.get("Date_Visited_Date/Time_-_UTC_(yyyy-mm-dd)")))
         grouped_logs = []
         
-        for pdf_log in logs:
+        item_len = len(logs)
+        progress_bar = ProgressBar.get_instance()
+        for idx, pdf_log in enumerate(logs):
             # URL 인코딩된 파일명을 추출하고 디코딩
             encoded_pdf_filename = self.extract_pdf_filename(pdf_log.get('URL', ''))
             pdf_filename = urllib.parse.unquote(encoded_pdf_filename)  # URL 디코딩
@@ -424,6 +438,7 @@ class LogTagger_1_3:
                             'pdf_web_access_log': pdf_log
                         })
                     break  # 첫 번째 일치하는 로그를 찾으면 반복 중단
+            progress_bar.set_progress(round(((idx/item_len)/progress_bar.num_of_task)*100+progress_bar.progress, 2))
 
         return grouped_logs
 

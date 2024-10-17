@@ -1,6 +1,7 @@
 import sqlite3, os, json
 import pandas as pd
-from flask import request, render_template, session, redirect, url_for, flash, Request, jsonify, render_template_string
+from run import app as run_app
+from flask import app, request, render_template, session, redirect, url_for, flash, Request, jsonify, render_template_string
 from apps.authentication.models import Upload_Case, Normalization, GraphData, PromptQuries, UsbData, FilteringData, GroupParingResults
 from apps import db
 from apps.case.case_analyze import case_analyze_view
@@ -14,6 +15,8 @@ from apps.analyze.analyze_tag_ranking import *
 import threading
 
 from flask import current_app
+
+from apps.manager.progress_bar import ProgressBar
 
 def create_dict_from_file_paths(file_path):
     # 파일명 추출
@@ -102,13 +105,25 @@ def redirect_case_analyze_filtering_history_view(id) :
     return render_template('analyze/filtering.html', body_html=body_html, scripts_html=scripts_html,  tables=tables)
 
 def redirect_analyze_case_group(data) :
-    output_path = all_table_parsing(data)
-    with open(output_path, 'r', encoding='utf-8') as f:
-        json_data = json.load(f)
-    tag_process = all_tag_process(data, json_data, output_path)
-    return jsonify({'success': True})
+    ProgressBar.get_instance().start_progress()
+    user = session.get('username')
+    
+    def run_grouping(app, data, user) :
+        with app.app_context() :
+            output_path = all_table_parsing(data, user)
+            with open(output_path, 'r', encoding='utf-8') as f:
+                json_data = json.load(f)
+            tag_process = all_tag_process(data, user, json_data, output_path)
+            ProgressBar.get_instance().progress_end()
+    from threading import Thread
+    thread = Thread(target=run_grouping, args=(current_app._get_current_object(), data, user))
+    thread.start()
+    
+    return jsonify({'success': True, 'message' : '그룹화 진행이 시작되었습니다.'})
 
 def redirect_case_analyze_group_result(id) :
+    progres_bar = ProgressBar.get_instance()
+    progres_bar.start_progress()
     group_data = GroupParingResults.query.filter_by(case_id = id).first()
     gmail_subject_to_web_pdf_download = json.loads(group_data.result1)
     gmail_subject_to_google_drive_sharing = json.loads(group_data.result2)
@@ -136,22 +151,30 @@ def redirect_case_analyze_group_result(id) :
         scripts_html = ''.join([str(script) for script in scripts])
         graph_datas[group_name].append([body_html, scripts_html])
 
+    progres_bar.start_progress((len(result_dict['gmail_subject_to_web_pdf_download']) +
+                                len(result_dict['gmail_subject_to_google_drive_sharing']) + 
+                                len(result_dict['gmail_subject_to_google_redirection']) +
+                                len(result_dict['file_web_access_to_pdf_document'])))
     for i in range(len(result_dict['gmail_subject_to_web_pdf_download'])) :
         result_dict['gmail_subject_to_web_pdf_download'][i]['body'] = graph_datas['gmail_subject_to_web_pdf_download'][i][0]
         result_dict['gmail_subject_to_web_pdf_download'][i]['script'] = graph_datas['gmail_subject_to_web_pdf_download'][i][1]
+        progres_bar.done_1_task()
     
 
     for i in range(len(result_dict['gmail_subject_to_google_drive_sharing'])) :
         result_dict['gmail_subject_to_google_drive_sharing'][i]['body'] = graph_datas['gmail_subject_to_google_drive_sharing'][i][0]
         result_dict['gmail_subject_to_google_drive_sharing'][i]['script'] = graph_datas['gmail_subject_to_google_drive_sharing'][i][1]
+        progres_bar.done_1_task()
     
     for i in range(len(result_dict['gmail_subject_to_google_redirection'])) :
         result_dict['gmail_subject_to_google_redirection'][i]['body'] = graph_datas['gmail_subject_to_google_redirection'][i][0]
         result_dict['gmail_subject_to_google_redirection'][i]['script'] = graph_datas['gmail_subject_to_google_redirection'][i][1]
+        progres_bar.done_1_task()
     
     for i in range(len(result_dict['file_web_access_to_pdf_document'])) :
         result_dict['file_web_access_to_pdf_document'][i]['body'] = graph_datas['file_web_access_to_pdf_document'][i][0]
         result_dict['file_web_access_to_pdf_document'][i]['script'] = graph_datas['file_web_access_to_pdf_document'][i][1]
+        progres_bar.done_1_task()
     
     ranking_run('파일이 Gmail Drive를 통해 외부로 유출될 가능성이 있습니다.', case_id=id)
 
@@ -178,6 +201,7 @@ def redirect_case_analyze_group_result(id) :
 
     # Transforming the data into a structured format with dynamic classification
     structured_data_dynamic = []
+    progres_bar.start_progress(len(priority_data))
     for key, value in priority_data.items():
         priority = value['priority']
         group = classify_priority_dynamic(priority, total_priorities)
@@ -187,6 +211,7 @@ def redirect_case_analyze_group_result(id) :
             'group': group,
             'description': value['description']
         })
+        progres_bar.done_1_task()
     sorted_structured_data_dynamic = sorted(structured_data_dynamic, key=lambda x: x['group'])
 
     group_tag_count_dict = {}
@@ -211,6 +236,7 @@ def redirect_case_analyze_group_result(id) :
 
     # 태그가 포함된 아이템을 추출
     for category, items in all_tag_data.items():
+        progres_bar.start_progress(len(items))
         for item in items:
             # 태그가 포함된 아이템만 따로 저장
             for key, value in item.items():
@@ -240,7 +266,9 @@ def redirect_case_analyze_group_result(id) :
                         all_tag_count[tag] += 1
                     else:
                         all_tag_count[tag] = 1
+            progres_bar.done_1_task()
     print(tagged_items_dict)
+    progres_bar.progress_end()
     return render_template('analyze/group_result.html', 
                            result_dict = result_dict,
                            sorted_structured_data_dynamic = sorted_structured_data_dynamic,

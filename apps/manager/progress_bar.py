@@ -25,9 +25,8 @@ class ProgressBar:
         self.num_of_task = 0
         self.now_task = 0
         self.now_log = ''
-        self.show = False
 
-    def start_progress(self, num_of_task) :
+    def start_progress(self, num_of_task = 0) :
         self.progress = 0
         self.num_of_task = num_of_task
         self.now_task = 0
@@ -48,10 +47,14 @@ class ProgressBar:
         return self.now_log
     
     def get_progress(self) :
-        return self.progress
+        return round(self.progress,2)
     
     def progress_end(self) :
         self.reset_progress()
+        self.show = False
+    
+    def isShow(self) :
+        return self.show
         
 
     @classmethod

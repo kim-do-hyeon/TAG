@@ -3,6 +3,8 @@ import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 import json
 
+from apps.manager.progress_bar import ProgressBar
+
 class TagPriorityGenerator:
     def __init__(self, api_key, model="text-embedding-ada-002"):
         """
@@ -93,20 +95,28 @@ class TagPriorityGenerator:
         :param tags: 태그 설명 딕셔너리
         :return: 우선순위 데이터를 담은 딕셔너리
         """
+        progress_bar = ProgressBar.get_instance()
+        progress_bar.set_now_log('시나리오를 기반으로 태그의 우선순위 데이터를 생성')
+        progress_bar.start_progress(6)
         # 시나리오 임베딩 생성
         scenario_embedding = self.get_embedding(scenario)
+        progress_bar.done_1_task()
         
         # 각 태그 설명에 대해 임베딩 생성
         tag_embeddings = self.generate_tag_embeddings(tags)
+        progress_bar.done_1_task()
         
         # 시나리오와 각 태그 설명 간의 유사도 기반 priority 계산
         tag_priorities = self.calculate_similarity(scenario_embedding, tag_embeddings)
+        progress_bar.done_1_task()
 
         # 유사도 기반 priority를 정렬 순서로 변경
         tag_priorities = self.assign_priority(tag_priorities)
+        progress_bar.done_1_task()
 
         # 태그들 간의 유사도 기반 순위 계산
         tag_ranking = self.calculate_tag_ranking(tag_embeddings)
+        progress_bar.done_1_task()
 
         # 태그 순위와 설명을 결합하여 JSON 형식으로 변환
         tag_priority_data = {}
@@ -116,6 +126,7 @@ class TagPriorityGenerator:
                 "tag_ranking": tag_ranking.get(tag, {}),  # 태그 간 유사도 순위
                 "description": description
             }
+        progress_bar.done_1_task()
 
         return tag_priority_data
 

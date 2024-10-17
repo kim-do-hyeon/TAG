@@ -13,6 +13,7 @@ from apps.analyze.analyze_routes import *
 from apps.dashboard.dashboard_routes import *
 from apps.analyze.analyze_filtering import *
 from py2neo import Graph
+from apps.manager.progress_bar import ProgressBar
 
 
 neo4j_url = os.environ.get('neo4j_server')
@@ -141,6 +142,16 @@ def case_analyze_group_result(id) :
     return redirect_case_analyze_group_result(id)
 
 ''' End Case analyze '''
+
+
+''' Util '''
+@blueprint.route('/progress', methods=['GET'])
+def get_progress() :
+    instance = ProgressBar.get_instance()
+    #print(json.dumps({'progress' : instance.get_progress(), 'message' : instance.get_now_log(), 'isShow' : instance.isShow()}, indent=2))
+    return jsonify({'progress' : instance.get_progress(), 'message' : instance.get_now_log(), 'isShow' : instance.isShow()})
+
+''' End Util '''
 
 @blueprint.route('/<template>')
 @login_required

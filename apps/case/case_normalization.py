@@ -5,6 +5,8 @@ from apps.case.case_normalization_std import *
 import sqlite3
 import pandas as pd
 
+from apps.manager.progress_bar import ProgressBar
+
 def case_normalization(case_id, progress):
     db_instance = Upload_Case.query.filter_by(id=case_id).first()  # Renamed to avoid confusion with db session
     db_path = db_instance.file
@@ -19,6 +21,7 @@ def case_normalization(case_id, progress):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     progress[case_id] = 10
+    progress_bar = ProgressBar.get_instance()
     query_artifact_name = """
         SELECT artifact_name FROM artifact;
     """
@@ -129,6 +132,7 @@ def case_normalization(case_id, progress):
                         new_conn.commit()
                         # print(f"Data successfully inserted into {safe_table_name} table.")
                         progress['message'] += f"Data successfully inserted into {safe_table_name} table.\n"
+                        progress_bar.set_now_log(f"Data successfully inserted into {safe_table_name} table.")
                     except sqlite3.OperationalError as e:
                         print(f"Error inserting data into {safe_table_name}: {e}")
 
@@ -143,17 +147,21 @@ def case_normalization(case_id, progress):
             print(f"No artifact_id containing '{artifact_name_normalization}' found in artifact table.")
         
         progress[case_id] = min(70, progress[case_id] + increment)
+        progress_bar.set_progress(min(70, progress[case_id] + increment))
 
     ''' Remove System Files - Jihye Code '''
     remove_system_files(new_db_path, progress)
     progress[case_id] = 80
+    progress_bar.set_progress(80)
     ''' Remove Keywords - Jihye Code '''
     remove_keywords(new_db_path, progress)
     progress[case_id] = 90
+    progress_bar.set_progress(90)
     ''' Remove Win 10, 11 Basic Artifacts - Addy Code '''
     remove_win10_11_basic_artifacts(new_db_path, progress) 
 
     progress[case_id] = 100
+    progress_bar.set_progress(100)
 
     # Create a new Normalization entry
     new_normalization_data = Normalization(

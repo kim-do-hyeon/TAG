@@ -11,6 +11,8 @@ from apps.authentication.models import Upload_Case
 import ast
 import json
 
+from apps.manager.progress_bar import ProgressBar
+
 def shorten_string(s) :
     if len(s) > 40 :
         return s[0:35] + '...'
@@ -57,6 +59,8 @@ def make_analyze_tag_group_graph(result_list, case_id) :
     case_number = Upload_Case.query.filter_by(id=case_id).first().case_number
     case_folder = os.path.join(os.getcwd(), "uploads", user, case_number)
     output_files = []
+    progress_bar = ProgressBar.get_instance()
+    progress_bar.start_progress(len(result_list))
     for group_name, group_list in result_list.items() :
         for idx, group in enumerate(group_list) :
             net = Network(height="1000px", width="100%", notebook=True)
@@ -111,4 +115,5 @@ def make_analyze_tag_group_graph(result_list, case_id) :
             modify_html_click(output_file, f'{group_name}_{str(idx)}.html')
             print(f'Saved to {output_file}')
             output_files.append([group_name, output_file])
+        progress_bar.done_1_task()
     return output_files

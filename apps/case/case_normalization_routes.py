@@ -1,3 +1,4 @@
+from apps.manager.progress_bar import ProgressBar
 from run import app
 import sqlite3, time
 from flask import request, render_template, session, redirect, url_for, flash, Request, jsonify
@@ -14,11 +15,14 @@ def redirect_analyze_normalization(data, case_id, progress) :
     def run_normalization(app, case_id):
         
         with app.app_context():
+            progress_bar = ProgressBar.get_instance()
+            progress_bar.start_progress()
             result = case_normalization(case_id, progress)
             if result:
                 Upload_Case.query.filter_by(id=case_id).update(dict(normalization=True))
                 db.session.commit()
             # progress[case_id] = 100
+            progress_bar.progress_end()
 
     from threading import Thread
     thread = Thread(target=run_normalization, args=(app, case_id))
@@ -29,4 +33,5 @@ def redirect_get_normalization_progress(case_id, progress) :
     progress_value = progress.get(case_id, 0)
     message_value = progress.get("message", "")
     progress['message'] = ""
+    ProgressBar().get_instance().set_now_log("")
     return jsonify({'progress': progress_value, 'message' : message_value})

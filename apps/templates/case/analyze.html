@@ -291,8 +291,10 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert('정상적으로 처리되었습니다.');
-                        window.location.href = "/case/analyze/group/" + {{case.id}};
+                        showProgress(caseId, function () {
+                            alert('정상적으로 처리되었습니다.');
+                            window.location.href = "/case/analyze/group/" + {{case.id}};
+                        });
                     } else {
                         alert('Failed to submit the prompt.');
                     }
@@ -310,10 +312,16 @@
 
             // Function to poll the server for progress updates
             function updateProgress() {
-                fetch(`/case/analyze/normalization/progress/${caseId}`, {
+                // fetch(`/case/analyze/normalization/progress/${caseId}`, {
+                //     method: 'GET',
+                //     headers: {
+                //         'Content-Type': 'application/json',
+                //     }
+                // })
+                fetch(`/progress`, {
                     method: 'GET',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'application/json'
                     }
                 })
                 .then(response => response.json())
@@ -322,16 +330,17 @@
                     const message = data.message;
                     const progressBar = document.getElementById('progress-bar');
                     const progressText = document.getElementById('progress-text');
-                    const messageText = document.getElementById('message-Text')
+                    const messageText = document.getElementById('message-Text');
+                    const isShow = data.isShow;
                     // Update the progress bar and text
                     progressBar.style.width = `${progressValue}%`;
                     progressBar.setAttribute('aria-valuenow', progressValue);
                     progressText.textContent = `${progressValue}% Complete`;
-                    messageText.innerHTML = `${message.replace(/\n/g, '<br>')}` + messageText.innerHTML;
+                    messageText.innerHTML = `${message.replace(/\n/g, '<br>')}`;
 
 
                     // Continue polling if not yet complete
-                    if (progressValue < 100) {
+                    if (isShow) {
                         setTimeout(updateProgress, 10);  // Poll every second
                     } else {
                         onComplete();  // Reload the page upon completion
