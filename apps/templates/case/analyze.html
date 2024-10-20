@@ -41,10 +41,7 @@
                                             <th>Case Analysis</th>
                                             <th>Case Description</th>
                                             {% if case.normalization != None %}
-                                                <th>Prompt</th>
-                                                <th>Action</th>
                                                 <th>직접 분석</th>
-                                                <th>질의 히스토리</th>
                                                 <th>USB</th>
                                             {% else %}
                                                 <th>케이스 정규화</th>
@@ -59,16 +56,7 @@
                                             <td>{{ case.description }}</td>
                                             {% if case.normalization != None %}
                                             <td>
-                                                <input type="text" class="form-control prompt-input" data-case-id="{{ case.id }}" placeholder="Enter your prompt">
-                                            </td>
-                                            <td>
-                                                <button class="btn btn-primary submit-prompt" data-case-id="{{ case.id }}">Submit</button>
-                                            </td>
-                                            <td>
                                                 <button class="btn btn-primary" onclick="window.location.href='/case/analyze/view/{{case.id}}'">직접 분석</button>
-                                            </td>
-                                            <td>
-                                                <button class="btn btn-primary" onclick="window.location.href='/case/analyze/view/{{case.id}}/history'">히스토리</button>
                                             </td>
                                             <td>
                                                 <button class="btn btn-primary submit-usb" data-case-id="{{ case.id }}">Submit</button>
@@ -81,15 +69,15 @@
                                         </tr>
                                         {% if case.normalization != None %}
                                         <tr>
-                                            <th colspan="2">Start Date</th>
-                                            <th colspan="2">End Data</th>
-                                            <th colspan="2">Filtering</th>
-                                            <th colspan="2">Filtering History</th>
+                                            <th colspan="1">Start Date</th>
+                                            <th colspan="1">End Data</th>
+                                            <th colspan="1">Filtering</th>
+                                            <th colspan="1">Filtering History</th>
                                         </tr>
-                                        <td colspan="2">
+                                        <td colspan="1">
                                             <input type="datetime-local" id="start_date">
                                         </td>
-                                        <td colspan="2">
+                                        <td colspan="1">
                                             <input type="datetime-local" id="end_date">
                                         </td>
                                         <td>
@@ -146,41 +134,6 @@
 {% block javascripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('.submit-prompt').forEach(function(button) {
-            button.addEventListener('click', function() {
-                var caseId = this.getAttribute('data-case-id');
-                var promptInput = document.querySelector('.prompt-input[data-case-id="' + caseId + '"]');
-                var promptValue = promptInput.value;
-                if (promptValue.trim() === '') {
-                    alert('Please enter a prompt.');
-                    return;
-                }
-
-                fetch('/case/analyze/prompt', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ case_id: caseId, prompt: promptValue }),
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Redirect based on the URL provided by the server
-                        showProgress(caseId, function(){
-                            alert('정상적으로 처리되었습니다.');
-                            window.location.href = "/case_graph/" + {{case.id}};
-                        });
-                    } else {
-                        alert('Failed to submit the prompt.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while submitting the prompt.');
-                });
-            });
-        });
         document.querySelectorAll('.submit-usb').forEach(function(button) {
             button.addEventListener('click', function() {
                 var caseId = this.getAttribute('data-case-id');

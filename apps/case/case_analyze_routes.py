@@ -3,7 +3,6 @@ from flask import request, render_template, session, redirect, url_for, flash, R
 from apps.authentication.models import Upload_Case, Normalization, GraphData, PromptQuries, UsbData
 from apps import db
 from apps.case.case_analyze import case_analyze_view
-from apps.case.case_analyze_RAG import search_query
 from apps.analyze.analyze_usb import usb_connection
 import threading
 from flask import current_app
@@ -26,16 +25,6 @@ def redirect_case_view(id) :
         table_names = table_names,
         # record_counts = sum(record_counts)
         )
-
-def redirect_case_view_history(id):    
-    user_case = Upload_Case.query.filter_by(id=id).first()
-    if not user_case:
-        flash('Case not found', 'danger')
-        return redirect('/case/list')
-    datas = db.session.query(PromptQuries).filter(PromptQuries.case_id == id, PromptQuries.username == session.get('username')).all()
-    return render_template('case/view_history.html',
-                           case=user_case,
-                           datas=datas)
 
 def redirect_get_table_data(id, table_name) :
     user_case = Upload_Case.query.filter_by(id=id).first()
@@ -112,35 +101,5 @@ def redirect_get_selected_columns_data(id, table_name):
     ]
 
     return jsonify({'success': True, 'data': table_data, 'columns': selected_columns})
-
-def handle_graph_data(app, prompt, db_path, case_id, user, progress):
-    with app.app_context():
-        progress[case_id] = 0
-        result = search_query(prompt, db_path, case_id, user, progress)
-        if result == True :
-            progress[case_id] = 100
-        else :
-            progress[case_id] = 0
-
-def redirect_analyze_prompt(data, progress):
-    case_id = data.get('case_id')
-    prompt = data.get('prompt')
-    if not case_id or not prompt:
-        return jsonify({'success': False, 'message': 'Invalid input.'}), 400
-    else:
-        db_path = Normalization.query.filter_by(normalization_definition=case_id).first().file
-        user = session.get('username')  # Assuming 'username' is stored in session
-        if not user:
-            flash('사용자 정보를 찾을 수 없습니다. 다시 로그인 해주세요.', 'danger')
-            return redirect('/case/list')
-
-        # Get the current Flask app
-        app = current_app._get_current_object()
-
-        # Create and start a new thread for the search query
-        thread = threading.Thread(target=handle_graph_data, args=(app, prompt, db_path, case_id, user, progress))
-        thread.start()
-
-    return jsonify({'success': True})
 
 
