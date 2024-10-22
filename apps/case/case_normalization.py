@@ -104,6 +104,7 @@ def case_normalization(case_id, progress):
                     safe_table_name = artifact_name_normalization.replace(' ', '_').replace('-', '_').replace('$', '').replace('(', '').replace(')', '')
 
                     pivot_df = exclude_column(pivot_df, safe_table_name)
+                    pivot_df = pivot_df.drop_duplicates()
                     # print(pivot_df.columns)
 
                     # Create table with sanitized table name

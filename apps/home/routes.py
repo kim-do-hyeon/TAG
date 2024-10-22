@@ -8,20 +8,9 @@ from jinja2 import TemplateNotFound
 from apps.case.case_routes import *
 from apps.case.case_analyze_routes import *
 from apps.case.case_normalization_routes import *
-from apps.case.case_graph import *
 from apps.analyze.analyze_routes import *
 from apps.dashboard.dashboard_routes import *
 from apps.analyze.analyze_filtering import *
-from py2neo import Graph
-
-
-neo4j_url = os.environ.get('neo4j_server')
-neo4j_username = os.environ.get('neo4j_id')
-neo4j_password = os.environ.get('neo4j_password')
-graph = Graph(neo4j_url, auth=(neo4j_username, neo4j_password))
-
-
-
 
 progress = {}
 UPLOAD_FOLDER = 'uploads'  # You can adjust this path as per your project structure
@@ -51,9 +40,6 @@ def case_analyze(id):
 def case_view(id) :
     return redirect_case_view(id)
 
-@blueprint.route('/case/analyze/view/<int:id>/history', methods = ['GET', 'POST'])
-def case_view_history(id) :
-    return redirect_case_view_history(id)
 
 @blueprint.route('/case/analyze/view/table/<int:id>/<string:table_name>', methods=['GET'])
 def get_table_data(id, table_name):
@@ -67,10 +53,6 @@ def get_table_columns(id, table_name):
 def get_selected_columns_data(id, table_name):
     return redirect_get_selected_columns_data(id, table_name)
 
-@blueprint.route('/case/analyze/prompt', methods=['POST'])
-def analyze_prompt():
-    data = request.get_json()
-    return redirect_analyze_prompt(data, progress)
 
 @blueprint.route('/case/analyze/usb', methods=['POST'])
 def analyze_usb():
@@ -97,22 +79,6 @@ def analyze_normalization():
 @blueprint.route('/case/analyze/normalization/progress/<case_id>', methods=['GET'])
 def get_normalization_progress(case_id):
     return redirect_get_normalization_progress(case_id, progress)
-
-@blueprint.route('/case_graph/<int:id>')
-def case_graph(id) :
-    return render_template("case/connection.html", case_id = id)
-
-@blueprint.route('/case_graph_history/<int:id>')
-def case_graph_history(id) :
-    return render_template("case/connection_history.html", case_id = id)
-
-@blueprint.route('/case_get_graph_data/<int:id>')
-def get_graph_data(id):
-    return redirect_get_graph_data(id)
-
-@blueprint.route('/case_get_graph_data_history/<int:id>')
-def get_graph_data_history(id):
-    return redirect_get_graph_data_history(id)
 
 @blueprint.route('/case/analyze/filtering', methods = ['POST'])
 def case_analyze_filtering() :

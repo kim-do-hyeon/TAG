@@ -4,7 +4,6 @@ from flask import request, render_template, session, redirect, url_for, flash, R
 from apps.authentication.models import Upload_Case, Normalization, GraphData, PromptQuries, UsbData, FilteringData, GroupParingResults
 from apps import db
 from apps.case.case_analyze import case_analyze_view
-from apps.case.case_analyze_RAG import search_query
 from apps.analyze.analyze_usb import usb_connection
 from apps.analyze.analyze_filtering import analyze_case_filtering, analyze_case_filtering_to_minutes
 from apps.analyze.analyze_tagging import all_table_parsing, all_tag_process
