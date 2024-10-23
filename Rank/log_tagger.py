@@ -13,7 +13,7 @@ class LogTagger:
             "gmail_inbox_pattern": re.compile(r'Inbox\s\(\d+\)\s-\s.*@gmail\.com'),
             "gmail_sentmail_pattern": re.compile(r'(Sent\sMail)\s-\s.*@gmail\.com'),
             "gmail_subject_pattern": re.compile(r'.*\s-\s.*@gmail\.com'),
-            "search_pattern": re.compile(r'(.*?\s-\s검색)'),
+            "search_pattern": re.compile(r'(.*?\s-\s.*검색)'),
             "pdf_pattern": re.compile(r'.*?\.pdf'),
             "usb_device_pattern": re.compile(r'.*?\(Standard disk drives\)'),
             "remove_pattern": re.compile(r'Recycle\sBin'),
@@ -33,9 +33,15 @@ class LogTagger:
             "short_url_service_pattern": re.compile(r'\b(https?://)?(bit\.ly|tinyurl\.com|goo\.gl|t\.co|is\.gd|ow\.ly)/[a-zA-Z0-9]+\b'),
             "vpn_service_pattern": re.compile(r'\b(vpn|secure|proxy|anon|connect)\.[a-zA-Z0-9.-]+\b'),
             "proxy_server_port_pattern": re.compile(r':\b(8080|3128|8888|8000|8081|8118)\b'),
-            "nas_quickconnect_pattern": re.compile(r'https?:\/\/quickconnect\.to\/[a-zA-Z0-9]+(?:\/[^\s]*)?'),
-            "nas_c2synology_pattern": re.compile(r'https?:\/\/c2\.synology\.com\/[^\s]*'),
-            "personal_ip_server_pattern": re.compile(r'https?:\/\/(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\/[^\s]*')
+            "nas_quickconnect_pattern": re.compile(r'https:\/\/quickconnect\.to\/[a-zA-Z0-9]+(?:\/[^\s]*)?'),
+            "nas_c2synology_pattern": re.compile(r'https:\/\/c2\.synology\.com\/[^\s]*'),
+            "personal_ip_server_pattern": re.compile(r'https:\/\/(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\/[^\s]*'),
+            "naver_mybox_file_get_pattern": re.compile(r'https:\/\/api\.mybox\.naver\.com\/service\/vault\/file\/get\?'),
+            "proton_mail_archive_pattern": re.compile(r'https:\/\/mail\.proton\.me.*archive'),
+            "proton_mail_all_sent_pattern": re.compile(r'https:\/\/mail\.proton\.me.*all-sent'),
+            "proton_mail_account_pattern": re.compile(r'https:\/\/account\.proton.*'),
+            "proton_mail_all_drafts_pattern": re.compile(r'https:\/\/mail\.proton\.me.*all-drafts'),
+            "proton_mail_inbox_pattern": re.compile(r'https:\/\/mail\.proton\.me.*inbox')
         }
 
     def tag_edge_chromium_web_visits(self, log):
@@ -55,6 +61,16 @@ class LogTagger:
             log['_Tag_'] = 'Web_Search'
         # elif self.patterns["pdf_pattern"].search(title_value):
         #     log['_Tag_'] = 'Web_PDF'
+        if self.patterns["proton_mail_account_pattern"].search(url_value):
+            log['_Tag_'] = 'Proton_Mail_Account'
+        if self.patterns["proton_mail_archive_pattern"].search(url_value):
+            log['_Tag_'] = 'Proton_Mail_Archive'
+        if self.patterns["proton_mail_all_sent_pattern"].search(url_value):
+            log['_Tag_'] = 'Proton_Mail_All_Sent'
+        if self.patterns["proton_mail_all_drafts_pattern"].search(url_value):
+            log['_Tag_'] = 'Proton_Mail_All_Drafts'
+        if self.patterns["proton_mail_inbox_pattern"].search(url_value):
+            log['_Tag_'] = 'Proton_Mail_Inbox'
         if self.patterns["gmail_drive_sharing_pattern"].search(url_value):
             log['_Tag_'] = 'Gmail_Drive_Sharing'
         elif self.patterns["new_mail_create_pattern"].search(url_value):
@@ -79,7 +95,6 @@ class LogTagger:
             log['_Tag_'] = 'NAS_C2_Synology_Server'
         if self.patterns["personal_ip_server_pattern"].search(url_value):
             log['_Tag_'] = 'IP_Address_Server'
-        
 
 
     def tag_Edge_Chromium_Cache_Records(self, log):
@@ -88,6 +103,8 @@ class LogTagger:
             return
         if self.patterns["google_drive_upload_pattern"].search(url_value):
             log['_Tag_'] = 'Google_Drive_Upload'
+        if self.patterns["naver_mybox_file_get_pattern"].search(url_value):
+            log['_Tag_'] = 'Naver_MyBox_File_Get'
 
     def tag_usb_device(self, log):
         manufacturer_value = log.get("Manufacturer")
@@ -154,16 +171,25 @@ class LogTagger:
                     self.tag_recycle_bin(log)
             elif top_level_key == "Edge_Chromium_Current_Session":
                 for log in top_level_value:
-                    self.tag_edge_chromium_current_Last_session(log)
+                    self.tag_edge_chromium_current_Last_session(log) 
             elif top_level_key == "Edge_Chromium_Last_Session":
                 for log in top_level_value:
                     self.tag_edge_chromium_current_Last_session(log)
             elif top_level_key == "Edge_Chromium_Downloads":
                 for log in top_level_value:
                     self.tag_edge_chromium_downloads(log)
+            elif top_level_key == "Chrome_Downloads":
+                for log in top_level_value:
+                    self.tag_edge_chromium_downloads(log)
             elif top_level_key == "Edge_Chromium_Cache_Records":
                 for log in top_level_value:
                     self.tag_Edge_Chromium_Cache_Records(log)
+            elif top_level_key == "Chrome_Cache_Records":
+                for log in top_level_value:
+                    self.tag_Edge_Chromium_Cache_Records(log)
+            elif top_level_key == "Chrome_Web_Visits":
+                for log in top_level_value:
+                    self.tag_edge_chromium_web_visits(log)                   
 
     def save_data(self, output_path):
         with open(output_path, 'w', encoding='utf-8') as f:
@@ -355,7 +381,7 @@ class LogTagger_1_2:
                 })
                 current_gmail_log = None
 
-        return grouped_logs
+        return grouped_logs 
 
     def apply_tags(self):
         """그룹화된 결과를 적용하여 출력"""
@@ -446,6 +472,75 @@ class LogTagger_1_3:
         else:
             print("그룹화된 기록이 없습니다.")
 
+class LogTagger_1_4:
+    def __init__(self, data):
+        if isinstance(data, (dict, list)):
+            self.data = data
+        else:
+            raise TypeError("데이터 형식이 잘못되었습니다. 리스트 또는 딕셔너리가 필요합니다.")
+    
+    def parse_datetime(self, dt_str):
+        if dt_str is None:
+            return None
+        return datetime.datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S.%f")
+
+    def find_naver_mybox_file_get(self):
+        """ 모든 'naver_mybox_file_get' 태그를 가진 딕셔너리 리스트 반환 """
+        naver_mybox_file_get_logs = []
+        for log in self.data.get("Edge_Chromium_Cache_Records", []):
+            if isinstance(log, dict):
+                if log.get('_Tag_') == 'Naver_MyBox_File_Get' and log.get('Last_Visited_Date/Time_-_UTC_(yyyy-mm-dd)') is not None:
+                    naver_mybox_file_get_logs.append(log)
+        return naver_mybox_file_get_logs
+
+    def find_mru_recent_files_and_folders(self):
+        """ MRU_Recent_Files_&Folders 테이블에서 모든 로그 반환 """
+        return self.data.get("MRU_Recent_Files_&Folders", [])
+
+    def group_naver_mybox_and_mru_logs(self):
+        """ 
+        Naver_MyBox_File_Get 태그와 MRU_Recent_Files_&Folders 로그를 비교하여 
+        Last_Visited_Date와 Registry_Key_Modified_Date가 1초 이내에 있는 로그 그룹화 
+        """
+        result = []
+        naver_logs = self.find_naver_mybox_file_get()
+        mru_logs = self.find_mru_recent_files_and_folders()
+
+        for naver_log in naver_logs:
+            naver_time_str = naver_log.get('Last_Visited_Date/Time_-_UTC_(yyyy-mm-dd)')
+            naver_time = self.parse_datetime(naver_time_str)
+
+            if naver_time is None:
+                continue
+
+            for mru_log in mru_logs:
+                mru_time_str = mru_log.get('Registry_Key_Modified_Date/Time_-_UTC_(yyyy-mm-dd)')
+                mru_time = self.parse_datetime(mru_time_str)
+
+                if mru_time is None:
+                    continue
+
+                # 두 시간의 차이를 계산 (1초 이내인지 확인)
+                time_diff = abs((naver_time - mru_time).total_seconds())
+
+                if time_diff <= 1:  # 1초 이내
+                    result.append({
+                        "naver_log": naver_log,
+                        "mru_log": mru_log.get('File/Folder_Name'),
+                        "time_difference": time_diff
+                    })
+
+        return result
+
+    def apply_tags(self):
+        """ 그룹화된 결과를 적용하여 출력 """
+        grouped_logs = self.group_naver_mybox_and_mru_logs()
+        if grouped_logs:
+            print("Naver_MyBox_File_Get와 MRU_Recent_Files_&Folders 그룹화 결과:")
+            for log in grouped_logs:
+                print(json.dumps(log, indent=4, ensure_ascii=False))
+        else:
+            print("그룹화된 기록이 없습니다.")
 
 
 class LogTagger_2:
