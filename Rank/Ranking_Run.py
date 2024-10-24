@@ -149,7 +149,7 @@ class TagPriorityManager:
 # 메인 실행 부분
 if __name__ == "__main__":
     # OpenAI API 키 설정
-    api_key = "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"
+    api_key = "YOUR_OPENAI_API_KEY"
 
     # 시나리오 텍스트 예시
     scenario_text = "파일이 Gmail Drive를 통해 외부로 유출될 가능성이 있습니다."
