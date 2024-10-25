@@ -99,6 +99,11 @@ def redirect_case_analyze_filtering_history_view(id) :
     body_html, scripts_html, tables = extract_body_and_scripts(filtering_data)
     return render_template('analyze/filtering.html', body_html=body_html, scripts_html=scripts_html,  tables=tables)
 
+def redirect_analyze_case_final(data) :
+    print(data)
+
+
+
 def redirect_analyze_case_group(data) :
     output_path = all_table_parsing(data)
     with open(output_path, 'r', encoding='utf-8') as f:
