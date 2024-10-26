@@ -7,47 +7,6 @@
 | :----------------------------------------------------------: | :---------------------------------------------: | :------: | :-------------------------------------------------: | :------: |
 |<img src = "https://github.com/user-attachments/assets/a714954b-46da-4902-b52f-8a1374a7b8c9" width="150"> | <img src = "https://github.com/user-attachments/assets/674c678a-57b1-49a0-8bc1-10860df25a67" width="150"> | <img src = "https://github.com/user-attachments/assets/d1927bce-2d7d-4426-8529-26f69566308b" width="150">  | <img src = "https://github.com/user-attachments/assets/8ad8cf49-13d7-4033-8134-2a9a53f63b64" width="150"> | <img src = "https://github.com/user-attachments/assets/cd75e1e6-9ad0-4b8d-b3fc-18f686eda4d2" width="150">
 
-## 테스트 데이터
-<a href="http://file.system32.kr:5000/sharing/COXRyml8W">Download Scenario Sample</a>
-
-### 시나리오 내용
-
-### 시나리오 1
-전체 과정
-> USB 연결 → 기밀 문서 복사 → (문서 이름 or 확장자 변경) → USB 연결 해제 → 외부로 USB 유출
-- 2024년 9월 24일 오후 8시 8분
-> USB 연결 (Samsung Flash)
-- 2024년 9월 24일 오후 8시 9분
-> TAG_기밀자료_1 ~ 8.hwp 복사
-2024년 9월 24일 오후 8시 9분
->TAG_기밀자료_1 ~ 8.hwp → 문서_1 ~ 8.hwp 로 이름변경
-2024년 9월 24일 오후 8시 10분
-> USB 연결 해제
-
-### 시나리오 2
-- 전체 과정
-> USB 연결 → 외부 클라우드 스토리지에 업로드 → 복사본 삭제 → USB 연결 해제
-- 2024년 9월 24일 오후 8시 14분
-> USB  연결 (SanDisk)
-- 2024년 9월 24일 오후 8시 15분 
-> http://192.168.55.136:8888 접속후 TAG_도면_1 ~ 5.clip 파일 업로드
-- 2024년 9월 24일 오후 8시 16분
-> TAG_도면_1 ~ 5.clip 파일 영구 삭제
-- 2024년 9월 24일 오후 8시 17분
-> USB 연결 해제
-
-### 시나리오 3
-- 전체 과정
-> USB 연결 → 프린터를 사용한 내부 파일 출력 → 원본파일 삭제 → USB 연결 해제
-- 2024년 9월 24일 오후 8시 26분
-> USB 연결 (SG Flash)
-- 2024년 9월 24일 오후 8시 27분
-> TAG_기밀자료_9 ~ 15 출력
-- 2024년 9월 24일 오후 8시 28분
-> TAG_기밀자료_9 ~ 15 삭제 (일반삭제 / 휴지통에 있음)
-- 2024년 9월 24일 오후 8시 30분 
-> USB 연결 해제
-
 ## 📎 커밋 규칙
 
 기본적으로 각 기술에 맞게 커밋을 추가한다.
