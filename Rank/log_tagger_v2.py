@@ -42,6 +42,36 @@ class LogTagger:
                     # 기타 URL 패턴 추가 가능
                 ]
             },
+            "Chrome_Web_Visits": {
+                "Title": [
+                    ("Google_Login", re.compile(r'로그인\s-\sGoogle\s계정')),
+                    ("Gmail_Inbox", re.compile(r'Inbox\s\(\d+\)\s-\s.*@gmail\.com')),
+                    ("Gmail_Sent", re.compile(r'(Sent\sMail)\s-\s.*@gmail\.com')),
+                    ("Gmail_Subject", re.compile(r'.*\s-\s.*@gmail\.com')),
+                    ("Web_Search", re.compile(r'(.*?\s-\s.*검색)'))
+                    # 기타 Title 패턴 추가 가능
+                ],
+                "URL": [
+                    ("Proton_Mail_Account", re.compile(r'https:\/\/account\.proton.*')),
+                    ("Proton_Mail_Archive", re.compile(r'https:\/\/mail\.proton\.me.*archive')),
+                    ("Proton_Mail_All_Sent", re.compile(r'https:\/\/mail\.proton\.me.*all-sent')),
+                    ("Proton_Mail_All_Drafts", re.compile(r'https:\/\/mail\.proton\.me.*all-drafts')),
+                    ("Proton_Mail_Inbox", re.compile(r'https:\/\/mail\.proton\.me.*inbox')),
+                    ("Gmail_Drive_Sharing", re.compile(r'https:\/\/mail\.google\.com\/drivesharing.*?shareService=mail')),
+                    ("Gmail_Create_New_mail", re.compile(r'https:\/\/mail\.google\.com\/.*?inbox\?compose=new')),
+                    ("Google_Redirection", re.compile(r'https:\/\/www\.google\.com\/url\?q=')),
+                    ("File_Web_Access", re.compile(r'file:\/\/\/[A-Za-z]:\/(?:[^\/\n]+\/)*[^\/\n]+?\.[a-zA-Z0-9]+')),
+                    ("Mega_Drive", re.compile(r'https\/\/mega\.nz')),
+                    ("Dropbox_Drive", re.compile(r'https\/\/www\.dropbox\.com\/')),
+                    ("Short_URL_Service", re.compile(r'\b(https?://)?(bit\.ly|tinyurl\.com|goo\.gl|t\.co|is\.gd|ow\.ly)/[a-zA-Z0-9]+\b')),
+                    ("VPN_Service", re.compile(r'\b(vpn|secure|proxy|anon|connect)\.[a-zA-Z0-9.-]+\b')),
+                    ("Use_Proxy_Server_PORT", re.compile(r':\b(8080|3128|8888|8000|8081|8118)\b')),
+                    ("NAS_Quick_Connect_Server", re.compile(r'https:\/\/quickconnect\.to\/[a-zA-Z0-9]+(?:\/[^\s]*)?')),
+                    ("NAS_C2_Synology_Server", re.compile(r'https:\/\/c2\.synology\.com\/[^\s]*')),
+                    ("IP_Address_Server", re.compile(r'https:\/\/(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\/[^\s]*'))
+                    # 기타 URL 패턴 추가 가능
+                ]
+            },
             "USB_Devices": {
                 "Manufacturer": [
                     ("User_USB", re.compile(r'.*?\(Standard disk drives\)'))
@@ -62,6 +92,24 @@ class LogTagger:
                     ("Web_DOC_Download", re.compile(r'.*?\.doc')),
                     ("Web_DOCS_Download", re.compile(r'.*?\.docs'))
                     # 다운로드된 파일 형식에 대한 추가 패턴 가능
+                ]
+            },
+            "Chrome_Downloads": {
+                "File_Name": [
+                    ("Web_PDF_Download", re.compile(r'.*?\.pdf')),
+                    ("Web_EXE_Download", re.compile(r'.*?\.exe')),
+                    ("Web_HWP_Download", re.compile(r'.*?\.hwp')),
+                    ("Web_DOC_Download", re.compile(r'.*?\.doc')),
+                    ("Web_DOCS_Download", re.compile(r'.*?\.docs'))
+                    # 다운로드된 파일 형식에 대한 추가 패턴 가능
+                ]
+            },
+            "Chrome_Cache_Records": {
+                "URL": [
+                    ("Google_Drive_Upload", re.compile(r'https:\/\/drive\.google\.com.*?upload\?')),
+                    ("Naver_MyBox_File_Get", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service\/vault\/file\/get\?')),
+                    ("Tistory_File_Upload", re.compile(r'.*https:\/\/tistory\.com.*plugins\/fileUpload\/plugin\.min\.js'))
+                    # 기타 캐시 기록 관련 URL 패턴 추가 가능
                 ]
             },
             "Edge_Chromium_Cache_Records": {
@@ -96,6 +144,22 @@ class LogTagger:
                     ("Google_Redirection", re.compile(r'https:\/\/www\.google\.com\/url\?q='))
                 ]
             },
+            "MRU_Recent_Files_&_Folders": {
+                "File/Folder_Name": [
+                    ("MRU_File_PDF", re.compile(r'.*?\.pdf')),
+                    ("MRU_Recent_Folder", re.compile(r''))
+                ]
+            },
+            "MRU_Opened/Saved_Files": {
+                "File_Name": [
+                    ("MRU_File_PDF", re.compile(r'.*?\.pdf'))
+                ]
+            },
+            "MRU_Folder_Access": {
+                "Application_Name": [
+                    ("MRU_Folder_Access_Chrome", re.compile(r'chrome\.exe'))
+                ]
+            }
         }
 
     def tag_log(self, df, column_name, column_patterns):
@@ -496,10 +560,3 @@ class LogTagger_1_4:
         else:
             print("그룹화된 기록이 없습니다.")
 
-# 사용 예시
-db_url = r"sqlite:///C:\Users\addy0\OneDrive\바탕 화면\2024-10-10 - 복사본.db"
-tagger = LogTagger(db_url)
-tagger.apply_tags()
-
-tagger = LogTagger_1_4(db_url)
-tagger.apply_tags()
