@@ -54,16 +54,28 @@ class LogTagger:
                     ("Naver_Mail_Write_Session", re.compile(r'https:\/\/mail\.naver\.com\/write')),
                     ("Naver_Mail_Write", re.compile(r'https:\/\/mail\.naver\.com\/.*\/new')),
                     ("Naver_Mail_Write_Done", re.compile(r'https:\/\/mail\.naver\.com\/.*\/new\/done')),
+                    ("Naver_Mail_Self_Sent", re.compile(r'https:\/\/mail\.naver\.com\/.*\/new?\type=toMe'))
                     ("Naver_Mail_All_Mail", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/-1')),
                     ("Naver_Mail_Inbox", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/0')),
-                    ("Naver_Mail_Sent", re.compile(r'https\/\/mail\.naver\.com\/.*\/folders\/1')),
-                    ("Naver_Mail_Receipt_Confirmation", re.compile(r'https\/\/mail\.naver\.com\/.*\/folders\/2')),
+                    ("Naver_Mail_Sent", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/1')),
+                    ("Naver_Mail_Receipt_Confirmation", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/2')),
                     ("Naver_Mail_Drafts", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/3')),
-                    ("Naver_Mail_Self_Sent_Mailbox", re.compile(r'https\/\/mail\.naver\.com\/.*\/folders\/6')),
+                    ("Naver_Mail_Trash", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/4')),
+                    ("Naver_Mail_Self_Sent_Mailbox", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/6')),
+                    #Kakao Mail
+                    ("Kakao_Mail_Login", re.compile(r'https:\/\/logins\.daum\.net\/accounts\/kakaossotokenlogin\.do\?redirect=true&ssotoken=.*&url='))
+                    ("Kakao_Mail_Inbox", re.compile(r'^https:\/\/mail\.kakao\.com\/top\/INBOX$')),
+                    ("Kakao_Mail_")
+                    #Daum
+                    ("Daum_Mail_Login", re.compile(r'https:\/\/accounts\.kakao\.com\/weblogin\/sso_login\.html\?only=daum&continue=https%3A%2F%2Fmail\.daum\.net&type=ksso')),
+                    #Tistory
+                    ("Tistory_Login", re.complile(r'https:\/\/www\.tistory\.com\/auth\/kakao\/redirect\?code=.*')),
+                    ("Tistory_Manage", re.compile(r'https:\/\/*.tistory\.com\/manage\/.*')),
+                    ("Tistory_New_Post", re.complile(r'https:\/\/*.tistory\.com\/manage\/newpost.*')),
                     #ETC
                     ("File_Web_Access", re.compile(r'file:\/\/\/[A-Za-z]:\/(?:[^\/\n]+\/)*[^\/\n]+?\.[a-zA-Z0-9]+')),
-                    ("Mega_Drive", re.compile(r'https\/\/mega\.nz')),
-                    ("Dropbox_Drive", re.compile(r'https\/\/www\.dropbox\.com\/')),
+                    ("Mega_Drive", re.compile(r'https:\/\/mega\.nz')),
+                    ("Dropbox_Drive", re.compile(r'https:\/\/www\.dropbox\.com\/')),
                     ("Short_URL_Service", re.compile(r'\b(https?://)?(bit\.ly|tinyurl\.com|goo\.gl|t\.co|is\.gd|ow\.ly)/[a-zA-Z0-9]+\b')),
                     ("VPN_Service", re.compile(r'\b(vpn|secure|proxy|anon|connect)\.[a-zA-Z0-9.-]+\b')),
                     ("Use_Proxy_Server_PORT", re.compile(r':\b(8080|3128|8888|8000|8081|8118)\b')),
@@ -117,14 +129,15 @@ class LogTagger:
                     ("Naver_Mail_Write_Done", re.compile(r'https:\/\/mail\.naver\.com\/.*\/new\/done')),
                     ("Naver_Mail_All_Mail", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/-1')),
                     ("Naver_Mail_Inbox", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/0')),
-                    ("Naver_Mail_Sent", re.compile(r'https\/\/mail\.naver\.com\/.*\/folders\/1')),
-                    ("Naver_Mail_Receipt_Confirmation", re.compile(r'https\/\/mail\.naver\.com\/.*\/folders\/2')),
+                    ("Naver_Mail_Sent", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/1')),
+                    ("Naver_Mail_Receipt_Confirmation", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/2')),
                     ("Naver_Mail_Drafts", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/3')),
-                    ("Naver_Mail_Self_Sent_Mailbox", re.compile(r'https\/\/mail\.naver\.com\/.*\/folders\/6')),
+                    ("Naver_Mail_Trash", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/4')),
+                    ("Naver_Mail_Self_Sent_Mailbox", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/6')),
                     #ETC
                     ("File_Web_Access", re.compile(r'file:\/\/\/[A-Za-z]:\/(?:[^\/\n]+\/)*[^\/\n]+?\.[a-zA-Z0-9]+')),
-                    ("Mega_Drive", re.compile(r'https\/\/mega\.nz')),
-                    ("Dropbox_Drive", re.compile(r'https\/\/www\.dropbox\.com\/')),
+                    ("Mega_Drive", re.compile(r'https:\/\/mega\.nz')),
+                    ("Dropbox_Drive", re.compile(r'https:\/\/www\.dropbox\.com\/')),
                     ("Short_URL_Service", re.compile(r'\b(https?://)?(bit\.ly|tinyurl\.com|goo\.gl|t\.co|is\.gd|ow\.ly)/[a-zA-Z0-9]+\b')),
                     ("VPN_Service", re.compile(r'\b(vpn|secure|proxy|anon|connect)\.[a-zA-Z0-9.-]+\b')),
                     ("Use_Proxy_Server_PORT", re.compile(r':\b(8080|3128|8888|8000|8081|8118)\b')),
@@ -178,14 +191,14 @@ class LogTagger:
                     ("Naver_Mail_Write_Done", re.compile(r'https:\/\/mail\.naver\.com\/.*\/new\/done')),
                     ("Naver_Mail_All_Mail", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/-1')),
                     ("Naver_Mail_Inbox", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/0')),
-                    ("Naver_Mail_Sent", re.compile(r'https\/\/mail\.naver\.com\/.*\/folders\/1')),
-                    ("Naver_Mail_Receipt_Confirmation", re.compile(r'https\/\/mail\.naver\.com\/.*\/folders\/2')),
+                    ("Naver_Mail_Sent", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/1')),
+                    ("Naver_Mail_Receipt_Confirmation", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/2')),
                     ("Naver_Mail_Drafts", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/3')),
-                    ("Naver_Mail_Self_Sent_Mailbox", re.compile(r'https\/\/mail\.naver\.com\/.*\/folders\/6')),
+                    ("Naver_Mail_Self_Sent_Mailbox", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/6')),
                     #ETC
                     ("File_Web_Access", re.compile(r'file:\/\/\/[A-Za-z]:\/(?:[^\/\n]+\/)*[^\/\n]+?\.[a-zA-Z0-9]+')),
-                    ("Mega_Drive", re.compile(r'https\/\/mega\.nz')),
-                    ("Dropbox_Drive", re.compile(r'https\/\/www\.dropbox\.com\/')),
+                    ("Mega_Drive", re.compile(r'https:\/\/mega\.nz')),
+                    ("Dropbox_Drive", re.compile(r'https:\/\/www\.dropbox\.com\/')),
                     ("Short_URL_Service", re.compile(r'\b(https?://)?(bit\.ly|tinyurl\.com|goo\.gl|t\.co|is\.gd|ow\.ly)/[a-zA-Z0-9]+\b')),
                     ("VPN_Service", re.compile(r'\b(vpn|secure|proxy|anon|connect)\.[a-zA-Z0-9.-]+\b')),
                     ("Use_Proxy_Server_PORT", re.compile(r':\b(8080|3128|8888|8000|8081|8118)\b')),
@@ -694,3 +707,86 @@ class LogTagger_1_4:
         else:
             print("그룹화된 기록이 없습니다.")
 
+class LogTagger_1_5:
+    def __init__(self, db_url):
+        self.engine = create_engine(db_url)
+
+    def parse_datetime(self, dt_str):
+        """문자열 형식의 날짜/시간을 datetime 객체로 변환"""
+        if dt_str is None:
+            return None
+        return datetime.datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S.%f")
+
+    def find_mru_folder_access_chrome(self):
+        query = "SELECT * FROM MRU_Folder_Access WHERE _TAG_ = 'MRU_Folder_Access_Chrome'"
+        mru_folder_access_logs = pd.read_sql_query(query, self.engine)
+        # Folder_Accessed 컬럼 값을 리스트로 변환
+        print("Folder_Accessed 값:", mru_folder_access_logs['Folder_Accessed'].tolist())
+        return mru_folder_access_logs['Folder_Accessed'].tolist()
+
+    def find_mru_opened_saved_files(self):
+        # MRU_Folder_Access에서 Folder_Accessed 값 가져오기
+        mru_folder_access_logs = self.find_mru_folder_access_chrome()
+        
+        # 결과를 저장할 데이터프레임 초기화
+        opened_saved_files = pd.DataFrame()
+        
+        # 각 Folder_Accessed 값을 기준으로 MRU_Opened/Saved_Files 조회
+        for folder_accessed in mru_folder_access_logs:
+            # folder_accessed 값을 작은따옴표로 감싸서 쿼리 작성
+            query = f"SELECT File_Path FROM 'MRU_Opened/Saved_Files' WHERE File_Path = '{folder_accessed}'"
+            result = pd.read_sql_query(query, self.engine)
+            print(f"쿼리 실행 결과 for '{folder_accessed}':\n", result)  # 디버깅 출력
+            opened_saved_files = pd.concat([opened_saved_files, result], ignore_index=True)
+        
+        return opened_saved_files['File_Path']  # File_Path 컬럼만 반환
+
+    def apply_tags(self):
+            """파일 열람 기록 데이터를 불러와 출력"""
+            opened_saved_files = self.find_mru_opened_saved_files()
+            print(opened_saved_files)
+
+
+
+# LogTaggerManager 클래스 정의
+class LogTaggerManager:
+    def __init__(self, db_url):
+        self.tagger_classes = {
+            "1": ("기본 태깅", LogTagger),
+            "2": ("이메일에서 PDF 다운로드 그룹화", LogTagger_1),
+            "3": ("Gmail과 드라이브 공유 그룹화", LogTagger_1_1),
+            "4": ("Gmail과 리디렉션 그룹화", LogTagger_1_2),
+            "5": ("파일 웹 접근과 PDF 문서 그룹화", LogTagger_1_3),
+            "6": ("네이버 마이박스와 MRU 그룹화", LogTagger_1_4),
+            "7": ("Chrome에서 MRU 폴더 접근 및 파일 열람 데이터", LogTagger_1_5)
+        }
+        self.db_url = db_url
+
+    def display_options(self):
+        print("사용할 태거 기능을 선택하세요:")
+        for key, (desc, _) in self.tagger_classes.items():
+            print(f"{key}: {desc}")
+
+    def run_tagger(self, choice):
+        """ 선택한 태거 클래스의 태깅 작업을 수행 """
+        tagger_info = self.tagger_classes.get(choice)
+        if tagger_info is None:
+            print("유효하지 않은 선택입니다. 다시 시도하세요.")
+            return
+
+        _, tagger_class = tagger_info
+        tagger_instance = tagger_class(self.db_url)
+        tagger_instance.apply_tags()
+
+# 사용 예시
+db_url = r"sqlite:///C:\Users\addy0\OneDrive\바탕 화면\DB 모음\2024-10-27 - 복사본.db"
+manager = LogTaggerManager(db_url)
+
+# 사용자에게 선택지를 보여주고 입력 받기
+while True:
+    manager.display_options()
+    choice = input("원하는 기능의 번호를 입력하세요 (종료하려면 'q'): ")
+    if choice.lower() == 'q':
+        print("프로그램을 종료합니다.")
+        break
+    manager.run_tagger(choice)
