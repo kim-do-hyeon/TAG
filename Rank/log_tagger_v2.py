@@ -14,22 +14,53 @@ class LogTagger:
         self.patterns = {
             "Edge_Chromium_Web_Visits": {
                 "Title": [
-                    ("Google_Login", re.compile(r'로그인\s-\sGoogle\s계정')),
-                    ("Gmail_Inbox", re.compile(r'Inbox\s\(\d+\)\s-\s.*@gmail\.com')),
-                    ("Gmail_Sent", re.compile(r'(Sent\sMail)\s-\s.*@gmail\.com')),
-                    ("Gmail_Subject", re.compile(r'.*\s-\s.*@gmail\.com')),
-                    ("Web_Search", re.compile(r'(.*?\s-\s.*검색)'))
+                    ("Web_Search", re.compile(r'(.*?\s-\s.*검색)')) 
                     # 기타 Title 패턴 추가 가능
                 ],
                 "URL": [
-                    ("Proton_Mail_Account", re.compile(r'https:\/\/account\.proton.*')),
+                    #Proton Mail 
+                    ("Proton_Mail_Home_Page", re.compile(r'https:\/\/proton\.me\/mail')),
+                    ("Proton_Mail_Login", re.compile(r'https:\/\/account\.proton.*')),
+                    ("Proton_Mail_Login_Session", re.compile(r'https:\/\/mail\.proton\.me\/login#')),
+                    ("Proton_Mail_Login_Session_Expired", re.compile(r'https:\/\/account\.proton\.me\/authorize\?app=proton-mail&state=.*reason=session-expired')),
+                    ("Proton_Mail_Trash", re.compile(r'https:\/\/mail\.proton\.me.*trash')),
                     ("Proton_Mail_Archive", re.compile(r'https:\/\/mail\.proton\.me.*archive')),
                     ("Proton_Mail_All_Sent", re.compile(r'https:\/\/mail\.proton\.me.*all-sent')),
                     ("Proton_Mail_All_Drafts", re.compile(r'https:\/\/mail\.proton\.me.*all-drafts')),
                     ("Proton_Mail_Inbox", re.compile(r'https:\/\/mail\.proton\.me.*inbox')),
-                    ("Gmail_Drive_Sharing", re.compile(r'https:\/\/mail\.google\.com\/drivesharing.*?shareService=mail')),
-                    ("Gmail_Create_New_mail", re.compile(r'https:\/\/mail\.google\.com\/.*?inbox\?compose=new')),
+                    #Google
+                    ("Google_Login_Service_Endpoint", re.compile(r'https:\/\/accounts\.google\.com\/ServiceLogin\?')),
+                    ("Google_Login_Interactive_Endpoint", re.compile(r'https:\/\/accounts\.google\.com\/InteractiveLogin\?')),
                     ("Google_Redirection", re.compile(r'https:\/\/www\.google\.com\/url\?q=')),
+                    #Gmail
+                    ("Gmail_Inbox", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*ogbl\/?pli=1$')),
+                    ("Gmail_Inbox", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#inbox$')),
+                    ("Gmail_Sent", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#sent$')),
+                    ("Gmail_Drafts", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#drafts$')),
+                    ("Gmail_trash", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#trash$')),
+                    ("Gmail_Starred", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#starred$')),
+                    ("Gmail_Open_Mail", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/[a-zA-Z]+$')),
+                    ("Gmail_Mail_Write", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\?compose=.*$')),
+                    ("Gmail_Drive_Sharing", re.compile(r'https:\/\/mail\.google\.com\/drivesharing.*?shareService=mail')),
+                    ("Gmail_Create_New_mail", re.compile(r'https:\/\/mail\.google\.com\/.*\?compose=new')),
+                    #Outlook
+                    ("Outlook_Login_Session", re.compile(r'https:\/\/login\.live\.com\/ppsecure\/post\.srf\?cobrandid=.*&uaid=.*&pid=.*&opid=.*&route=.*')),
+                    ("Outlook_Sent", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/sentitems\?')),
+                    ("Outlook_Drafts", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/drafts\?')),
+                    ("Outlook_Trash", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/deleteditems\?')),
+                    #Naver
+                    ("Naver_Login", re.compile(r'https:\/\/nid\.naver\.com\/nidlogin\.login')),
+                    #Naver Mail
+                    ("Naver_Mail_Write_Session", re.compile(r'https:\/\/mail\.naver\.com\/write')),
+                    ("Naver_Mail_Write", re.compile(r'https:\/\/mail\.naver\.com\/.*\/new')),
+                    ("Naver_Mail_Write_Done", re.compile(r'https:\/\/mail\.naver\.com\/.*\/new\/done')),
+                    ("Naver_Mail_All_Mail", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/-1')),
+                    ("Naver_Mail_Inbox", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/0')),
+                    ("Naver_Mail_Sent", re.compile(r'https\/\/mail\.naver\.com\/.*\/folders\/1')),
+                    ("Naver_Mail_Receipt_Confirmation", re.compile(r'https\/\/mail\.naver\.com\/.*\/folders\/2')),
+                    ("Naver_Mail_Drafts", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/3')),
+                    ("Naver_Mail_Self_Sent_Mailbox", re.compile(r'https\/\/mail\.naver\.com\/.*\/folders\/6')),
+                    #ETC
                     ("File_Web_Access", re.compile(r'file:\/\/\/[A-Za-z]:\/(?:[^\/\n]+\/)*[^\/\n]+?\.[a-zA-Z0-9]+')),
                     ("Mega_Drive", re.compile(r'https\/\/mega\.nz')),
                     ("Dropbox_Drive", re.compile(r'https\/\/www\.dropbox\.com\/')),
@@ -44,22 +75,114 @@ class LogTagger:
             },
             "Chrome_Web_Visits": {
                 "Title": [
-                    ("Google_Login", re.compile(r'로그인\s-\sGoogle\s계정')),
-                    ("Gmail_Inbox", re.compile(r'Inbox\s\(\d+\)\s-\s.*@gmail\.com')),
-                    ("Gmail_Sent", re.compile(r'(Sent\sMail)\s-\s.*@gmail\.com')),
-                    ("Gmail_Subject", re.compile(r'.*\s-\s.*@gmail\.com')),
-                    ("Web_Search", re.compile(r'(.*?\s-\s.*검색)'))
+                    ("Web_Search", re.compile(r'(.*?\s-\s.*검색)')) 
                     # 기타 Title 패턴 추가 가능
                 ],
                 "URL": [
-                    ("Proton_Mail_Account", re.compile(r'https:\/\/account\.proton.*')),
+                    #Proton Mail 
+                    ("Proton_Mail_Home_Page", re.compile(r'https:\/\/proton\.me\/mail')),
+                    ("Proton_Mail_Login", re.compile(r'https:\/\/account\.proton.*')),
+                    ("Proton_Mail_Login_Session", re.compile(r'https:\/\/mail\.proton\.me\/login#')),
+                    ("Proton_Mail_Login_Session_Expired", re.compile(r'https:\/\/account\.proton\.me\/authorize\?app=proton-mail&state=.*reason=session-expired')),
+                    ("Proton_Mail_Trash", re.compile(r'https:\/\/mail\.proton\.me.*trash')),
                     ("Proton_Mail_Archive", re.compile(r'https:\/\/mail\.proton\.me.*archive')),
                     ("Proton_Mail_All_Sent", re.compile(r'https:\/\/mail\.proton\.me.*all-sent')),
                     ("Proton_Mail_All_Drafts", re.compile(r'https:\/\/mail\.proton\.me.*all-drafts')),
                     ("Proton_Mail_Inbox", re.compile(r'https:\/\/mail\.proton\.me.*inbox')),
-                    ("Gmail_Drive_Sharing", re.compile(r'https:\/\/mail\.google\.com\/drivesharing.*?shareService=mail')),
-                    ("Gmail_Create_New_mail", re.compile(r'https:\/\/mail\.google\.com\/.*?inbox\?compose=new')),
+                    #Google
+                    ("Google_Login_Service_Endpoint", re.compile(r'https:\/\/accounts\.google\.com\/ServiceLogin\?')),
+                    ("Google_Login_Interactive_Endpoint", re.compile(r'https:\/\/accounts\.google\.com\/InteractiveLogin\?')),
                     ("Google_Redirection", re.compile(r'https:\/\/www\.google\.com\/url\?q=')),
+                    #Gmail
+                    ("Gmail_Inbox", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*ogbl\/?pli=1$')),
+                    ("Gmail_Inbox", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#inbox$')),
+                    ("Gmail_Sent", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#sent$')),
+                    ("Gmail_Drafts", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#drafts$')),
+                    ("Gmail_trash", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#trash$')),
+                    ("Gmail_Starred", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#starred$')),
+                    ("Gmail_Open_Mail", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/[a-zA-Z]+$')),
+                    ("Gmail_Mail_Write", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\?compose=.*$')),
+                    ("Gmail_Drive_Sharing", re.compile(r'https:\/\/mail\.google\.com\/drivesharing.*?shareService=mail')),
+                    ("Gmail_Create_New_mail", re.compile(r'https:\/\/mail\.google\.com\/.*\?compose=new')),
+                    #Outlook
+                    ("Outlook_Login_Session", re.compile(r'https:\/\/login\.live\.com\/ppsecure\/post\.srf\?cobrandid=.*&uaid=.*&pid=.*&opid=.*&route=.*')),
+                    ("Outlook_Sent", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/sentitems\?')),
+                    ("Outlook_Drafts", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/drafts\?')),
+                    ("Outlook_Trash", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/deleteditems\?')),
+                    #Naver
+                    ("Naver_Login", re.compile(r'https:\/\/nid\.naver\.com\/nidlogin\.login')),
+                    #Naver Mail
+                    ("Naver_Mail_Write_Session", re.compile(r'https:\/\/mail\.naver\.com\/write')),
+                    ("Naver_Mail_Write", re.compile(r'https:\/\/mail\.naver\.com\/.*\/new')),
+                    ("Naver_Mail_Write_Done", re.compile(r'https:\/\/mail\.naver\.com\/.*\/new\/done')),
+                    ("Naver_Mail_All_Mail", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/-1')),
+                    ("Naver_Mail_Inbox", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/0')),
+                    ("Naver_Mail_Sent", re.compile(r'https\/\/mail\.naver\.com\/.*\/folders\/1')),
+                    ("Naver_Mail_Receipt_Confirmation", re.compile(r'https\/\/mail\.naver\.com\/.*\/folders\/2')),
+                    ("Naver_Mail_Drafts", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/3')),
+                    ("Naver_Mail_Self_Sent_Mailbox", re.compile(r'https\/\/mail\.naver\.com\/.*\/folders\/6')),
+                    #ETC
+                    ("File_Web_Access", re.compile(r'file:\/\/\/[A-Za-z]:\/(?:[^\/\n]+\/)*[^\/\n]+?\.[a-zA-Z0-9]+')),
+                    ("Mega_Drive", re.compile(r'https\/\/mega\.nz')),
+                    ("Dropbox_Drive", re.compile(r'https\/\/www\.dropbox\.com\/')),
+                    ("Short_URL_Service", re.compile(r'\b(https?://)?(bit\.ly|tinyurl\.com|goo\.gl|t\.co|is\.gd|ow\.ly)/[a-zA-Z0-9]+\b')),
+                    ("VPN_Service", re.compile(r'\b(vpn|secure|proxy|anon|connect)\.[a-zA-Z0-9.-]+\b')),
+                    ("Use_Proxy_Server_PORT", re.compile(r':\b(8080|3128|8888|8000|8081|8118)\b')),
+                    ("NAS_Quick_Connect_Server", re.compile(r'https:\/\/quickconnect\.to\/[a-zA-Z0-9]+(?:\/[^\s]*)?')),
+                    ("NAS_C2_Synology_Server", re.compile(r'https:\/\/c2\.synology\.com\/[^\s]*')),
+                    ("IP_Address_Server", re.compile(r'https:\/\/(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\/[^\s]*'))
+                    # 기타 URL 패턴 추가 가능
+                ]
+            },
+            "Firefox_Web_Visits": {
+                "Title": [
+                    ("Web_Search", re.compile(r'(.*?\s-\s.*검색)')) 
+                    # 기타 Title 패턴 추가 가능
+                ],
+                "URL": [
+                    #Proton Mail 
+                    ("Proton_Mail_Home_Page", re.compile(r'https:\/\/proton\.me\/mail')),
+                    ("Proton_Mail_Login", re.compile(r'https:\/\/account\.proton.*')),
+                    ("Proton_Mail_Login_Session", re.compile(r'https:\/\/mail\.proton\.me\/login#')),
+                    ("Proton_Mail_Login_Session_Expired", re.compile(r'https:\/\/account\.proton\.me\/authorize\?app=proton-mail&state=.*reason=session-expired')),
+                    ("Proton_Mail_Trash", re.compile(r'https:\/\/mail\.proton\.me.*trash')),
+                    ("Proton_Mail_Archive", re.compile(r'https:\/\/mail\.proton\.me.*archive')),
+                    ("Proton_Mail_All_Sent", re.compile(r'https:\/\/mail\.proton\.me.*all-sent')),
+                    ("Proton_Mail_All_Drafts", re.compile(r'https:\/\/mail\.proton\.me.*all-drafts')),
+                    ("Proton_Mail_Inbox", re.compile(r'https:\/\/mail\.proton\.me.*inbox')),
+                    #Google
+                    ("Google_Login_Service_Endpoint", re.compile(r'https:\/\/accounts\.google\.com\/ServiceLogin\?')),
+                    ("Google_Login_Interactive_Endpoint", re.compile(r'https:\/\/accounts\.google\.com\/InteractiveLogin\?')),
+                    ("Google_Redirection", re.compile(r'https:\/\/www\.google\.com\/url\?q=')),
+                    #Gmail
+                    ("Gmail_Inbox", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*ogbl\/?pli=1$')),
+                    ("Gmail_Inbox", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#inbox$')),
+                    ("Gmail_Sent", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#sent$')),
+                    ("Gmail_Drafts", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#drafts$')),
+                    ("Gmail_trash", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#trash$')),
+                    ("Gmail_Starred", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#starred$')),
+                    ("Gmail_Open_Mail", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/[a-zA-Z]+$')),
+                    ("Gmail_Mail_Write", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\?compose=.*$')),
+                    ("Gmail_Drive_Sharing", re.compile(r'https:\/\/mail\.google\.com\/drivesharing.*?shareService=mail')),
+                    ("Gmail_Create_New_mail", re.compile(r'https:\/\/mail\.google\.com\/.*\?compose=new')),
+                    #Outlook
+                    ("Outlook_Login_Session", re.compile(r'https:\/\/login\.live\.com\/ppsecure\/post\.srf\?cobrandid=.*&uaid=.*&pid=.*&opid=.*&route=.*')),
+                    ("Outlook_Sent", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/sentitems\?')),
+                    ("Outlook_Drafts", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/drafts\?')),
+                    ("Outlook_Trash", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/deleteditems\?')),
+                    #Naver
+                    ("Naver_Login", re.compile(r'https:\/\/nid\.naver\.com\/nidlogin\.login')),
+                    #Naver Mail
+                    ("Naver_Mail_Write_Session", re.compile(r'https:\/\/mail\.naver\.com\/write')),
+                    ("Naver_Mail_Write", re.compile(r'https:\/\/mail\.naver\.com\/.*\/new')),
+                    ("Naver_Mail_Write_Done", re.compile(r'https:\/\/mail\.naver\.com\/.*\/new\/done')),
+                    ("Naver_Mail_All_Mail", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/-1')),
+                    ("Naver_Mail_Inbox", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/0')),
+                    ("Naver_Mail_Sent", re.compile(r'https\/\/mail\.naver\.com\/.*\/folders\/1')),
+                    ("Naver_Mail_Receipt_Confirmation", re.compile(r'https\/\/mail\.naver\.com\/.*\/folders\/2')),
+                    ("Naver_Mail_Drafts", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/3')),
+                    ("Naver_Mail_Self_Sent_Mailbox", re.compile(r'https\/\/mail\.naver\.com\/.*\/folders\/6')),
+                    #ETC
                     ("File_Web_Access", re.compile(r'file:\/\/\/[A-Za-z]:\/(?:[^\/\n]+\/)*[^\/\n]+?\.[a-zA-Z0-9]+')),
                     ("Mega_Drive", re.compile(r'https\/\/mega\.nz')),
                     ("Dropbox_Drive", re.compile(r'https\/\/www\.dropbox\.com\/')),
@@ -108,7 +231,8 @@ class LogTagger:
                 "URL": [
                     ("Google_Drive_Upload", re.compile(r'https:\/\/drive\.google\.com.*?upload\?')),
                     ("Naver_MyBox_File_Get", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service\/vault\/file\/get\?')),
-                    ("Tistory_File_Upload", re.compile(r'.*https:\/\/tistory\.com.*plugins\/fileUpload\/plugin\.min\.js'))
+                    ("Tistory_File_Upload", re.compile(r'.*https:\/\/tistory\.com.*plugins\/fileUpload\/plugin\.min\.js')),
+                    ("Gmail_File_Upload", re.compile(r'https:\/\/ssl\.gstatic\.com\/ui\/v1\/icons\/common\/x_8px\.png'))
                     # 기타 캐시 기록 관련 URL 패턴 추가 가능
                 ]
             },
@@ -116,7 +240,17 @@ class LogTagger:
                 "URL": [
                     ("Google_Drive_Upload", re.compile(r'https:\/\/drive\.google\.com.*?upload\?')),
                     ("Naver_MyBox_File_Get", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service\/vault\/file\/get\?')),
-                    ("Tistory_File_Upload", re.compile(r'.*https:\/\/tistory\.com.*plugins\/fileUpload\/plugin\.min\.js'))
+                    ("Tistory_File_Upload", re.compile(r'.*https:\/\/tistory\.com.*plugins\/fileUpload\/plugin\.min\.js')),
+                    ("Gmail_File_Upload", re.compile(r'https:\/\/ssl\.gstatic\.com\/ui\/v1\/icons\/common\/x_8px\.png'))
+                    # 기타 캐시 기록 관련 URL 패턴 추가 가능
+                ]
+            },
+            "Firefox_Cache_Records": {
+                "URL": [
+                    ("Google_Drive_Upload", re.compile(r'https:\/\/drive\.google\.com.*?upload\?')),
+                    ("Naver_MyBox_File_Get", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service\/vault\/file\/get\?')),
+                    ("Tistory_File_Upload", re.compile(r'.*https:\/\/tistory\.com.*plugins\/fileUpload\/plugin\.min\.js')),
+                    ("Gmail_File_Upload", re.compile(r'https:\/\/ssl\.gstatic\.com\/ui\/v1\/icons\/common\/x_8px\.png'))
                     # 기타 캐시 기록 관련 URL 패턴 추가 가능
                 ]
             },
