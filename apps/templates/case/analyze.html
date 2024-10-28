@@ -268,12 +268,13 @@
         document.querySelectorAll('.submit-final').forEach(function(button) {
             button.addEventListener('click', function() {
                 var caseId = this.getAttribute('data-case-id');
+                var caseNumber = this.getAttribute('data-case-id');
                 fetch('/case/analyze/final', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ case_id: caseId}),
+                    body: JSON.stringify({ case_id: caseId, case_number : caseNumber}),
                 })
                 .then(response => response.json())
                 .then(data => {
