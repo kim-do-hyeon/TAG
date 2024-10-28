@@ -14,7 +14,9 @@ class LogTagger:
         self.patterns = {
             "Edge_Chromium_Web_Visits": {
                 "Title": [
-                    ("Web_Search", re.compile(r'(.*?\s-\s.*검색)')) 
+                    ("Web_Search", re.compile(r'(.*?\s-\s.*검색)')),
+                    #Daum
+                    ("Daum_Kakao_Mail_Sent_Complete", re.compile(r'\".*\" 메일이 정상적으로 전송되었습니다\.'))
                     # 기타 Title 패턴 추가 가능
                 ],
                 "URL": [
@@ -33,7 +35,7 @@ class LogTagger:
                     ("Google_Login_Interactive_Endpoint", re.compile(r'https:\/\/accounts\.google\.com\/InteractiveLogin\?')),
                     ("Google_Redirection", re.compile(r'https:\/\/www\.google\.com\/url\?q=')),
                     #Gmail
-                    ("Gmail_Inbox", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*ogbl\/?pli=1$')),
+                    ("Gmail_Inbox", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*ogbl\/\?pli=1$')),
                     ("Gmail_Inbox", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#inbox$')),
                     ("Gmail_Sent", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#sent$')),
                     ("Gmail_Drafts", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#drafts$')),
@@ -54,7 +56,7 @@ class LogTagger:
                     ("Naver_Mail_Write_Session", re.compile(r'https:\/\/mail\.naver\.com\/write')),
                     ("Naver_Mail_Write", re.compile(r'https:\/\/mail\.naver\.com\/.*\/new')),
                     ("Naver_Mail_Write_Done", re.compile(r'https:\/\/mail\.naver\.com\/.*\/new\/done')),
-                    ("Naver_Mail_Self_Sent", re.compile(r'https:\/\/mail\.naver\.com\/.*\/new?\type=toMe'))
+                    ("Naver_Mail_Self_Sent", re.compile(r'https:\/\/mail\.naver\.com\/.*\/new?\type=toMe')),
                     ("Naver_Mail_All_Mail", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/-1')),
                     ("Naver_Mail_Inbox", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/0')),
                     ("Naver_Mail_Sent", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/1')),
@@ -63,15 +65,30 @@ class LogTagger:
                     ("Naver_Mail_Trash", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/4')),
                     ("Naver_Mail_Self_Sent_Mailbox", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/6')),
                     #Kakao Mail
-                    ("Kakao_Mail_Login", re.compile(r'https:\/\/logins\.daum\.net\/accounts\/kakaossotokenlogin\.do\?redirect=true&ssotoken=.*&url='))
+                    ("Kakao_Mail_Login", re.compile(r'https:\/\/logins\.daum\.net\/accounts\/kakaossotokenlogin\.do\?redirect=true&ssotoken=.*&url=')),
                     ("Kakao_Mail_Inbox", re.compile(r'^https:\/\/mail\.kakao\.com\/top\/INBOX$')),
-                    ("Kakao_Mail_")
+                    ("Kakao_Mail_Sent", re.compile(r'^https:\/\/mail\.kakao\.com\/top\/SENT$')),
+                    ("Kakao_Mail_Trash", re.compile(r'^https:\/\/mail\.kakao\.com\/top\/TRASH$')),
+                    ("Kakao_Mail_Write", re.compile(r'https:\/\/mail\.kakao\.com\/top\/.*\?composer')),
                     #Daum
                     ("Daum_Mail_Login", re.compile(r'https:\/\/accounts\.kakao\.com\/weblogin\/sso_login\.html\?only=daum&continue=https%3A%2F%2Fmail\.daum\.net&type=ksso')),
+                    ("Daum_Mail_Inbox", re.compile(r'^https:\/\/mail\.daum\.net\/top\/INBOX$')),
+                    ("Daum_Mail_Write", re.compile(r'https:\/\/mail\.daum\.net\/top\/.*\?composer')),
+                    ("Daum_Mail_Inbox", re.compile(r'^https:\/\/mail\.daum\.net\/top\/INBOX$')),
+                    ("Daum_Mail_Sent", re.compile(r'^https:\/\/mail\.daum\.net\/top\/SENT$')),
+                    ("Daum_Mail_Draft", re.compile(r'^https:\/\/mail\.daum\.net\/top\/DRAFT$')),
+                    ("Daum_Mail_Trash", re.compile(r'^https:\/\/mail\.daum\.net\/top\/TRASH$')),
+                    #Nate
+                    ("Nate_Mail_Write", re.compile(r'https:\/\/mail.*\.nate\.com\/#write\/\?act=new')),
+                    ("Nate_Mail_Sent_Complete", re.compile(r'https:\/\/mail3\.nate\.com\/#write\/\?act=new')),
+                    ("Nate_Mail_Inbox", re.compile(r'https:\/\/mail3\.nate\.com\/#list\/\?pop3id=M&page=.*&mboxid=10')),
+                    ("Nate_Mail_Sent", re.compile(r'https:\/\/mail3\.nate\.com\/#list\/\?pop3id=M&page=.*&mboxid=30')),
+                    ("Nate_Mail_Draft", re.compile(r'https:\/\/mail3\.nate\.com\/#list\/\?pop3id=M&page=.*&mboxid=40')),
+                    ("Nate_Mail_Trash", re.compile(r'https:\/\/mail3\.nate\.com\/#list\/\?pop3id=M&page=1&mboxid=50')),
                     #Tistory
-                    ("Tistory_Login", re.complile(r'https:\/\/www\.tistory\.com\/auth\/kakao\/redirect\?code=.*')),
+                    ("Tistory_Login", re.compile(r'https:\/\/www\.tistory\.com\/auth\/kakao\/redirect\?code=.*')),
                     ("Tistory_Manage", re.compile(r'https:\/\/*.tistory\.com\/manage\/.*')),
-                    ("Tistory_New_Post", re.complile(r'https:\/\/*.tistory\.com\/manage\/newpost.*')),
+                    ("Tistory_New_Post", re.compile(r'https:\/\/*.tistory\.com\/manage\/newpost.*')),
                     #ETC
                     ("File_Web_Access", re.compile(r'file:\/\/\/[A-Za-z]:\/(?:[^\/\n]+\/)*[^\/\n]+?\.[a-zA-Z0-9]+')),
                     ("Mega_Drive", re.compile(r'https:\/\/mega\.nz')),
@@ -87,7 +104,9 @@ class LogTagger:
             },
             "Chrome_Web_Visits": {
                 "Title": [
-                    ("Web_Search", re.compile(r'(.*?\s-\s.*검색)')) 
+                    ("Web_Search", re.compile(r'(.*?\s-\s.*검색)')),
+                    #Daum
+                    ("Daum_Kakao_Mail_Sent_Complete", re.compile(r'\".*\" 메일이 정상적으로 전송되었습니다\.'))
                     # 기타 Title 패턴 추가 가능
                 ],
                 "URL": [
@@ -106,7 +125,7 @@ class LogTagger:
                     ("Google_Login_Interactive_Endpoint", re.compile(r'https:\/\/accounts\.google\.com\/InteractiveLogin\?')),
                     ("Google_Redirection", re.compile(r'https:\/\/www\.google\.com\/url\?q=')),
                     #Gmail
-                    ("Gmail_Inbox", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*ogbl\/?pli=1$')),
+                    ("Gmail_Inbox", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*ogbl\/\?pli=1$')),
                     ("Gmail_Inbox", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#inbox$')),
                     ("Gmail_Sent", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#sent$')),
                     ("Gmail_Drafts", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#drafts$')),
@@ -127,6 +146,7 @@ class LogTagger:
                     ("Naver_Mail_Write_Session", re.compile(r'https:\/\/mail\.naver\.com\/write')),
                     ("Naver_Mail_Write", re.compile(r'https:\/\/mail\.naver\.com\/.*\/new')),
                     ("Naver_Mail_Write_Done", re.compile(r'https:\/\/mail\.naver\.com\/.*\/new\/done')),
+                    ("Naver_Mail_Self_Sent", re.compile(r'https:\/\/mail\.naver\.com\/.*\/new?\type=toMe')),
                     ("Naver_Mail_All_Mail", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/-1')),
                     ("Naver_Mail_Inbox", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/0')),
                     ("Naver_Mail_Sent", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/1')),
@@ -134,6 +154,31 @@ class LogTagger:
                     ("Naver_Mail_Drafts", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/3')),
                     ("Naver_Mail_Trash", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/4')),
                     ("Naver_Mail_Self_Sent_Mailbox", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/6')),
+                    #Kakao Mail
+                    ("Kakao_Mail_Login", re.compile(r'https:\/\/logins\.daum\.net\/accounts\/kakaossotokenlogin\.do\?redirect=true&ssotoken=.*&url=')),
+                    ("Kakao_Mail_Inbox", re.compile(r'^https:\/\/mail\.kakao\.com\/top\/INBOX$')),
+                    ("Kakao_Mail_Sent", re.compile(r'^https:\/\/mail\.kakao\.com\/top\/SENT$')),
+                    ("Kakao_Mail_Trash", re.compile(r'^https:\/\/mail\.kakao\.com\/top\/TRASH$')),
+                    ("Kakao_Mail_Write", re.compile(r'https:\/\/mail\.kakao\.com\/top\/.*\?composer')),
+                    #Daum
+                    ("Daum_Mail_Login", re.compile(r'https:\/\/accounts\.kakao\.com\/weblogin\/sso_login\.html\?only=daum&continue=https%3A%2F%2Fmail\.daum\.net&type=ksso')),
+                    ("Daum_Mail_Inbox", re.compile(r'^https:\/\/mail\.daum\.net\/top\/INBOX$')),
+                    ("Daum_Mail_Write", re.compile(r'https:\/\/mail\.daum\.net\/top\/.*\?composer')),
+                    ("Daum_Mail_Inbox", re.compile(r'^https:\/\/mail\.daum\.net\/top\/INBOX$')),
+                    ("Daum_Mail_Sent", re.compile(r'^https:\/\/mail\.daum\.net\/top\/SENT$')),
+                    ("Daum_Mail_Draft", re.compile(r'^https:\/\/mail\.daum\.net\/top\/DRAFT$')),
+                    ("Daum_Mail_Trash", re.compile(r'^https:\/\/mail\.daum\.net\/top\/TRASH$')),
+                    #Nate
+                    ("Nate_Mail_Write", re.compile(r'https:\/\/mail.*\.nate\.com\/#write\/\?act=new')),
+                    ("Nate_Mail_Sent_Complete", re.compile(r'https:\/\/mail3\.nate\.com\/#write\/\?act=new')),
+                    ("Nate_Mail_Inbox", re.compile(r'https:\/\/mail3\.nate\.com\/#list\/\?pop3id=M&page=.*&mboxid=10')),
+                    ("Nate_Mail_Sent", re.compile(r'https:\/\/mail3\.nate\.com\/#list\/\?pop3id=M&page=.*&mboxid=30')),
+                    ("Nate_Mail_Draft", re.compile(r'https:\/\/mail3\.nate\.com\/#list\/\?pop3id=M&page=.*&mboxid=40')),
+                    ("Nate_Mail_Trash", re.compile(r'https:\/\/mail3\.nate\.com\/#list\/\?pop3id=M&page=1&mboxid=50')),
+                    #Tistory
+                    ("Tistory_Login", re.compile(r'https:\/\/www\.tistory\.com\/auth\/kakao\/redirect\?code=.*')),
+                    ("Tistory_Manage", re.compile(r'https:\/\/*.tistory\.com\/manage\/.*')),
+                    ("Tistory_New_Post", re.compile(r'https:\/\/*.tistory\.com\/manage\/newpost.*')),
                     #ETC
                     ("File_Web_Access", re.compile(r'file:\/\/\/[A-Za-z]:\/(?:[^\/\n]+\/)*[^\/\n]+?\.[a-zA-Z0-9]+')),
                     ("Mega_Drive", re.compile(r'https:\/\/mega\.nz')),
@@ -149,7 +194,9 @@ class LogTagger:
             },
             "Firefox_Web_Visits": {
                 "Title": [
-                    ("Web_Search", re.compile(r'(.*?\s-\s.*검색)')) 
+                    ("Web_Search", re.compile(r'(.*?\s-\s.*검색)')),
+                    #Daum
+                    ("Daum_Kakao_Mail_Sent_Complete", re.compile(r'\".*\" 메일이 정상적으로 전송되었습니다\.'))
                     # 기타 Title 패턴 추가 가능
                 ],
                 "URL": [
@@ -168,7 +215,7 @@ class LogTagger:
                     ("Google_Login_Interactive_Endpoint", re.compile(r'https:\/\/accounts\.google\.com\/InteractiveLogin\?')),
                     ("Google_Redirection", re.compile(r'https:\/\/www\.google\.com\/url\?q=')),
                     #Gmail
-                    ("Gmail_Inbox", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*ogbl\/?pli=1$')),
+                    ("Gmail_Inbox", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*ogbl\/\?pli=1$')),
                     ("Gmail_Inbox", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#inbox$')),
                     ("Gmail_Sent", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#sent$')),
                     ("Gmail_Drafts", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#drafts$')),
@@ -189,12 +236,39 @@ class LogTagger:
                     ("Naver_Mail_Write_Session", re.compile(r'https:\/\/mail\.naver\.com\/write')),
                     ("Naver_Mail_Write", re.compile(r'https:\/\/mail\.naver\.com\/.*\/new')),
                     ("Naver_Mail_Write_Done", re.compile(r'https:\/\/mail\.naver\.com\/.*\/new\/done')),
+                    ("Naver_Mail_Self_Sent", re.compile(r'https:\/\/mail\.naver\.com\/.*\/new?\type=toMe')),
                     ("Naver_Mail_All_Mail", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/-1')),
                     ("Naver_Mail_Inbox", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/0')),
                     ("Naver_Mail_Sent", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/1')),
                     ("Naver_Mail_Receipt_Confirmation", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/2')),
                     ("Naver_Mail_Drafts", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/3')),
+                    ("Naver_Mail_Trash", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/4')),
                     ("Naver_Mail_Self_Sent_Mailbox", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/6')),
+                    #Kakao Mail
+                    ("Kakao_Mail_Login", re.compile(r'https:\/\/logins\.daum\.net\/accounts\/kakaossotokenlogin\.do\?redirect=true&ssotoken=.*&url=')),
+                    ("Kakao_Mail_Inbox", re.compile(r'^https:\/\/mail\.kakao\.com\/top\/INBOX$')),
+                    ("Kakao_Mail_Sent", re.compile(r'^https:\/\/mail\.kakao\.com\/top\/SENT$')),
+                    ("Kakao_Mail_Trash", re.compile(r'^https:\/\/mail\.kakao\.com\/top\/TRASH$')),
+                    ("Kakao_Mail_Write", re.compile(r'https:\/\/mail\.kakao\.com\/top\/.*\?composer')),
+                    #Daum
+                    ("Daum_Mail_Login", re.compile(r'https:\/\/accounts\.kakao\.com\/weblogin\/sso_login\.html\?only=daum&continue=https%3A%2F%2Fmail\.daum\.net&type=ksso')),
+                    ("Daum_Mail_Inbox", re.compile(r'^https:\/\/mail\.daum\.net\/top\/INBOX$')),
+                    ("Daum_Mail_Write", re.compile(r'https:\/\/mail\.daum\.net\/top\/.*\?composer')),
+                    ("Daum_Mail_Inbox", re.compile(r'^https:\/\/mail\.daum\.net\/top\/INBOX$')),
+                    ("Daum_Mail_Sent", re.compile(r'^https:\/\/mail\.daum\.net\/top\/SENT$')),
+                    ("Daum_Mail_Draft", re.compile(r'^https:\/\/mail\.daum\.net\/top\/DRAFT$')),
+                    ("Daum_Mail_Trash", re.compile(r'^https:\/\/mail\.daum\.net\/top\/TRASH$')),
+                    #Nate
+                    ("Nate_Mail_Write", re.compile(r'https:\/\/mail.*\.nate\.com\/#write\/\?act=new')),
+                    ("Nate_Mail_Sent_Complete", re.compile(r'https:\/\/mail3\.nate\.com\/#write\/\?act=new')),
+                    ("Nate_Mail_Inbox", re.compile(r'https:\/\/mail3\.nate\.com\/#list\/\?pop3id=M&page=.*&mboxid=10')),
+                    ("Nate_Mail_Sent", re.compile(r'https:\/\/mail3\.nate\.com\/#list\/\?pop3id=M&page=.*&mboxid=30')),
+                    ("Nate_Mail_Draft", re.compile(r'https:\/\/mail3\.nate\.com\/#list\/\?pop3id=M&page=.*&mboxid=40')),
+                    ("Nate_Mail_Trash", re.compile(r'https:\/\/mail3\.nate\.com\/#list\/\?pop3id=M&page=1&mboxid=50')),
+                    #Tistory
+                    ("Tistory_Login", re.compile(r'https:\/\/www\.tistory\.com\/auth\/kakao\/redirect\?code=.*')),
+                    ("Tistory_Manage", re.compile(r'https:\/\/*.tistory\.com\/manage\/.*')),
+                    ("Tistory_New_Post", re.compile(r'https:\/\/*.tistory\.com\/manage\/newpost.*')),
                     #ETC
                     ("File_Web_Access", re.compile(r'file:\/\/\/[A-Za-z]:\/(?:[^\/\n]+\/)*[^\/\n]+?\.[a-zA-Z0-9]+')),
                     ("Mega_Drive", re.compile(r'https:\/\/mega\.nz')),
@@ -245,7 +319,9 @@ class LogTagger:
                     ("Google_Drive_Upload", re.compile(r'https:\/\/drive\.google\.com.*?upload\?')),
                     ("Naver_MyBox_File_Get", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service\/vault\/file\/get\?')),
                     ("Tistory_File_Upload", re.compile(r'.*https:\/\/tistory\.com.*plugins\/fileUpload\/plugin\.min\.js')),
-                    ("Gmail_File_Upload", re.compile(r'https:\/\/ssl\.gstatic\.com\/ui\/v1\/icons\/common\/x_8px\.png'))
+                    ("Gmail_File_Upload", re.compile(r'https:\/\/ssl\.gstatic\.com\/ui\/v1\/icons\/common\/x_8px\.png')),
+                    ("Nate_Mail_File_Upload", re.compile(r'https:\/\/mailimg\.nate\.com\/newmail\/img\/jsfile\/mimetypes\/.*\.png')),
+                    ("Nate_Mail_Sent_Complete", re.compile(r'https:\/\/mail3\.nate\.com\/#write\/\?act=new'))
                     # 기타 캐시 기록 관련 URL 패턴 추가 가능
                 ]
             },
@@ -254,7 +330,9 @@ class LogTagger:
                     ("Google_Drive_Upload", re.compile(r'https:\/\/drive\.google\.com.*?upload\?')),
                     ("Naver_MyBox_File_Get", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service\/vault\/file\/get\?')),
                     ("Tistory_File_Upload", re.compile(r'.*https:\/\/tistory\.com.*plugins\/fileUpload\/plugin\.min\.js')),
-                    ("Gmail_File_Upload", re.compile(r'https:\/\/ssl\.gstatic\.com\/ui\/v1\/icons\/common\/x_8px\.png'))
+                    ("Gmail_File_Upload", re.compile(r'https:\/\/ssl\.gstatic\.com\/ui\/v1\/icons\/common\/x_8px\.png')),
+                    ("Nate_Mail_File_Upload", re.compile(r'https:\/\/mailimg\.nate\.com\/newmail\/img\/jsfile\/mimetypes\/.*\.png')),
+                    ("Nate_Mail_Sent_Complete", re.compile(r'https:\/\/mail3\.nate\.com\/#write\/\?act=new'))
                     # 기타 캐시 기록 관련 URL 패턴 추가 가능
                 ]
             },
@@ -263,7 +341,9 @@ class LogTagger:
                     ("Google_Drive_Upload", re.compile(r'https:\/\/drive\.google\.com.*?upload\?')),
                     ("Naver_MyBox_File_Get", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service\/vault\/file\/get\?')),
                     ("Tistory_File_Upload", re.compile(r'.*https:\/\/tistory\.com.*plugins\/fileUpload\/plugin\.min\.js')),
-                    ("Gmail_File_Upload", re.compile(r'https:\/\/ssl\.gstatic\.com\/ui\/v1\/icons\/common\/x_8px\.png'))
+                    ("Gmail_File_Upload", re.compile(r'https:\/\/ssl\.gstatic\.com\/ui\/v1\/icons\/common\/x_8px\.png')),
+                    ("Nate_Mail_File_Upload", re.compile(r'https:\/\/mailimg\.nate\.com\/newmail\/img\/jsfile\/mimetypes\/.*\.png')),
+                    ("Nate_Mail_Sent_Complete", re.compile(r'https:\/\/mail3\.nate\.com\/#write\/\?act=new'))
                     # 기타 캐시 기록 관련 URL 패턴 추가 가능
                 ]
             },
