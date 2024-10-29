@@ -10,6 +10,7 @@ from apps.analyze.analyze_tagging import all_table_parsing, all_tag_process
 from apps.analyze.analyze_util import *
 from apps.analyze.analyze_tag_group_graph import *
 from apps.analyze.analyze_tag_ranking import *
+from apps.analyze.USB.case_normalization_time_group import *
 import threading
 
 from flask import current_app
@@ -100,7 +101,14 @@ def redirect_case_analyze_filtering_history_view(id) :
     return render_template('analyze/filtering.html', body_html=body_html, scripts_html=scripts_html,  tables=tables)
 
 def redirect_analyze_case_final(data) :
-    print(data)
+    user = session.get('username')
+    case_id = data['case_id']
+    case_number = Upload_Case.query.filter_by(id = case_id).first().case_number
+    case_folder = os.path.join(os.getcwd(), "uploads", user, case_number)
+    db_path = os.path.join(case_folder, "normalization.db")
+    time_db_path = os.path.join(case_folder, "time_normalization.db")
+    time_parsing(db_path, time_db_path)
+
 
 
 
