@@ -371,13 +371,8 @@ class LogTagger:
             "Chrome_Cache_Records": {
                 "URL": [
                     ("Google_Drive_Upload", re.compile(r'https:\/\/drive\.google\.com.*upload')),
-<<<<<<< HEAD
                     ("Naver_Mybox_File_Get_Folder", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service.*\/file\/get\?resourceKey=.*')),
                     ("Naver_Mybox_File_Get_Root", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service.*\/file\/get\?resourceKey=root')),
-=======
-                    ("Naver_Mybox_File_Get_Folder", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service\/vault\/file\/get\?resourceKey=.*')),
-                    ("Naver_Mybox_File_Get_Root", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service\/vault\/file\/get\?resourceKey=root')),
->>>>>>> 0db5a70155cd7a1f0b752b6032d1c5e32f80bf14
                     ("Tistory_File_Upload", re.compile(r'.*https:\/\/tistory\.com.*plugins\/fileUpload\/plugin\.min\.js')),
                     ("Gmail_File_Upload", re.compile(r'https:\/\/ssl\.gstatic\.com\/ui\/v1\/icons\/common\/x_8px\.png')),
                     ("Nate_Mail_File_Upload", re.compile(r'https:\/\/mailimg\.nate\.com\/newmail\/img\/jsfile\/mimetypes\/.*\.png')),
@@ -391,13 +386,8 @@ class LogTagger:
             "Edge_Chromium_Cache_Records": {
                 "URL": [
                     ("Google_Drive_Upload", re.compile(r'https:\/\/drive\.google\.com.*upload')),
-<<<<<<< HEAD
                     ("Naver_Mybox_File_Get_Folder", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service.*\/file\/get\?resourceKey=.*')),
                     ("Naver_Mybox_File_Get_Root", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service.*\/file\/get\?resourceKey=root')),
-=======
-                    ("Naver_Mybox_File_Get_Folder", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service\/vault\/file\/get\?resourceKey=.*')),
-                    ("Naver_Mybox_File_Get_Root", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service\/vault\/file\/get\?resourceKey=root')),
->>>>>>> 0db5a70155cd7a1f0b752b6032d1c5e32f80bf14
                     ("Tistory_File_Upload", re.compile(r'.*https:\/\/tistory\.com.*plugins\/fileUpload\/plugin\.min\.js')),
                     ("Gmail_File_Upload", re.compile(r'https:\/\/ssl\.gstatic\.com\/ui\/v1\/icons\/common\/x_8px\.png')),
                     ("Nate_Mail_File_Upload", re.compile(r'https:\/\/mailimg\.nate\.com\/newmail\/img\/jsfile\/mimetypes\/.*\.png')),
@@ -411,13 +401,8 @@ class LogTagger:
             "Firefox_Cache_Records": {
                 "URL": [
                     ("Google_Drive_Upload", re.compile(r'https:\/\/drive\.google\.com.*upload')),
-<<<<<<< HEAD
                     ("Naver_Mybox_File_Get_Folder", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service.*\/file\/get\?resourceKey=.*')),
                     ("Naver_Mybox_File_Get_Root", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service.*\/file\/get\?resourceKey=root')),
-=======
-                    ("Naver_Mybox_File_Get_Folder", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service\/vault\/file\/get\?resourceKey=.*')),
-                    ("Naver_Mybox_File_Get_Root", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service\/vault\/file\/get\?resourceKey=root')),
->>>>>>> 0db5a70155cd7a1f0b752b6032d1c5e32f80bf14
                     ("Tistory_File_Upload", re.compile(r'.*https:\/\/tistory\.com.*plugins\/fileUpload\/plugin\.min\.js')),
                     ("Gmail_File_Upload", re.compile(r'https:\/\/ssl\.gstatic\.com\/ui\/v1\/icons\/common\/x_8px\.png')),
                     ("Nate_Mail_File_Upload", re.compile(r'https:\/\/mailimg\.nate\.com\/newmail\/img\/jsfile\/mimetypes\/.*\.png')),
