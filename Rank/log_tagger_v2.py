@@ -45,8 +45,19 @@ class LogTagger:
                     ("Gmail_Mail_Write", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\?compose=.*$')),
                     ("Gmail_Drive_Sharing", re.compile(r'https:\/\/mail\.google\.com\/drivesharing.*?shareService=mail')),
                     ("Gmail_Create_New_mail", re.compile(r'https:\/\/mail\.google\.com\/.*\?compose=new')),
+                    #Google Drive
+                    ("Google_Drive_Main", re.compile(r'https:\/\/drive\.google\.com\/drive\/home')),
+                    ("Google_Drive_My_Drive", re.compile(r'https:\/\/drive\.google\.com\/drive\/my-drive')),
+                    ("Google_Drive_Folder", re.compile(r'https:\/\/drive\.google\.com\/drive\/folders')),
+                    #Mega
+                    ("Mega_Login", re.compile(r'https:\/\/mega\.nz\/login')),
+                    ("Mega_Main", re.compile(r'https:\/\/mega\.nz\/fm')), #폴더를 들어가도 똑같음
+                    #One Drive
+                    ("One_Drive_Login", re.compile(r'https:\/\/onedrive\.live\.com\/login\/')),
+                    ("One_Drive_Folder", re.compile(r'https:\/\/onedrive\.live\.com\/\?id=.*&cid=.*')),
+                    ("One_Drive_Main", re.compile(r'https:\/\/onedrive\.live\.com\/\?id=root&cid=.*')),
                     #Outlook
-                    ("Outlook_Login_Session", re.compile(r'https:\/\/login\.live\.com\/ppsecure\/post\.srf\?cobrandid=.*&uaid=.*&pid=.*&opid=.*&route=.*')),
+                    ("Outlook_Login", re.compile(r'https:\/\/login\.live\.com\/ppsecure\/post\.srf\?cobrandid=.*&uaid=.*&pid=.*&opid=.*&route=.*')),
                     ("Outlook_Sent", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/sentitems\?')),
                     ("Outlook_Drafts", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/drafts\?')),
                     ("Outlook_Trash", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/deleteditems\?')),
@@ -64,6 +75,15 @@ class LogTagger:
                     ("Naver_Mail_Drafts", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/3')),
                     ("Naver_Mail_Trash", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/4')),
                     ("Naver_Mail_Self_Sent_Mailbox", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/6')),
+                    #Naver Mybox
+                    ("Naver_Mybox_Main", re.compile(r'https:\/\/mybox\.naver\.com\/#\/my')),
+                    ("Naver_Mybox_Main", re.compile(r'^https:\/\/mybox\.naver\.com\/#\/$')),
+                    ("Naver_Mybox_Recent_Update", re.compile(r'https:\/\/mybox\.naver\.com\/#\/recent\/update')),
+                    ("Naver_Mybox_Recent_Access", re.compile(r'https:\/\/mybox\.naver\.com\/#\/recent\/access')),
+                    ("Naver_Mybox_Protect", re.compile(r'https:\/\/mybox\.naver\.com\/#\/protect')),
+                    ("Naver_Mybox_Shared", re.compile(r'https:\/\/mybox\.naver\.com\/#\/share\/shared')),
+                    ("Naver_Mybox_Sharing", re.compile(r'https:\/\/mybox\.naver\.com\/#\/share\/sharing')),
+
                     #Kakao Mail
                     ("Kakao_Mail_Login", re.compile(r'https:\/\/logins\.daum\.net\/accounts\/kakaossotokenlogin\.do\?redirect=true&ssotoken=.*&url=')),
                     ("Kakao_Mail_Inbox", re.compile(r'^https:\/\/mail\.kakao\.com\/top\/INBOX$')),
@@ -74,7 +94,6 @@ class LogTagger:
                     ("Daum_Mail_Login", re.compile(r'https:\/\/accounts\.kakao\.com\/weblogin\/sso_login\.html\?only=daum&continue=https%3A%2F%2Fmail\.daum\.net&type=ksso')),
                     ("Daum_Mail_Inbox", re.compile(r'^https:\/\/mail\.daum\.net\/top\/INBOX$')),
                     ("Daum_Mail_Write", re.compile(r'https:\/\/mail\.daum\.net\/top\/.*\?composer')),
-                    ("Daum_Mail_Inbox", re.compile(r'^https:\/\/mail\.daum\.net\/top\/INBOX$')),
                     ("Daum_Mail_Sent", re.compile(r'^https:\/\/mail\.daum\.net\/top\/SENT$')),
                     ("Daum_Mail_Draft", re.compile(r'^https:\/\/mail\.daum\.net\/top\/DRAFT$')),
                     ("Daum_Mail_Trash", re.compile(r'^https:\/\/mail\.daum\.net\/top\/TRASH$')),
@@ -91,7 +110,6 @@ class LogTagger:
                     ("Tistory_New_Post", re.compile(r'https:\/\/*.tistory\.com\/manage\/newpost.*')),
                     #ETC
                     ("File_Web_Access", re.compile(r'file:\/\/\/[A-Za-z]:\/(?:[^\/\n]+\/)*[^\/\n]+?\.[a-zA-Z0-9]+')),
-                    ("Mega_Drive", re.compile(r'https:\/\/mega\.nz')),
                     ("Dropbox_Drive", re.compile(r'https:\/\/www\.dropbox\.com\/')),
                     ("Short_URL_Service", re.compile(r'\b(https?://)?(bit\.ly|tinyurl\.com|goo\.gl|t\.co|is\.gd|ow\.ly)/[a-zA-Z0-9]+\b')),
                     ("VPN_Service", re.compile(r'\b(vpn|secure|proxy|anon|connect)\.[a-zA-Z0-9.-]+\b')),
@@ -135,8 +153,19 @@ class LogTagger:
                     ("Gmail_Mail_Write", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\?compose=.*$')),
                     ("Gmail_Drive_Sharing", re.compile(r'https:\/\/mail\.google\.com\/drivesharing.*?shareService=mail')),
                     ("Gmail_Create_New_mail", re.compile(r'https:\/\/mail\.google\.com\/.*\?compose=new')),
+                    #Google Drive
+                    ("Google_Drive_Main", re.compile(r'https:\/\/drive\.google\.com\/drive\/home')),
+                    ("Google_Drive_My_Drive", re.compile(r'https:\/\/drive\.google\.com\/drive\/my-drive')),
+                    ("Google_Drive_Folder", re.compile(r'https:\/\/drive\.google\.com\/drive\/folders')),
+                    #Mega
+                    ("Mega_Login", re.compile(r'https:\/\/mega\.nz\/login')),
+                    ("Mega_Main", re.compile(r'https:\/\/mega\.nz\/fm')), #폴더를 들어가도 똑같음
+                    #One Drive
+                    ("One_Drive_Login", re.compile(r'https:\/\/onedrive\.live\.com\/login\/')),
+                    ("One_Drive_Folder", re.compile(r'https:\/\/onedrive\.live\.com\/\?id=.*&cid=.*')),
+                    ("One_Drive_Main", re.compile(r'https:\/\/onedrive\.live\.com\/\?id=root&cid=.*')),
                     #Outlook
-                    ("Outlook_Login_Session", re.compile(r'https:\/\/login\.live\.com\/ppsecure\/post\.srf\?cobrandid=.*&uaid=.*&pid=.*&opid=.*&route=.*')),
+                    ("Outlook_Login", re.compile(r'https:\/\/login\.live\.com\/ppsecure\/post\.srf\?cobrandid=.*&uaid=.*&pid=.*&opid=.*&route=.*')),
                     ("Outlook_Sent", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/sentitems\?')),
                     ("Outlook_Drafts", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/drafts\?')),
                     ("Outlook_Trash", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/deleteditems\?')),
@@ -154,6 +183,15 @@ class LogTagger:
                     ("Naver_Mail_Drafts", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/3')),
                     ("Naver_Mail_Trash", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/4')),
                     ("Naver_Mail_Self_Sent_Mailbox", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/6')),
+                    #Naver Mybox
+                    ("Naver_Mybox_Main", re.compile(r'https:\/\/mybox\.naver\.com\/#\/my')),
+                    ("Naver_Mybox_Main", re.compile(r'^https:\/\/mybox\.naver\.com\/#\/$')),
+                    ("Naver_Mybox_Recent_Update", re.compile(r'https:\/\/mybox\.naver\.com\/#\/recent\/update')),
+                    ("Naver_Mybox_Recent_Access", re.compile(r'https:\/\/mybox\.naver\.com\/#\/recent\/access')),
+                    ("Naver_Mybox_Protect", re.compile(r'https:\/\/mybox\.naver\.com\/#\/protect')),
+                    ("Naver_Mybox_Shared", re.compile(r'https:\/\/mybox\.naver\.com\/#\/share\/shared')),
+                    ("Naver_Mybox_Sharing", re.compile(r'https:\/\/mybox\.naver\.com\/#\/share\/sharing')),
+
                     #Kakao Mail
                     ("Kakao_Mail_Login", re.compile(r'https:\/\/logins\.daum\.net\/accounts\/kakaossotokenlogin\.do\?redirect=true&ssotoken=.*&url=')),
                     ("Kakao_Mail_Inbox", re.compile(r'^https:\/\/mail\.kakao\.com\/top\/INBOX$')),
@@ -164,7 +202,6 @@ class LogTagger:
                     ("Daum_Mail_Login", re.compile(r'https:\/\/accounts\.kakao\.com\/weblogin\/sso_login\.html\?only=daum&continue=https%3A%2F%2Fmail\.daum\.net&type=ksso')),
                     ("Daum_Mail_Inbox", re.compile(r'^https:\/\/mail\.daum\.net\/top\/INBOX$')),
                     ("Daum_Mail_Write", re.compile(r'https:\/\/mail\.daum\.net\/top\/.*\?composer')),
-                    ("Daum_Mail_Inbox", re.compile(r'^https:\/\/mail\.daum\.net\/top\/INBOX$')),
                     ("Daum_Mail_Sent", re.compile(r'^https:\/\/mail\.daum\.net\/top\/SENT$')),
                     ("Daum_Mail_Draft", re.compile(r'^https:\/\/mail\.daum\.net\/top\/DRAFT$')),
                     ("Daum_Mail_Trash", re.compile(r'^https:\/\/mail\.daum\.net\/top\/TRASH$')),
@@ -181,7 +218,6 @@ class LogTagger:
                     ("Tistory_New_Post", re.compile(r'https:\/\/*.tistory\.com\/manage\/newpost.*')),
                     #ETC
                     ("File_Web_Access", re.compile(r'file:\/\/\/[A-Za-z]:\/(?:[^\/\n]+\/)*[^\/\n]+?\.[a-zA-Z0-9]+')),
-                    ("Mega_Drive", re.compile(r'https:\/\/mega\.nz')),
                     ("Dropbox_Drive", re.compile(r'https:\/\/www\.dropbox\.com\/')),
                     ("Short_URL_Service", re.compile(r'\b(https?://)?(bit\.ly|tinyurl\.com|goo\.gl|t\.co|is\.gd|ow\.ly)/[a-zA-Z0-9]+\b')),
                     ("VPN_Service", re.compile(r'\b(vpn|secure|proxy|anon|connect)\.[a-zA-Z0-9.-]+\b')),
@@ -225,8 +261,19 @@ class LogTagger:
                     ("Gmail_Mail_Write", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\?compose=.*$')),
                     ("Gmail_Drive_Sharing", re.compile(r'https:\/\/mail\.google\.com\/drivesharing.*?shareService=mail')),
                     ("Gmail_Create_New_mail", re.compile(r'https:\/\/mail\.google\.com\/.*\?compose=new')),
+                    #Google Drive
+                    ("Google_Drive_Main", re.compile(r'https:\/\/drive\.google\.com\/drive\/home')),
+                    ("Google_Drive_My_Drive", re.compile(r'https:\/\/drive\.google\.com\/drive\/my-drive')),
+                    ("Google_Drive_Folder", re.compile(r'https:\/\/drive\.google\.com\/drive\/folders')),
+                    #Mega
+                    ("Mega_Login", re.compile(r'https:\/\/mega\.nz\/login')),
+                    ("Mega_Main", re.compile(r'https:\/\/mega\.nz\/fm')), #폴더를 들어가도 똑같음
+                    #One Drive
+                    ("One_Drive_Login", re.compile(r'https:\/\/onedrive\.live\.com\/login\/')),
+                    ("One_Drive_Folder", re.compile(r'https:\/\/onedrive\.live\.com\/\?id=.*&cid=.*')),
+                    ("One_Drive_Main", re.compile(r'https:\/\/onedrive\.live\.com\/\?id=root&cid=.*')),
                     #Outlook
-                    ("Outlook_Login_Session", re.compile(r'https:\/\/login\.live\.com\/ppsecure\/post\.srf\?cobrandid=.*&uaid=.*&pid=.*&opid=.*&route=.*')),
+                    ("Outlook_Login", re.compile(r'https:\/\/login\.live\.com\/ppsecure\/post\.srf\?cobrandid=.*&uaid=.*&pid=.*&opid=.*&route=.*')),
                     ("Outlook_Sent", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/sentitems\?')),
                     ("Outlook_Drafts", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/drafts\?')),
                     ("Outlook_Trash", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/deleteditems\?')),
@@ -244,6 +291,15 @@ class LogTagger:
                     ("Naver_Mail_Drafts", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/3')),
                     ("Naver_Mail_Trash", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/4')),
                     ("Naver_Mail_Self_Sent_Mailbox", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/6')),
+                    #Naver Mybox
+                    ("Naver_Mybox_Main", re.compile(r'https:\/\/mybox\.naver\.com\/#\/my')),
+                    ("Naver_Mybox_Main", re.compile(r'^https:\/\/mybox\.naver\.com\/#\/$')),
+                    ("Naver_Mybox_Recent_Update", re.compile(r'https:\/\/mybox\.naver\.com\/#\/recent\/update')),
+                    ("Naver_Mybox_Recent_Access", re.compile(r'https:\/\/mybox\.naver\.com\/#\/recent\/access')),
+                    ("Naver_Mybox_Protect", re.compile(r'https:\/\/mybox\.naver\.com\/#\/protect')),
+                    ("Naver_Mybox_Shared", re.compile(r'https:\/\/mybox\.naver\.com\/#\/share\/shared')),
+                    ("Naver_Mybox_Sharing", re.compile(r'https:\/\/mybox\.naver\.com\/#\/share\/sharing')),
+
                     #Kakao Mail
                     ("Kakao_Mail_Login", re.compile(r'https:\/\/logins\.daum\.net\/accounts\/kakaossotokenlogin\.do\?redirect=true&ssotoken=.*&url=')),
                     ("Kakao_Mail_Inbox", re.compile(r'^https:\/\/mail\.kakao\.com\/top\/INBOX$')),
@@ -254,7 +310,6 @@ class LogTagger:
                     ("Daum_Mail_Login", re.compile(r'https:\/\/accounts\.kakao\.com\/weblogin\/sso_login\.html\?only=daum&continue=https%3A%2F%2Fmail\.daum\.net&type=ksso')),
                     ("Daum_Mail_Inbox", re.compile(r'^https:\/\/mail\.daum\.net\/top\/INBOX$')),
                     ("Daum_Mail_Write", re.compile(r'https:\/\/mail\.daum\.net\/top\/.*\?composer')),
-                    ("Daum_Mail_Inbox", re.compile(r'^https:\/\/mail\.daum\.net\/top\/INBOX$')),
                     ("Daum_Mail_Sent", re.compile(r'^https:\/\/mail\.daum\.net\/top\/SENT$')),
                     ("Daum_Mail_Draft", re.compile(r'^https:\/\/mail\.daum\.net\/top\/DRAFT$')),
                     ("Daum_Mail_Trash", re.compile(r'^https:\/\/mail\.daum\.net\/top\/TRASH$')),
@@ -271,7 +326,6 @@ class LogTagger:
                     ("Tistory_New_Post", re.compile(r'https:\/\/*.tistory\.com\/manage\/newpost.*')),
                     #ETC
                     ("File_Web_Access", re.compile(r'file:\/\/\/[A-Za-z]:\/(?:[^\/\n]+\/)*[^\/\n]+?\.[a-zA-Z0-9]+')),
-                    ("Mega_Drive", re.compile(r'https:\/\/mega\.nz')),
                     ("Dropbox_Drive", re.compile(r'https:\/\/www\.dropbox\.com\/')),
                     ("Short_URL_Service", re.compile(r'\b(https?://)?(bit\.ly|tinyurl\.com|goo\.gl|t\.co|is\.gd|ow\.ly)/[a-zA-Z0-9]+\b')),
                     ("VPN_Service", re.compile(r'\b(vpn|secure|proxy|anon|connect)\.[a-zA-Z0-9.-]+\b')),
@@ -316,34 +370,46 @@ class LogTagger:
             },
             "Chrome_Cache_Records": {
                 "URL": [
-                    ("Google_Drive_Upload", re.compile(r'https:\/\/drive\.google\.com.*?upload\?')),
-                    ("Naver_MyBox_File_Get", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service\/vault\/file\/get\?')),
+                    ("Google_Drive_Upload", re.compile(r'https:\/\/drive\.google\.com.*upload')),
+                    ("Naver_Mybox_File_Get_Folder", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service.*\/file\/get\?resourceKey=.*')),
+                    ("Naver_Mybox_File_Get_Root", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service.*\/file\/get\?resourceKey=root')),
                     ("Tistory_File_Upload", re.compile(r'.*https:\/\/tistory\.com.*plugins\/fileUpload\/plugin\.min\.js')),
                     ("Gmail_File_Upload", re.compile(r'https:\/\/ssl\.gstatic\.com\/ui\/v1\/icons\/common\/x_8px\.png')),
                     ("Nate_Mail_File_Upload", re.compile(r'https:\/\/mailimg\.nate\.com\/newmail\/img\/jsfile\/mimetypes\/.*\.png')),
-                    ("Nate_Mail_Sent_Complete", re.compile(r'https:\/\/mail3\.nate\.com\/#write\/\?act=new'))
+                    ("Nate_Mail_Sent_Complete", re.compile(r'https:\/\/mail3\.nate\.com\/#write\/\?act=new')),
+                    ("Mega_Upload", re.compile(r'https:\/\/jp\.static\.mega\.co\.nz\/4\/images\/mega\/overlay-sprite\.png\?v=bf2e646f2f83e139')),
+                    ("Mega_Upload", re.compile(r'https:\/\/jp\.static\.mega\.co\.nz\/4\/imagery\/sprites-fm-mime-uni\.9f5adb6010bae3ce\.svg')),
+                    ("One_Drive_Upload", re.compile(r'https:\/\/res-1\.cdn\.office\.net\/files\/.*\.manifest\/76\.js'))                                        
                     # 기타 캐시 기록 관련 URL 패턴 추가 가능
                 ]
             },
             "Edge_Chromium_Cache_Records": {
                 "URL": [
-                    ("Google_Drive_Upload", re.compile(r'https:\/\/drive\.google\.com.*?upload\?')),
-                    ("Naver_MyBox_File_Get", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service\/vault\/file\/get\?')),
+                    ("Google_Drive_Upload", re.compile(r'https:\/\/drive\.google\.com.*upload')),
+                    ("Naver_Mybox_File_Get_Folder", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service.*\/file\/get\?resourceKey=.*')),
+                    ("Naver_Mybox_File_Get_Root", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service.*\/file\/get\?resourceKey=root')),
                     ("Tistory_File_Upload", re.compile(r'.*https:\/\/tistory\.com.*plugins\/fileUpload\/plugin\.min\.js')),
                     ("Gmail_File_Upload", re.compile(r'https:\/\/ssl\.gstatic\.com\/ui\/v1\/icons\/common\/x_8px\.png')),
                     ("Nate_Mail_File_Upload", re.compile(r'https:\/\/mailimg\.nate\.com\/newmail\/img\/jsfile\/mimetypes\/.*\.png')),
-                    ("Nate_Mail_Sent_Complete", re.compile(r'https:\/\/mail3\.nate\.com\/#write\/\?act=new'))
+                    ("Nate_Mail_Sent_Complete", re.compile(r'https:\/\/mail3\.nate\.com\/#write\/\?act=new')),
+                    ("Mega_Upload", re.compile(r'https:\/\/jp\.static\.mega\.co\.nz\/4\/images\/mega\/overlay-sprite\.png\?v=bf2e646f2f83e139')),
+                    ("Mega_Upload", re.compile(r'https:\/\/jp\.static\.mega\.co\.nz\/4\/imagery\/sprites-fm-mime-uni\.9f5adb6010bae3ce\.svg')),
+                    ("One_Drive_Upload", re.compile(r'https:\/\/res-1\.cdn\.office\.net\/files\/.*\.manifest\/76\.js'))                                        
                     # 기타 캐시 기록 관련 URL 패턴 추가 가능
                 ]
             },
             "Firefox_Cache_Records": {
                 "URL": [
-                    ("Google_Drive_Upload", re.compile(r'https:\/\/drive\.google\.com.*?upload\?')),
-                    ("Naver_MyBox_File_Get", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service\/vault\/file\/get\?')),
+                    ("Google_Drive_Upload", re.compile(r'https:\/\/drive\.google\.com.*upload')),
+                    ("Naver_Mybox_File_Get_Folder", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service.*\/file\/get\?resourceKey=.*')),
+                    ("Naver_Mybox_File_Get_Root", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service.*\/file\/get\?resourceKey=root')),
                     ("Tistory_File_Upload", re.compile(r'.*https:\/\/tistory\.com.*plugins\/fileUpload\/plugin\.min\.js')),
                     ("Gmail_File_Upload", re.compile(r'https:\/\/ssl\.gstatic\.com\/ui\/v1\/icons\/common\/x_8px\.png')),
                     ("Nate_Mail_File_Upload", re.compile(r'https:\/\/mailimg\.nate\.com\/newmail\/img\/jsfile\/mimetypes\/.*\.png')),
-                    ("Nate_Mail_Sent_Complete", re.compile(r'https:\/\/mail3\.nate\.com\/#write\/\?act=new'))
+                    ("Nate_Mail_Sent_Complete", re.compile(r'https:\/\/mail3\.nate\.com\/#write\/\?act=new')),
+                    ("Mega_Upload", re.compile(r'https:\/\/jp\.static\.mega\.co\.nz\/4\/images\/mega\/overlay-sprite\.png\?v=bf2e646f2f83e139')),
+                    ("Mega_Upload", re.compile(r'https:\/\/jp\.static\.mega\.co\.nz\/4\/imagery\/sprites-fm-mime-uni\.9f5adb6010bae3ce\.svg')),
+                    ("One_Drive_Upload", re.compile(r'https:\/\/res-1\.cdn\.office\.net\/files\/.*\.manifest\/76\.js'))                                        
                     # 기타 캐시 기록 관련 URL 패턴 추가 가능
                 ]
             },
@@ -826,8 +892,6 @@ class LogTagger_1_5:
             opened_saved_files = self.find_mru_opened_saved_files()
             print(opened_saved_files)
 
-
-
 # LogTaggerManager 클래스 정의
 class LogTaggerManager:
     def __init__(self, db_url):
@@ -859,7 +923,7 @@ class LogTaggerManager:
         tagger_instance.apply_tags()
 
 # 사용 예시
-db_url = r"sqlite:///C:\Users\addy0\OneDrive\바탕 화면\DB 모음\2024-10-27 - 복사본.db"
+db_url = r"sqlite:///C:\Users\addy0\OneDrive\바탕 화면\DB 모음\2024-10-28 - 복사본.db"
 manager = LogTaggerManager(db_url)
 
 # 사용자에게 선택지를 보여주고 입력 받기
