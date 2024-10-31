@@ -107,7 +107,11 @@ def redirect_analyze_case_final(data) :
     case_folder = os.path.join(os.getcwd(), "uploads", user, case_number)
     db_path = os.path.join(case_folder, "normalization.db")
     time_db_path = os.path.join(case_folder, "time_normalization.db")
-    time_parsing(db_path, time_db_path)
+    if time_parsing(db_path, time_db_path) :
+        print("Success Time Parsing")
+    else :
+        print("Failed Time Parsing")
+    
 
 
 

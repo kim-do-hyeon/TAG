@@ -135,6 +135,7 @@ def time_parsing(db_path, new_db_path) :
         new_conn.close()
 
         # 결과 출력
-        print(sorted_df)
+        return True
     else:
         print("No data to process.")
+        return False
