@@ -28,7 +28,7 @@ def extract_usb_time(usb_df) :
             start, end = False, False
     return time_range
 
-def extract_doc_and_program(LogFIle_df, time_df, start_time, end_time) :
+def extract_doc_and_program(LogFile_df, time_df, start_time, end_time) :
     docs_ext = ['hwp', 'hwpx', 'pptx', 'ppt', 'doc', 'docx', 'show', 'xlsx', 'pdf', 'zip', 'jpg', 'lnk']
     filtered_df = time_df[(time_df['timestamp'] >= start_time - pd.Timedelta(minutes=10)) & (time_df['timestamp'] <= end_time)]
     filtered_log_df = LogFile_df[(LogFile_df['Event_Date/Time_-_UTC_(yyyy-mm-dd)'] >= start_time - pd.Timedelta(minutes=10)) & (LogFile_df['Event_Date/Time_-_UTC_(yyyy-mm-dd)'] <= end_time)]
