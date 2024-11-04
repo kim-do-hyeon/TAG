@@ -86,7 +86,7 @@ def extract_transaction_LogFile_Analysis(normal_conn, filename) :
                 return_dict[mft_num] = mft_df
         return return_dict
 
-def printer_behavior(normalization, time_normalization) :
+def usb_behavior(normalization, time_normalization) :
     pd.set_option('display.max_rows', None)  # 모든 행을 출력하도록 설정
     pd.set_option('display.max_columns', None)  # 모든 열을 출력하도록 설정
 
