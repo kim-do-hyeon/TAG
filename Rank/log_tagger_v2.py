@@ -35,16 +35,16 @@ class LogTagger:
                     ("Google_Login_Interactive_Endpoint", re.compile(r'https:\/\/accounts\.google\.com\/InteractiveLogin\?')),
                     ("Google_Redirection", re.compile(r'https:\/\/www\.google\.com\/url\?q=')),
                     #Gmail
-                    ("Gmail_Inbox", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*ogbl\/\?pli=1$')),
-                    ("Gmail_Inbox", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#inbox$')),
-                    ("Gmail_Sent", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#sent$')),
-                    ("Gmail_Drafts", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#drafts$')),
-                    ("Gmail_trash", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#trash$')),
-                    ("Gmail_Starred", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#starred$')),
-                    ("Gmail_Open_Mail", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/[a-zA-Z]+$')),
-                    ("Gmail_Mail_Write", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\?compose=.*$')),
-                    ("Gmail_Drive_Sharing", re.compile(r'https:\/\/mail\.google\.com\/drivesharing.*?shareService=mail')),
-                    ("Gmail_Create_New_mail", re.compile(r'https:\/\/mail\.google\.com\/.*\?compose=new')),
+                    ("Google_Mail_Inbox", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*ogbl\/\?pli=1$')),
+                    ("Google_Mail_Inbox", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#inbox$')),
+                    ("Google_Mail_Sent", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#sent$')),
+                    ("Google_Mail_Drafts", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#drafts$')),
+                    ("Google_Mail_trash", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#trash$')),
+                    ("Google_Mail_Starred", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#starred$')),
+                    ("Google_Mail_Open_Mail", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/[a-zA-Z]+$')),
+                    ("Google_Mail_Mail_Write", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\?compose=.*$')),
+                    ("Google_Mail_Drive_Sharing", re.compile(r'https:\/\/mail\.google\.com\/drivesharing.*?shareService=mail')),
+                    ("Google_Mail_Create_New_mail", re.compile(r'https:\/\/mail\.google\.com\/.*\?compose=new')),
                     #Google Drive
                     ("Google_Drive_Main", re.compile(r'https:\/\/drive\.google\.com\/drive\/home')),
                     ("Google_Drive_My_Drive", re.compile(r'https:\/\/drive\.google\.com\/drive\/my-drive')),
@@ -59,11 +59,11 @@ class LogTagger:
                     ("One_Drive_Login", re.compile(r'https:\/\/onedrive\.live\.com\/login\/')),
                     ("One_Drive_Folder", re.compile(r'https:\/\/onedrive\.live\.com\/\?id=.*&cid=.*')),
                     ("One_Drive_Main", re.compile(r'https:\/\/onedrive\.live\.com\/\?id=root&cid=.*')),
-                    #Outlook
-                    ("Outlook_Login", re.compile(r'https:\/\/login\.live\.com\/ppsecure\/post\.srf\?cobrandid=.*&uaid=.*&pid=.*&opid=.*&route=.*')),
-                    ("Outlook_Sent", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/sentitems\?')),
-                    ("Outlook_Drafts", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/drafts\?')),
-                    ("Outlook_Trash", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/deleteditems\?')),
+                    #Outlook Mail
+                    ("Outlook_Mail_Login", re.compile(r'https:\/\/login\.live\.com\/ppsecure\/post\.srf\?cobrandid=.*&uaid=.*&pid=.*&opid=.*&route=.*')),
+                    ("Outlook_Mail_Sent", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/sentitems\?')),
+                    ("Outlook_Mail_Drafts", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/drafts\?')),
+                    ("Outlook_Mail_Trash", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/deleteditems\?')),
                     #Naver
                     ("Naver_Login", re.compile(r'https:\/\/nid\.naver\.com\/nidlogin\.login')),
                     #Naver Mail
@@ -157,16 +157,16 @@ class LogTagger:
                     ("Google_Login_Interactive_Endpoint", re.compile(r'https:\/\/accounts\.google\.com\/InteractiveLogin\?')),
                     ("Google_Redirection", re.compile(r'https:\/\/www\.google\.com\/url\?q=')),
                     #Gmail
-                    ("Gmail_Inbox", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*ogbl\/\?pli=1$')),
-                    ("Gmail_Inbox", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#inbox$')),
-                    ("Gmail_Sent", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#sent$')),
-                    ("Gmail_Drafts", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#drafts$')),
-                    ("Gmail_trash", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#trash$')),
-                    ("Gmail_Starred", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#starred$')),
-                    ("Gmail_Open_Mail", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/[a-zA-Z]+$')),
-                    ("Gmail_Mail_Write", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\?compose=.*$')),
-                    ("Gmail_Drive_Sharing", re.compile(r'https:\/\/mail\.google\.com\/drivesharing.*?shareService=mail')),
-                    ("Gmail_Create_New_mail", re.compile(r'https:\/\/mail\.google\.com\/.*\?compose=new')),
+                    ("Google_Mail_Inbox", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*ogbl\/\?pli=1$')),
+                    ("Google_Mail_Inbox", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#inbox$')),
+                    ("Google_Mail_Sent", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#sent$')),
+                    ("Google_Mail_Drafts", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#drafts$')),
+                    ("Google_Mail_trash", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#trash$')),
+                    ("Google_Mail_Starred", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#starred$')),
+                    ("Google_Mail_Open_Mail", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/[a-zA-Z]+$')),
+                    ("Google_Mail_Mail_Write", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\?compose=.*$')),
+                    ("Google_Mail_Drive_Sharing", re.compile(r'https:\/\/mail\.google\.com\/drivesharing.*?shareService=mail')),
+                    ("Google_Mail_Create_New_mail", re.compile(r'https:\/\/mail\.google\.com\/.*\?compose=new')),
                     #Google Drive
                     ("Google_Drive_Main", re.compile(r'https:\/\/drive\.google\.com\/drive\/home')),
                     ("Google_Drive_My_Drive", re.compile(r'https:\/\/drive\.google\.com\/drive\/my-drive')),
@@ -181,11 +181,11 @@ class LogTagger:
                     ("One_Drive_Login", re.compile(r'https:\/\/onedrive\.live\.com\/login\/')),
                     ("One_Drive_Folder", re.compile(r'https:\/\/onedrive\.live\.com\/\?id=.*&cid=.*')),
                     ("One_Drive_Main", re.compile(r'https:\/\/onedrive\.live\.com\/\?id=root&cid=.*')),
-                    #Outlook
-                    ("Outlook_Login", re.compile(r'https:\/\/login\.live\.com\/ppsecure\/post\.srf\?cobrandid=.*&uaid=.*&pid=.*&opid=.*&route=.*')),
-                    ("Outlook_Sent", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/sentitems\?')),
-                    ("Outlook_Drafts", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/drafts\?')),
-                    ("Outlook_Trash", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/deleteditems\?')),
+                    #Outlook Mail
+                    ("Outlook_Mail_Login", re.compile(r'https:\/\/login\.live\.com\/ppsecure\/post\.srf\?cobrandid=.*&uaid=.*&pid=.*&opid=.*&route=.*')),
+                    ("Outlook_Mail_Sent", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/sentitems\?')),
+                    ("Outlook_Mail_Drafts", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/drafts\?')),
+                    ("Outlook_Mail_Trash", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/deleteditems\?')),
                     #Naver
                     ("Naver_Login", re.compile(r'https:\/\/nid\.naver\.com\/nidlogin\.login')),
                     #Naver Mail
@@ -279,16 +279,16 @@ class LogTagger:
                     ("Google_Login_Interactive_Endpoint", re.compile(r'https:\/\/accounts\.google\.com\/InteractiveLogin\?')),
                     ("Google_Redirection", re.compile(r'https:\/\/www\.google\.com\/url\?q=')),
                     #Gmail
-                    ("Gmail_Inbox", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*ogbl\/\?pli=1$')),
-                    ("Gmail_Inbox", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#inbox$')),
-                    ("Gmail_Sent", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#sent$')),
-                    ("Gmail_Drafts", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#drafts$')),
-                    ("Gmail_trash", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#trash$')),
-                    ("Gmail_Starred", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#starred$')),
-                    ("Gmail_Open_Mail", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/[a-zA-Z]+$')),
-                    ("Gmail_Mail_Write", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\?compose=.*$')),
-                    ("Gmail_Drive_Sharing", re.compile(r'https:\/\/mail\.google\.com\/drivesharing.*?shareService=mail')),
-                    ("Gmail_Create_New_mail", re.compile(r'https:\/\/mail\.google\.com\/.*\?compose=new')),
+                    ("Google_Mail_Inbox", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*ogbl\/\?pli=1$')),
+                    ("Google_Mail_Inbox", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#inbox$')),
+                    ("Google_Mail_Sent", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#sent$')),
+                    ("Google_Mail_Drafts", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#drafts$')),
+                    ("Google_Mail_trash", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#trash$')),
+                    ("Google_Mail_Starred", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#starred$')),
+                    ("Google_Mail_Open_Mail", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/[a-zA-Z]+$')),
+                    ("Google_Mail_Mail_Write", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\?compose=.*$')),
+                    ("Google_Mail_Drive_Sharing", re.compile(r'https:\/\/mail\.google\.com\/drivesharing.*?shareService=mail')),
+                    ("Google_Mail_Create_New_mail", re.compile(r'https:\/\/mail\.google\.com\/.*\?compose=new')),
                     #Google Drive
                     ("Google_Drive_Main", re.compile(r'https:\/\/drive\.google\.com\/drive\/home')),
                     ("Google_Drive_My_Drive", re.compile(r'https:\/\/drive\.google\.com\/drive\/my-drive')),
@@ -303,11 +303,11 @@ class LogTagger:
                     ("One_Drive_Login", re.compile(r'https:\/\/onedrive\.live\.com\/login\/')),
                     ("One_Drive_Folder", re.compile(r'https:\/\/onedrive\.live\.com\/\?id=.*&cid=.*')),
                     ("One_Drive_Main", re.compile(r'https:\/\/onedrive\.live\.com\/\?id=root&cid=.*')),
-                    #Outlook
-                    ("Outlook_Login", re.compile(r'https:\/\/login\.live\.com\/ppsecure\/post\.srf\?cobrandid=.*&uaid=.*&pid=.*&opid=.*&route=.*')),
-                    ("Outlook_Sent", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/sentitems\?')),
-                    ("Outlook_Drafts", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/drafts\?')),
-                    ("Outlook_Trash", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/deleteditems\?')),
+                    #Outlook Mail
+                    ("Outlook_Mail_Login", re.compile(r'https:\/\/login\.live\.com\/ppsecure\/post\.srf\?cobrandid=.*&uaid=.*&pid=.*&opid=.*&route=.*')),
+                    ("Outlook_Mail_Sent", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/sentitems\?')),
+                    ("Outlook_Mail_Drafts", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/drafts\?')),
+                    ("Outlook_Mail_Trash", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/deleteditems\?')),
                     #Naver
                     ("Naver_Login", re.compile(r'https:\/\/nid\.naver\.com\/nidlogin\.login')),
                     #Naver Mail
@@ -418,7 +418,7 @@ class LogTagger:
                     ("Naver_Blog_File_Upload", re.compile(r'https:\/\/editor-static\.pstatic\.net\/e\/basic\.desktop\/.*\/se-file-upload-layer-view\.js\?')), #직접 업로드만
                     ("Naver_Blog_Image_Upload", re.compile(r'https:\/\/blogfiles\.pstatic\.net\/')), #블로그에 포함된 여러 이미지파일들의 중복 가능성 있어서 메일 작성 후 시간대로 묶어야할듯
                     ("Tistory_File_Upload", re.compile(r'.*https:\/\/tistory\.com.*plugins\/fileUpload\/plugin\.min\.js')),
-                    ("Gmail_File_Upload", re.compile(r'https:\/\/ssl\.gstatic\.com\/ui\/v1\/icons\/common\/x_8px\.png')),
+                    ("Google_Mail_File_Upload", re.compile(r'https:\/\/ssl\.gstatic\.com\/ui\/v1\/icons\/common\/x_8px\.png')),
                     ("Nate_Mail_File_Upload", re.compile(r'https:\/\/mailimg\.nate\.com\/newmail\/img\/jsfile\/mimetypes\/.*\.png')),
                     ("Nate_Mail_Sent_Complete", re.compile(r'https:\/\/mail3\.nate\.com\/#write\/\?act=new')),
                     ("Mega_Upload", re.compile(r'https:\/\/jp\.static\.mega\.co\.nz\/4\/images\/mega\/overlay-sprite\.png\?v=bf2e646f2f83e139')),
@@ -437,7 +437,7 @@ class LogTagger:
                     ("Naver_Blog_File_Upload", re.compile(r'https:\/\/editor-static\.pstatic\.net\/e\/basic\.desktop\/.*\/se-file-upload-layer-view\.js\?')), #직접 업로드만
                     ("Naver_Blog_Image_Upload", re.compile(r'https:\/\/blogfiles\.pstatic\.net\/')), #블로그에 포함된 여러 이미지파일들의 중복 가능성 있어서 메일 작성 후 시간대로 묶어야할듯
                     ("Tistory_File_Upload", re.compile(r'.*https:\/\/tistory\.com.*plugins\/fileUpload\/plugin\.min\.js')),
-                    ("Gmail_File_Upload", re.compile(r'https:\/\/ssl\.gstatic\.com\/ui\/v1\/icons\/common\/x_8px\.png')),
+                    ("Google_Mail_File_Upload", re.compile(r'https:\/\/ssl\.gstatic\.com\/ui\/v1\/icons\/common\/x_8px\.png')),
                     ("Nate_Mail_File_Upload", re.compile(r'https:\/\/mailimg\.nate\.com\/newmail\/img\/jsfile\/mimetypes\/.*\.png')),
                     ("Nate_Mail_Sent_Complete", re.compile(r'https:\/\/mail3\.nate\.com\/#write\/\?act=new')),
                     ("Mega_Upload", re.compile(r'https:\/\/jp\.static\.mega\.co\.nz\/4\/images\/mega\/overlay-sprite\.png\?v=bf2e646f2f83e139')),
@@ -456,7 +456,7 @@ class LogTagger:
                     ("Naver_Blog_File_Upload", re.compile(r'https:\/\/editor-static\.pstatic\.net\/e\/basic\.desktop\/.*\/se-file-upload-layer-view\.js\?')), #직접 업로드만
                     ("Naver_Blog_Image_Upload", re.compile(r'https:\/\/blogfiles\.pstatic\.net\/')), #블로그에 포함된 여러 이미지파일들의 중복 가능성 있어서 메일 작성 후 시간대로 묶어야할듯
                     ("Tistory_File_Upload", re.compile(r'.*https:\/\/tistory\.com.*plugins\/fileUpload\/plugin\.min\.js')),
-                    ("Gmail_File_Upload", re.compile(r'https:\/\/ssl\.gstatic\.com\/ui\/v1\/icons\/common\/x_8px\.png')),
+                    ("Google_Mail_File_Upload", re.compile(r'https:\/\/ssl\.gstatic\.com\/ui\/v1\/icons\/common\/x_8px\.png')),
                     ("Nate_Mail_File_Upload", re.compile(r'https:\/\/mailimg\.nate\.com\/newmail\/img\/jsfile\/mimetypes\/.*\.png')),
                     ("Nate_Mail_Sent_Complete", re.compile(r'https:\/\/mail3\.nate\.com\/#write\/\?act=new')),
                     ("Mega_Upload", re.compile(r'https:\/\/jp\.static\.mega\.co\.nz\/4\/images\/mega\/overlay-sprite\.png\?v=bf2e646f2f83e139')),
@@ -470,9 +470,9 @@ class LogTagger:
             "Edge_Chromium_Last_Session": {
                 "Title": [
                     ("Google_Login", re.compile(r'로그인\s-\sGoogle\s계정')),
-                    ("Gmail_Inbox", re.compile(r'Inbox\s\(\d+\)\s-\s.*@gmail\.com')),
-                    ("Gmail_Sent", re.compile(r'(Sent\sMail)\s-\s.*@gmail\.com')),
-                    ("Gmail_Subject", re.compile(r'.*\s-\s.*@gmail\.com')),
+                    ("Google_Mail_Inbox", re.compile(r'Inbox\s\(\d+\)\s-\s.*@gmail\.com')),
+                    ("Google_Mail_Sent", re.compile(r'(Sent\sMail)\s-\s.*@gmail\.com')),
+                    ("Google_Mail_Subject", re.compile(r'.*\s-\s.*@gmail\.com')),
                     ("Web_Search", re.compile(r'(.*?\s-\s.*검색)'))
                 ],
                 "Redirect_URL": [
@@ -482,9 +482,9 @@ class LogTagger:
             "Edge_Chromium_Current_Session": {
                 "Title": [
                     ("Google_Login", re.compile(r'로그인\s-\sGoogle\s계정')),
-                    ("Gmail_Inbox", re.compile(r'Inbox\s\(\d+\)\s-\s.*@gmail\.com')),
-                    ("Gmail_Sent", re.compile(r'(Sent\sMail)\s-\s.*@gmail\.com')),
-                    ("Gmail_Subject", re.compile(r'.*\s-\s.*@gmail\.com')),
+                    ("Google_Mail_Inbox", re.compile(r'Inbox\s\(\d+\)\s-\s.*@gmail\.com')),
+                    ("Google_Mail_Sent", re.compile(r'(Sent\sMail)\s-\s.*@gmail\.com')),
+                    ("Google_Mail_Subject", re.compile(r'.*\s-\s.*@gmail\.com')),
                     ("Web_Search", re.compile(r'(.*?\s-\s.*검색)'))
                 ],
                 "Redirect_URL": [
