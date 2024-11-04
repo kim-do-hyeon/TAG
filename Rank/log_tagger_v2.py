@@ -14,9 +14,7 @@ class LogTagger:
         self.patterns = {
             "Edge_Chromium_Web_Visits": {
                 "Title": [
-                    ("Web_Search", re.compile(r'(.*?\s-\s.*검색)')),
-                    #Daum
-                    ("Daum_Kakao_Mail_Sent_Complete", re.compile(r'\".*\" 메일이 정상적으로 전송되었습니다\.'))                    
+                    ("Web_Search", re.compile(r'(.*?\s-\s.*검색)'))             
                     # 기타 Title 패턴 추가 가능
                 ],
                 "URL": [
@@ -50,11 +48,11 @@ class LogTagger:
                     ("Google_Drive_My_Drive", re.compile(r'https:\/\/drive\.google\.com\/drive\/my-drive')),
                     ("Google_Drive_Folder", re.compile(r'https:\/\/drive\.google\.com\/drive\/folders')),
                     #Mega
-                    ("Mega_Login", re.compile(r'https:\/\/mega\.nz\/login')),
-                    ("Mega_Main", re.compile(r'https:\/\/mega\.nz\/fm')), #폴더를 들어가도 똑같음
+                    ("Mega_Drive_Login", re.compile(r'https:\/\/mega\.nz\/login')),
+                    ("Mega_Drive_Main", re.compile(r'https:\/\/mega\.nz\/fm')), #폴더를 들어가도 똑같음
                     #Dropbox
-                    ("Dropbox_Drive", re.compile(r'^https:\/\/www\.dropbox\.com\/home$')),
-                    ("Dropbox_Client_Login", re.compile(r'https:\/\/www\.dropbox\.com\/desktop\/oauth2\?code=.*&state=.*')),
+                    ("Dropbox_Drive_Drive", re.compile(r'^https:\/\/www\.dropbox\.com\/home$')),
+                    ("Dropbox_Drive_Client_Login", re.compile(r'https:\/\/www\.dropbox\.com\/desktop\/oauth2\?code=.*&state=.*')),
                     #One Drive
                     ("One_Drive_Login", re.compile(r'https:\/\/onedrive\.live\.com\/login\/')),
                     ("One_Drive_Folder", re.compile(r'https:\/\/onedrive\.live\.com\/\?id=.*&cid=.*')),
@@ -112,14 +110,14 @@ class LogTagger:
                     ("Nate_Mail_Draft", re.compile(r'https:\/\/mail3\.nate\.com\/#list\/\?pop3id=M&page=.*&mboxid=40')),
                     ("Nate_Mail_Trash", re.compile(r'https:\/\/mail3\.nate\.com\/#list\/\?pop3id=M&page=1&mboxid=50')),
                     #Tistory
-                    ("Tistory_Login", re.compile(r'https:\/\/www\.tistory\.com\/auth\/kakao\/redirect\?code=.*')),
-                    ("Tistory_Manage", re.compile(r'https:\/\/.*\.tistory\.com\/manage\/.*')),
-                    ("Tistory_Post", re.compile(r'https:\/\/.*\.tistory\.com\/manage\/newpost.*')),
-                    ("Tistory_Post", re.compile(r'^https:\/\/.*\.tistory\.com\/manage\/post$')),
+                    ("Tistory_Blog_Login", re.compile(r'https:\/\/www\.tistory\.com\/auth\/kakao\/redirect\?code=.*')),
+                    ("Tistory_Blog_Manage", re.compile(r'https:\/\/.*\.tistory\.com\/manage\/.*')),
+                    ("Tistory_Blog_Post", re.compile(r'https:\/\/.*\.tistory\.com\/manage\/newpost.*')),
+                    ("Tistory_Blog_Post", re.compile(r'^https:\/\/.*\.tistory\.com\/manage\/post$')),
                     #Velog
-                    ("Velog_Login", re.compile(r'https:\/\/velog\.io\/email-login\?code=.*')),
-                    ("Velog_New_Post", re.compile(r'^https:\/\/velog\.io\/write$')),
-                    ("Velog_Post", re.compile(r'https:\/\/velog\.io\/write\?id=.*')),
+                    ("Velog_Blog_Login", re.compile(r'https:\/\/velog\.io\/email-login\?code=.*')),
+                    ("Velog_Blog_New_Post", re.compile(r'^https:\/\/velog\.io\/write$')),
+                    ("Velog_Blog_Post", re.compile(r'https:\/\/velog\.io\/write\?id=.*')),
                     #ETC
                     ("File_Web_Access", re.compile(r'file:\/\/\/[A-Za-z]:\/(?:[^\/\n]+\/)*[^\/\n]+?\.[a-zA-Z0-9]+')),
                     ("Short_URL_Service", re.compile(r'\b(https?://)?(bit\.ly|tinyurl\.com|goo\.gl|t\.co|is\.gd|ow\.ly)/[a-zA-Z0-9]+\b')),
@@ -131,14 +129,12 @@ class LogTagger:
                     # 기타 URL 패턴 추가 가능
                 ],
                 "Title": [
-                    ("Mega_File_Upload", re.compile(r'MEGA ↑ (100|[1-9]?[0-9])%'))
+                    ("Mega_Drive_File_Upload", re.compile(r'MEGA ↑ (100|[1-9]?[0-9])%'))
                 ]
             },
             "Chrome_Web_Visits": {
                 "Title": [
-                    ("Web_Search", re.compile(r'(.*?\s-\s.*검색)')),
-                    #Daum
-                    ("Daum_Kakao_Mail_Sent_Complete", re.compile(r'\".*\" 메일이 정상적으로 전송되었습니다\.'))                    
+                    ("Web_Search", re.compile(r'(.*?\s-\s.*검색)'))             
                     # 기타 Title 패턴 추가 가능
                 ],
                 "URL": [
@@ -172,11 +168,11 @@ class LogTagger:
                     ("Google_Drive_My_Drive", re.compile(r'https:\/\/drive\.google\.com\/drive\/my-drive')),
                     ("Google_Drive_Folder", re.compile(r'https:\/\/drive\.google\.com\/drive\/folders')),
                     #Mega
-                    ("Mega_Login", re.compile(r'https:\/\/mega\.nz\/login')),
-                    ("Mega_Main", re.compile(r'https:\/\/mega\.nz\/fm')), #폴더를 들어가도 똑같음
+                    ("Mega_Drive_Login", re.compile(r'https:\/\/mega\.nz\/login')),
+                    ("Mega_Drive_Main", re.compile(r'https:\/\/mega\.nz\/fm')), #폴더를 들어가도 똑같음
                     #Dropbox
-                    ("Dropbox_Drive", re.compile(r'^https:\/\/www\.dropbox\.com\/home$')),
-                    ("Dropbox_Client_Login", re.compile(r'https:\/\/www\.dropbox\.com\/desktop\/oauth2\?code=.*&state=.*')),
+                    ("Dropbox_Drive_Drive", re.compile(r'^https:\/\/www\.dropbox\.com\/home$')),
+                    ("Dropbox_Drive_Client_Login", re.compile(r'https:\/\/www\.dropbox\.com\/desktop\/oauth2\?code=.*&state=.*')),
                     #One Drive
                     ("One_Drive_Login", re.compile(r'https:\/\/onedrive\.live\.com\/login\/')),
                     ("One_Drive_Folder", re.compile(r'https:\/\/onedrive\.live\.com\/\?id=.*&cid=.*')),
@@ -234,14 +230,14 @@ class LogTagger:
                     ("Nate_Mail_Draft", re.compile(r'https:\/\/mail3\.nate\.com\/#list\/\?pop3id=M&page=.*&mboxid=40')),
                     ("Nate_Mail_Trash", re.compile(r'https:\/\/mail3\.nate\.com\/#list\/\?pop3id=M&page=1&mboxid=50')),
                     #Tistory
-                    ("Tistory_Login", re.compile(r'https:\/\/www\.tistory\.com\/auth\/kakao\/redirect\?code=.*')),
-                    ("Tistory_Manage", re.compile(r'https:\/\/.*\.tistory\.com\/manage\/.*')),
-                    ("Tistory_Post", re.compile(r'https:\/\/.*\.tistory\.com\/manage\/newpost.*')),
-                    ("Tistory_Post", re.compile(r'^https:\/\/.*\.tistory\.com\/manage\/post$')),
+                    ("Tistory_Blog_Login", re.compile(r'https:\/\/www\.tistory\.com\/auth\/kakao\/redirect\?code=.*')),
+                    ("Tistory_Blog_Manage", re.compile(r'https:\/\/.*\.tistory\.com\/manage\/.*')),
+                    ("Tistory_Blog_Post", re.compile(r'https:\/\/.*\.tistory\.com\/manage\/newpost.*')),
+                    ("Tistory_Blog_Post", re.compile(r'^https:\/\/.*\.tistory\.com\/manage\/post$')),
                     #Velog
-                    ("Velog_Login", re.compile(r'https:\/\/velog\.io\/email-login\?code=.*')),
-                    ("Velog_New_Post", re.compile(r'^https:\/\/velog\.io\/write$')),
-                    ("Velog_Post", re.compile(r'https:\/\/velog\.io\/write\?id=.*')),
+                    ("Velog_Blog_Login", re.compile(r'https:\/\/velog\.io\/email-login\?code=.*')),
+                    ("Velog_Blog_New_Post", re.compile(r'^https:\/\/velog\.io\/write$')),
+                    ("Velog_Blog_Post", re.compile(r'https:\/\/velog\.io\/write\?id=.*')),
                     #ETC
                     ("File_Web_Access", re.compile(r'file:\/\/\/[A-Za-z]:\/(?:[^\/\n]+\/)*[^\/\n]+?\.[a-zA-Z0-9]+')),
                     ("Short_URL_Service", re.compile(r'\b(https?://)?(bit\.ly|tinyurl\.com|goo\.gl|t\.co|is\.gd|ow\.ly)/[a-zA-Z0-9]+\b')),
@@ -253,14 +249,12 @@ class LogTagger:
                     # 기타 URL 패턴 추가 가능
                 ],
                 "Title": [
-                    ("Mega_File_Upload", re.compile(r'MEGA ↑ (100|[1-9]?[0-9])%'))
+                    ("Mega_Drive_File_Upload", re.compile(r'MEGA ↑ (100|[1-9]?[0-9])%'))
                 ]
             },
             "Firefox_Web_Visits": {
                 "Title": [
-                    ("Web_Search", re.compile(r'(.*?\s-\s.*검색)')),
-                    #Daum
-                    ("Daum_Kakao_Mail_Sent_Complete", re.compile(r'\".*\" 메일이 정상적으로 전송되었습니다\.'))                    
+                    ("Web_Search", re.compile(r'(.*?\s-\s.*검색)'))             
                     # 기타 Title 패턴 추가 가능
                 ],
                 "URL": [
@@ -294,11 +288,11 @@ class LogTagger:
                     ("Google_Drive_My_Drive", re.compile(r'https:\/\/drive\.google\.com\/drive\/my-drive')),
                     ("Google_Drive_Folder", re.compile(r'https:\/\/drive\.google\.com\/drive\/folders')),
                     #Mega
-                    ("Mega_Login", re.compile(r'https:\/\/mega\.nz\/login')),
-                    ("Mega_Main", re.compile(r'https:\/\/mega\.nz\/fm')), #폴더를 들어가도 똑같음
+                    ("Mega_Drive_Login", re.compile(r'https:\/\/mega\.nz\/login')),
+                    ("Mega_Drive_Main", re.compile(r'https:\/\/mega\.nz\/fm')), #폴더를 들어가도 똑같음
                     #Dropbox
-                    ("Dropbox_Drive", re.compile(r'^https:\/\/www\.dropbox\.com\/home$')),
-                    ("Dropbox_Client_Login", re.compile(r'https:\/\/www\.dropbox\.com\/desktop\/oauth2\?code=.*&state=.*')),
+                    ("Dropbox_Drive_Drive", re.compile(r'^https:\/\/www\.dropbox\.com\/home$')),
+                    ("Dropbox_Drive_Client_Login", re.compile(r'https:\/\/www\.dropbox\.com\/desktop\/oauth2\?code=.*&state=.*')),
                     #One Drive
                     ("One_Drive_Login", re.compile(r'https:\/\/onedrive\.live\.com\/login\/')),
                     ("One_Drive_Folder", re.compile(r'https:\/\/onedrive\.live\.com\/\?id=.*&cid=.*')),
@@ -356,14 +350,14 @@ class LogTagger:
                     ("Nate_Mail_Draft", re.compile(r'https:\/\/mail3\.nate\.com\/#list\/\?pop3id=M&page=.*&mboxid=40')),
                     ("Nate_Mail_Trash", re.compile(r'https:\/\/mail3\.nate\.com\/#list\/\?pop3id=M&page=1&mboxid=50')),
                     #Tistory
-                    ("Tistory_Login", re.compile(r'https:\/\/www\.tistory\.com\/auth\/kakao\/redirect\?code=.*')),
-                    ("Tistory_Manage", re.compile(r'https:\/\/.*\.tistory\.com\/manage\/.*')),
-                    ("Tistory_Post", re.compile(r'https:\/\/.*\.tistory\.com\/manage\/newpost.*')),
-                    ("Tistory_Post", re.compile(r'^https:\/\/.*\.tistory\.com\/manage\/post$')),
+                    ("Tistory_Blog_Login", re.compile(r'https:\/\/www\.tistory\.com\/auth\/kakao\/redirect\?code=.*')),
+                    ("Tistory_Blog_Manage", re.compile(r'https:\/\/.*\.tistory\.com\/manage\/.*')),
+                    ("Tistory_Blog_Post", re.compile(r'https:\/\/.*\.tistory\.com\/manage\/newpost.*')),
+                    ("Tistory_Blog_Post", re.compile(r'^https:\/\/.*\.tistory\.com\/manage\/post$')),
                     #Velog
-                    ("Velog_Login", re.compile(r'https:\/\/velog\.io\/email-login\?code=.*')),
-                    ("Velog_New_Post", re.compile(r'^https:\/\/velog\.io\/write$')),
-                    ("Velog_Post", re.compile(r'https:\/\/velog\.io\/write\?id=.*')),
+                    ("Velog_Blog_Login", re.compile(r'https:\/\/velog\.io\/email-login\?code=.*')),
+                    ("Velog_Blog_New_Post", re.compile(r'^https:\/\/velog\.io\/write$')),
+                    ("Velog_Blog_Post", re.compile(r'https:\/\/velog\.io\/write\?id=.*')),
                     #ETC
                     ("File_Web_Access", re.compile(r'file:\/\/\/[A-Za-z]:\/(?:[^\/\n]+\/)*[^\/\n]+?\.[a-zA-Z0-9]+')),
                     ("Short_URL_Service", re.compile(r'\b(https?://)?(bit\.ly|tinyurl\.com|goo\.gl|t\.co|is\.gd|ow\.ly)/[a-zA-Z0-9]+\b')),
@@ -375,7 +369,7 @@ class LogTagger:
                     # 기타 URL 패턴 추가 가능
                 ],
                 "Title": [
-                    ("Mega_File_Upload", re.compile(r'MEGA ↑ (100|[1-9]?[0-9])%'))
+                    ("Mega_Drive_File_Upload", re.compile(r'MEGA ↑ (100|[1-9]?[0-9])%'))
                 ]
             },
             "USB_Devices": {
@@ -417,15 +411,15 @@ class LogTagger:
                     ("Naver_Mybox_File_Get_Root", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service.*\/file\/get\?resourceKey=root')),
                     ("Naver_Blog_File_Upload", re.compile(r'https:\/\/editor-static\.pstatic\.net\/e\/basic\.desktop\/.*\/se-file-upload-layer-view\.js\?')), #직접 업로드만
                     ("Naver_Blog_Image_Upload", re.compile(r'https:\/\/blogfiles\.pstatic\.net\/')), #블로그에 포함된 여러 이미지파일들의 중복 가능성 있어서 메일 작성 후 시간대로 묶어야할듯
-                    ("Tistory_File_Upload", re.compile(r'.*https:\/\/tistory\.com.*plugins\/fileUpload\/plugin\.min\.js')),
+                    ("Tistory_Blog_File_Upload", re.compile(r'.*https:\/\/tistory\.com.*plugins\/fileUpload\/plugin\.min\.js')),
                     ("Google_Mail_File_Upload", re.compile(r'https:\/\/ssl\.gstatic\.com\/ui\/v1\/icons\/common\/x_8px\.png')),
                     ("Nate_Mail_File_Upload", re.compile(r'https:\/\/mailimg\.nate\.com\/newmail\/img\/jsfile\/mimetypes\/.*\.png')),
                     ("Nate_Mail_Sent_Complete", re.compile(r'https:\/\/mail3\.nate\.com\/#write\/\?act=new')),
-                    ("Mega_Upload", re.compile(r'https:\/\/jp\.static\.mega\.co\.nz\/4\/images\/mega\/overlay-sprite\.png\?v=bf2e646f2f83e139')),
-                    ("Mega_Upload", re.compile(r'https:\/\/jp\.static\.mega\.co\.nz\/4\/imagery\/sprites-fm-mime-uni\.9f5adb6010bae3ce\.svg')),
+                    ("Mega_Drive_Upload", re.compile(r'https:\/\/jp\.static\.mega\.co\.nz\/4\/images\/mega\/overlay-sprite\.png\?v=bf2e646f2f83e139')),
+                    ("Mega_Drive_Upload", re.compile(r'https:\/\/jp\.static\.mega\.co\.nz\/4\/imagery\/sprites-fm-mime-uni\.9f5adb6010bae3ce\.svg')),
                     ("One_Drive_Upload", re.compile(r'https:\/\/res-1\.cdn\.office\.net\/files\/.*\.manifest\/76\.js')),
-                    ("Velog_File_Upload", re.compile(r'https:\/\/velog\.velcdn\.com\/.*\/post\/.*\/image\..*')),
-                    ("Dropbox_File_Upload", re.compile(r'https:\/\/previews\.dropbox\.com\/p\/.*_img\/.*'))                                        
+                    ("Velog_Blog_File_Upload", re.compile(r'https:\/\/velog\.velcdn\.com\/.*\/post\/.*\/image\..*')),
+                    ("Dropbox_Drive_File_Upload", re.compile(r'https:\/\/previews\.dropbox\.com\/p\/.*_img\/.*'))                                        
                     # 기타 캐시 기록 관련 URL 패턴 추가 가능
                 ]
             },
@@ -436,15 +430,15 @@ class LogTagger:
                     ("Naver_Mybox_File_Get_Root", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service.*\/file\/get\?resourceKey=root')),
                     ("Naver_Blog_File_Upload", re.compile(r'https:\/\/editor-static\.pstatic\.net\/e\/basic\.desktop\/.*\/se-file-upload-layer-view\.js\?')), #직접 업로드만
                     ("Naver_Blog_Image_Upload", re.compile(r'https:\/\/blogfiles\.pstatic\.net\/')), #블로그에 포함된 여러 이미지파일들의 중복 가능성 있어서 메일 작성 후 시간대로 묶어야할듯
-                    ("Tistory_File_Upload", re.compile(r'.*https:\/\/tistory\.com.*plugins\/fileUpload\/plugin\.min\.js')),
+                    ("Tistory_Blog_File_Upload", re.compile(r'.*https:\/\/tistory\.com.*plugins\/fileUpload\/plugin\.min\.js')),
                     ("Google_Mail_File_Upload", re.compile(r'https:\/\/ssl\.gstatic\.com\/ui\/v1\/icons\/common\/x_8px\.png')),
                     ("Nate_Mail_File_Upload", re.compile(r'https:\/\/mailimg\.nate\.com\/newmail\/img\/jsfile\/mimetypes\/.*\.png')),
                     ("Nate_Mail_Sent_Complete", re.compile(r'https:\/\/mail3\.nate\.com\/#write\/\?act=new')),
-                    ("Mega_Upload", re.compile(r'https:\/\/jp\.static\.mega\.co\.nz\/4\/images\/mega\/overlay-sprite\.png\?v=bf2e646f2f83e139')),
-                    ("Mega_Upload", re.compile(r'https:\/\/jp\.static\.mega\.co\.nz\/4\/imagery\/sprites-fm-mime-uni\.9f5adb6010bae3ce\.svg')),
+                    ("Mega_Drive_Upload", re.compile(r'https:\/\/jp\.static\.mega\.co\.nz\/4\/images\/mega\/overlay-sprite\.png\?v=bf2e646f2f83e139')),
+                    ("Mega_Drive_Upload", re.compile(r'https:\/\/jp\.static\.mega\.co\.nz\/4\/imagery\/sprites-fm-mime-uni\.9f5adb6010bae3ce\.svg')),
                     ("One_Drive_Upload", re.compile(r'https:\/\/res-1\.cdn\.office\.net\/files\/.*\.manifest\/76\.js')),
-                    ("Velog_File_Upload", re.compile(r'https:\/\/velog\.velcdn\.com\/.*\/post\/.*\/image\..*')),
-                    ("Dropbox_File_Upload", re.compile(r'https:\/\/previews\.dropbox\.com\/p\/.*_img\/.*'))                                        
+                    ("Velog_Blog_File_Upload", re.compile(r'https:\/\/velog\.velcdn\.com\/.*\/post\/.*\/image\..*')),
+                    ("Dropbox_Drive_File_Upload", re.compile(r'https:\/\/previews\.dropbox\.com\/p\/.*_img\/.*'))                                        
                     # 기타 캐시 기록 관련 URL 패턴 추가 가능
                 ]
             },
@@ -455,15 +449,15 @@ class LogTagger:
                     ("Naver_Mybox_File_Get_Root", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service.*\/file\/get\?resourceKey=root')),
                     ("Naver_Blog_File_Upload", re.compile(r'https:\/\/editor-static\.pstatic\.net\/e\/basic\.desktop\/.*\/se-file-upload-layer-view\.js\?')), #직접 업로드만
                     ("Naver_Blog_Image_Upload", re.compile(r'https:\/\/blogfiles\.pstatic\.net\/')), #블로그에 포함된 여러 이미지파일들의 중복 가능성 있어서 메일 작성 후 시간대로 묶어야할듯
-                    ("Tistory_File_Upload", re.compile(r'.*https:\/\/tistory\.com.*plugins\/fileUpload\/plugin\.min\.js')),
+                    ("Tistory_Blog_File_Upload", re.compile(r'.*https:\/\/tistory\.com.*plugins\/fileUpload\/plugin\.min\.js')),
                     ("Google_Mail_File_Upload", re.compile(r'https:\/\/ssl\.gstatic\.com\/ui\/v1\/icons\/common\/x_8px\.png')),
                     ("Nate_Mail_File_Upload", re.compile(r'https:\/\/mailimg\.nate\.com\/newmail\/img\/jsfile\/mimetypes\/.*\.png')),
                     ("Nate_Mail_Sent_Complete", re.compile(r'https:\/\/mail3\.nate\.com\/#write\/\?act=new')),
-                    ("Mega_Upload", re.compile(r'https:\/\/jp\.static\.mega\.co\.nz\/4\/images\/mega\/overlay-sprite\.png\?v=bf2e646f2f83e139')),
-                    ("Mega_Upload", re.compile(r'https:\/\/jp\.static\.mega\.co\.nz\/4\/imagery\/sprites-fm-mime-uni\.9f5adb6010bae3ce\.svg')),
+                    ("Mega_Drive_Upload", re.compile(r'https:\/\/jp\.static\.mega\.co\.nz\/4\/images\/mega\/overlay-sprite\.png\?v=bf2e646f2f83e139')),
+                    ("Mega_Drive_Upload", re.compile(r'https:\/\/jp\.static\.mega\.co\.nz\/4\/imagery\/sprites-fm-mime-uni\.9f5adb6010bae3ce\.svg')),
                     ("One_Drive_Upload", re.compile(r'https:\/\/res-1\.cdn\.office\.net\/files\/.*\.manifest\/76\.js')),
-                    ("Velog_File_Upload", re.compile(r'https:\/\/velog\.velcdn\.com\/.*\/post\/.*\/image\..*')),
-                    ("Dropbox_File_Upload", re.compile(r'https:\/\/previews\.dropbox\.com\/p\/.*_img\/.*'))                                        
+                    ("Velog_Blog_File_Upload", re.compile(r'https:\/\/velog\.velcdn\.com\/.*\/post\/.*\/image\..*')),
+                    ("Dropbox_Drive_File_Upload", re.compile(r'https:\/\/previews\.dropbox\.com\/p\/.*_img\/.*'))                                        
                     # 기타 캐시 기록 관련 URL 패턴 추가 가능
                 ]
             },
