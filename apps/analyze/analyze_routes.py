@@ -1,7 +1,7 @@
 import sqlite3, os, json
 import pandas as pd
 from flask import request, render_template, session, redirect, url_for, flash, Request, jsonify, render_template_string
-from apps.authentication.models import Upload_Case, Normalization, GraphData, PromptQuries, UsbData, FilteringData, GroupParingResults
+from apps.authentication.models import Upload_Case, Normalization, GraphData, PromptQuries, UsbData, FilteringData, GroupParingResults, PrinterData_final, UsbData_final
 from apps import db
 from apps.case.case_analyze import case_analyze_view
 from apps.analyze.analyze_usb import usb_connection
@@ -113,19 +113,45 @@ def redirect_analyze_case_final(data) :
     time_db_path = os.path.join(case_folder, "time_normalization.db")
     if time_parsing(db_path, time_db_path) :
         print("Success Time Parsing")
+
         usb_results = usb_behavior(db_path, time_db_path)
-        for i in usb_results :
-            print(i['Connection'], i['Start'], i['End'], i['Accessed_File_List'])
+        # Convert any DataFrame objects to dictionaries/lists before storing
+        for result in usb_results:
+            if 'df' in result:
+                result['filtered_df'] = result['filtered_df'].to_dict('records')  # Convert DataFrame to list of dictionaries
+                
+        usb_data_db = UsbData_final(case_id = case_id, usb_data = usb_results)
+        db.session.add(usb_data_db)
+        db.session.commit()
+        # USB Debug
+        # for i in usb_results :
+        #     print(i['Connection'], i['Start'], i['End'], i['Accessed_File_List'])
     else :
         print("Failed Time Parsing")
 
     ''' Printer Behavior Process'''
     printer_results = printer_behavior(db_path)
-    for i in printer_results :
-        print(i['Print_Event_Date'], i['Accessed_File_List'])
+    # Convert any DataFrame objects to dictionaries/lists before storing
+    for result in printer_results:
+        if 'df' in result and hasattr(result['df'], 'to_dict'):  # Check if df is a DataFrame
+            result['df'] = result['df'].to_dict('records')  # Convert DataFrame to list of dictionaries
+            
+    printer_data_db = PrinterData_final(case_id = case_id, printer_data = printer_results)
+    db.session.add(printer_data_db)
+    db.session.commit()
 
-    
+    # Print Debug
+    # for i in printer_results :
+        # print(i['Print_Event_Date'], i['Accessed_File_List'], i['df'])
 
+    return jsonify({'success': True})
+
+def redirect_analyze_case_final_result(id) :
+    usb_results = UsbData_final.query.filter_by(case_id = id).first().usb_data
+    printer_results = PrinterData_final.query.filter_by(case_id = id).first().printer_data
+    return render_template('analyze/final_result.html',
+                            usb_results = usb_results,
+                            printer_results = printer_results)
 
 
 

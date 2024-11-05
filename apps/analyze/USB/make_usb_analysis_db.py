@@ -120,12 +120,15 @@ def usb_behavior(normalization, time_normalization) :
         if not filetered_df.empty :
             print(f"Connection with {model} : {start.strftime('%Y-%m-%d %H:%M:%S')} ~ {end.strftime('%Y-%m-%d %H:%M:%S')}")
             print(f'Accessed file list : {filename_list}')
-            data = {'Connection' : model,
-                    'Start' : start.strftime('%Y-%m-%d %H:%M:%S'),
-                    'End' : end.strftime('%Y-%m-%d %H:%M:%S'),
-                    'Accessed_File_List' : filename_list,
-                    'filtered_df' : filetered_df
+            data = {
+                'Connection': model,
+                'Start': start.strftime('%Y-%m-%d %H:%M:%S'),
+                'End': end.strftime('%Y-%m-%d %H:%M:%S'),
+                'Accessed_File_List': filename_list,
+                'filtered_df': filetered_df[['timestamp', 'type', 'main_data']].to_dict('records')  # DataFrame을 dictionary 리스트로 변환
             }
+            for record in data['filtered_df']:
+                record['timestamp'] = record['timestamp'].strftime('%Y-%m-%d %H:%M:%S')
             results.append(data)
             # 'main_data' 열을 왼쪽 정렬하여 출력
             max_lengths = filetered_df[['timestamp', 'type', 'main_data']].applymap(str).apply(lambda x: x.str.len().max(), axis=0)

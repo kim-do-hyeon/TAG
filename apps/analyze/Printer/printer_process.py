@@ -42,14 +42,13 @@ def printer_behavior(db_path) :
         data = {}
         # print(f"Print Event Date : {all_data[spl_fixed_date[index]][17]}")
         # print(f"Accessed File List : {value}")
-        data['Print_Event_Date'] = all_data[spl_fixed_date[index]][17]
-        data['Accessed_File_List'] = value
+        df_datas = []
         if value != [] :
             renamed_value = []
             for i in value :
                 if "~$" in i :
                     renamed_value.append(i.replace("~$", ""))
-            # print("=" * 50)
+            
             for i in renamed_value :
                 final_data = []
                 print(f"File {i} Behavior")
@@ -61,21 +60,31 @@ def printer_behavior(db_path) :
                     cursor.execute(f"SELECT `Event_Date/Time_-_UTC_(yyyy-mm-dd)` AS Event_Date, File_Operation, Original_File_Name FROM LogFile_Analysis WHERE MFT_Record_Number = '{record_number}' ORDER BY Event_Date ASC")
                     mft_data = cursor.fetchall()
 
-                    # 결과를 final_data 리스트에 추가
                     for row in mft_data:
                         final_data.append((row[0], row[1], row[2]))
 
 
                 df = pd.DataFrame(final_data, columns=["timestamp", "type", "main_data"])
-                df["timestamp"] = pd.to_datetime(df["timestamp"])  # Convert to datetime format
+                df["timestamp"] = pd.to_datetime(df["timestamp"])
                 min_timestamp = df["timestamp"].min()
                 max_timestamp = df["timestamp"].max()
                 print(f"Print Event : {min_timestamp} ~ {max_timestamp}")
                 df = df.sort_values(by="timestamp", ascending=True)
-                # with pd.option_context('display.colheader_justify', 'center'):
-                #     print(df.to_string(index=False, justify="center"))
-                # print("=" * 50)
-                # print()
+                
+                # timestamp 열을 문자열로 변환
+                df["timestamp"] = df["timestamp"].apply(lambda x: x.strftime('%Y-%m-%d %H:%M:%S.%f'))
+                
+                # DataFrame을 dictionary로 변환
+                df_dict = {
+                    'data': df.to_dict('records'),
+                    'min_timestamp': min_timestamp.strftime('%Y-%m-%d %H:%M:%S.%f'),
+                    'max_timestamp': max_timestamp.strftime('%Y-%m-%d %H:%M:%S.%f')
+                }
+                df_datas.append(df_dict)
+                
+        data['Print_Event_Date'] = all_data[spl_fixed_date[index]][17]
+        data['Accessed_File_List'] = value
+        data['df'] = df_datas
         results.append(data)
 
     # 데이터베이스 연결 닫기

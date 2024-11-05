@@ -101,6 +101,18 @@ class GroupParingResults(db.Model, UserMixin) :
     result3 = db.Column(db.JSON)
     result4 = db.Column(db.JSON)
 
+class PrinterData_final(db.Model, UserMixin) :
+    __tablename__ = "PrinterData_final"
+    id = db.Column(db.Integer, primary_key = True)
+    case_id = db.Column(db.Text)
+    printer_data = db.Column(db.JSON)
+
+class UsbData_final(db.Model, UserMixin) :
+    __tablename__ = "UsbData_final"
+    id = db.Column(db.Integer, primary_key = True)
+    case_id = db.Column(db.Text)
+    usb_data = db.Column(db.JSON)
+
 
 
 

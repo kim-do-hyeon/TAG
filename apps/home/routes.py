@@ -112,6 +112,10 @@ def case_analyze_final() :
     data = request.get_json()
     return redirect_analyze_case_final(data)
 
+@blueprint.route('/case/analyze/final/<int:id>')
+def case_analyze_final_result(id) :
+    return redirect_analyze_case_final_result(id)
+
 ''' End Case analyze '''
 
 @blueprint.route('/<template>')

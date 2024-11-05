@@ -1,0 +1,52 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Final Analyze {% endblock %}
+
+{% block content %}
+<div class="pcoded-main-container">
+    <div class="pcoded-content">
+        <!-- [ breadcrumb ] start -->
+        <div class="page-header">
+            <div class="page-block">
+                <div class="row align-items-center">
+                    <div class="col-md-12">
+                        <div class="page-header-title">
+                            <h5 class="m-b-10">최종 필터링 결과</h5>
+                        </div>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
+                            <li class="breadcrumb-item"><a href="#">Case</a></li>
+                            <li class="breadcrumb-item"><a href="#">Analyze</a></li>
+                            <li class="breadcrumb-item"><a href="#">Filtering</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- [ breadcrumb ] end -->
+        <!-- [ Main Content ] start -->
+        <div class="row">
+            <div class="col-sm-12">
+                
+            </div>
+        </div>
+        <!-- [ Main Content ] end -->
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}
+<script>
+    // Add event listener to capture the case ID when the delete button is clicked
+    document.addEventListener('DOMContentLoaded', function() {
+        var deleteModal = document.getElementById('deleteModal');
+        deleteModal.addEventListener('show.bs.modal', function(event) {
+            var button = event.relatedTarget; // Button that triggered the modal
+            var caseId = button.getAttribute('data-case-id'); // Extract case ID from data attribute
+            var caseIdInput = document.getElementById('caseIdToDelete'); // Hidden input field in the form
+            caseIdInput.value = caseId; // Set the case ID in the form input
+        });
+    });
+</script>
+{% endblock javascripts %}
