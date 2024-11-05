@@ -11,6 +11,7 @@ from apps.analyze.analyze_util import *
 from apps.analyze.analyze_tag_group_graph import *
 from apps.analyze.analyze_tag_ranking import *
 from apps.analyze.USB.case_normalization_time_group import *
+from apps.analyze.USB.make_usb_analysis_db import usb_behavior
 import threading
 
 from flask import current_app
@@ -109,6 +110,8 @@ def redirect_analyze_case_final(data) :
     time_db_path = os.path.join(case_folder, "time_normalization.db")
     if time_parsing(db_path, time_db_path) :
         print("Success Time Parsing")
+        printer_behavior(db_path, time_db_path)
+
     else :
         print("Failed Time Parsing")
     
