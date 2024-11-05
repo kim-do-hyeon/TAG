@@ -106,6 +106,16 @@ def case_analyze_group() :
 def case_analyze_group_result(id) :
     return redirect_case_analyze_group_result(id)
 
+# Version 1.3 - Analyze Final
+@blueprint.route('/case/analyze/final', methods = ['POST'])
+def case_analyze_final() :
+    data = request.get_json()
+    return redirect_analyze_case_final(data)
+
+@blueprint.route('/case/analyze/final/<int:id>')
+def case_analyze_final_result(id) :
+    return redirect_analyze_case_final_result(id)
+
 ''' End Case analyze '''
 
 @blueprint.route('/<template>')

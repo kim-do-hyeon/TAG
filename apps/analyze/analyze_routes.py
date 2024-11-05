@@ -1,7 +1,7 @@
 import sqlite3, os, json
 import pandas as pd
 from flask import request, render_template, session, redirect, url_for, flash, Request, jsonify, render_template_string
-from apps.authentication.models import Upload_Case, Normalization, GraphData, PromptQuries, UsbData, FilteringData, GroupParingResults
+from apps.authentication.models import Upload_Case, Normalization, GraphData, PromptQuries, UsbData, FilteringData, GroupParingResults, PrinterData_final, UsbData_final
 from apps import db
 from apps.case.case_analyze import case_analyze_view
 from apps.analyze.analyze_usb import usb_connection
@@ -10,6 +10,9 @@ from apps.analyze.analyze_tagging import all_table_parsing, all_tag_process
 from apps.analyze.analyze_util import *
 from apps.analyze.analyze_tag_group_graph import *
 from apps.analyze.analyze_tag_ranking import *
+from apps.analyze.USB.case_normalization_time_group import *
+from apps.analyze.USB.make_usb_analysis_db import usb_behavior
+from apps.analyze.Printer.printer_process import printer_behavior
 import threading
 
 from flask import current_app
@@ -98,6 +101,59 @@ def redirect_case_analyze_filtering_history_view(id) :
     filtering_data = FilteringData.query.filter_by(id=id).first()
     body_html, scripts_html, tables = extract_body_and_scripts(filtering_data)
     return render_template('analyze/filtering.html', body_html=body_html, scripts_html=scripts_html,  tables=tables)
+
+def redirect_analyze_case_final(data) :
+    user = session.get('username')
+    case_id = data['case_id']
+    case_number = Upload_Case.query.filter_by(id = case_id).first().case_number
+    case_folder = os.path.join(os.getcwd(), "uploads", user, case_number)
+    db_path = os.path.join(case_folder, "normalization.db")
+
+    ''' USB Behavior Process'''
+    time_db_path = os.path.join(case_folder, "time_normalization.db")
+    if time_parsing(db_path, time_db_path) :
+        print("Success Time Parsing")
+
+        usb_results = usb_behavior(db_path, time_db_path)
+        # Convert any DataFrame objects to dictionaries/lists before storing
+        for result in usb_results:
+            if 'df' in result:
+                result['filtered_df'] = result['filtered_df'].to_dict('records')  # Convert DataFrame to list of dictionaries
+                
+        usb_data_db = UsbData_final(case_id = case_id, usb_data = usb_results)
+        db.session.add(usb_data_db)
+        db.session.commit()
+        # USB Debug
+        # for i in usb_results :
+        #     print(i['Connection'], i['Start'], i['End'], i['Accessed_File_List'])
+    else :
+        print("Failed Time Parsing")
+
+    ''' Printer Behavior Process'''
+    printer_results = printer_behavior(db_path)
+    # Convert any DataFrame objects to dictionaries/lists before storing
+    for result in printer_results:
+        if 'df' in result and hasattr(result['df'], 'to_dict'):  # Check if df is a DataFrame
+            result['df'] = result['df'].to_dict('records')  # Convert DataFrame to list of dictionaries
+            
+    printer_data_db = PrinterData_final(case_id = case_id, printer_data = printer_results)
+    db.session.add(printer_data_db)
+    db.session.commit()
+
+    # Print Debug
+    # for i in printer_results :
+        # print(i['Print_Event_Date'], i['Accessed_File_List'], i['df'])
+
+    return jsonify({'success': True})
+
+def redirect_analyze_case_final_result(id) :
+    usb_results = UsbData_final.query.filter_by(case_id = id).first().usb_data
+    printer_results = PrinterData_final.query.filter_by(case_id = id).first().printer_data
+    return render_template('analyze/final_result.html',
+                            usb_results = usb_results,
+                            printer_results = printer_results)
+
+
 
 def redirect_analyze_case_group(data) :
     output_path = all_table_parsing(data)
