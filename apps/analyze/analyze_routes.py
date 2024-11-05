@@ -82,7 +82,6 @@ def redirect_analyze_case_filtering(data) :
 
 def redirect_case_analyze_filtering_result(id) :
     filtering_data = FilteringData.query.filter_by(case_id = id).all()[-1]
-    filtering_data = FilteringData.query.filter_by(id=id).first()
     body_html, scripts_html, tables = extract_body_and_scripts(filtering_data)
     return render_template('analyze/filtering.html', body_html=body_html, scripts_html=scripts_html,  tables=tables)
 
