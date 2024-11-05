@@ -114,11 +114,19 @@ def usb_behavior(normalization, time_normalization) :
 
     time_range = extract_usb_time(usb_df)
 
+    results = []
     for model, start, end in time_range :
         filetered_df, filename_list = extract_doc_and_program(LogFile_df, time_df, start, end)
         if not filetered_df.empty :
             print(f"Connection with {model} : {start.strftime('%Y-%m-%d %H:%M:%S')} ~ {end.strftime('%Y-%m-%d %H:%M:%S')}")
             print(f'Accessed file list : {filename_list}')
+            data = {'Connection' : model,
+                    'Start' : start.strftime('%Y-%m-%d %H:%M:%S'),
+                    'End' : end.strftime('%Y-%m-%d %H:%M:%S'),
+                    'Accessed_File_List' : filename_list,
+                    'filtered_df' : filetered_df
+            }
+            results.append(data)
             # 'main_data' 열을 왼쪽 정렬하여 출력
             max_lengths = filetered_df[['timestamp', 'type', 'main_data']].applymap(str).apply(lambda x: x.str.len().max(), axis=0)
             filetered_df['main_data'] = filetered_df['main_data'].apply(lambda x: str(x).ljust(max_lengths['main_data']))
@@ -132,3 +140,4 @@ def usb_behavior(normalization, time_normalization) :
             #         print('  ',key)
             #         print('  ',value[['Event_Date/Time_-_UTC_(yyyy-mm-dd)', 'File_Operation', 'Original_File_Name', 'Current_File_Name']].to_string(index=False, justify='left'))
             # print('\n+-----------------------------------------------------------------------------+\n')
+    return results

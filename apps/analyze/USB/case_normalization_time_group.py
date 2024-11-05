@@ -20,7 +20,7 @@ def generate_to_timestamp(column, table, attribute, conn, table_info, time_dict)
                 for index, row in df.iterrows() :
                     tmp_df = pd.read_sql(f"SELECT [{key}] FROM '{table}' WHERE hit_id = {row['hit_id']}", conn)
                     df.at[index, 'type'] = value[tmp_df[key].iloc[0]]
-                print(df)
+                # print(df)
             # 시간 컬럼이 type자체를 의미할 때
             else :
                 df['type'] = attribute['type']  # 설명 추가
