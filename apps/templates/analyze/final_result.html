@@ -27,6 +27,55 @@
         <!-- [ Main Content ] start -->
         <div class="row">
             <div class="col-sm-12">
+                <div class="card">
+                    <table class="table table-bordered">
+                        <tr>
+                            <th>No</th>
+                            <th>사건 유형</th>
+                            <td>행위 대상</td>
+                            <th>시간대</th>
+                            <th>설명</th>
+                        </tr>
+                        {% for i in usb_results %}
+                            <tr>
+                                <td>
+                                    {{loop.index}}
+                                </td>
+                                <td>
+                                    <p>기술 유출</p>
+                                </td>
+                                <td>
+                                    <p>USB</p>
+                                </td>
+                                <td>
+                                    {{i['Start']}}
+                                </td>
+                                <td>
+                                    {{i['Accessed_File_List']}}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        {% for i in printer_results %}
+                            <tr>
+                                <td>
+                                    {{loop.index}}
+                                </td>
+                                <td>
+                                    <p>기술 유출</p>
+                                </td>
+                                <td>
+                                    <p>프린터</p>
+                                </td>
+                                <td>
+                                    {{i['Print_Event_Date']}}
+                                </td>
+                                <td>
+                                    {{i['Accessed_File_List']}}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
                 
             </div>
         </div>
