@@ -12,6 +12,7 @@ from apps.analyze.analyze_tag_group_graph import *
 from apps.analyze.analyze_tag_ranking import *
 from apps.analyze.USB.case_normalization_time_group import *
 from apps.analyze.USB.make_usb_analysis_db import usb_behavior
+from apps.analyze.Printer.printer_process import printer_behavior
 import threading
 
 from flask import current_app
@@ -107,13 +108,22 @@ def redirect_analyze_case_final(data) :
     case_number = Upload_Case.query.filter_by(id = case_id).first().case_number
     case_folder = os.path.join(os.getcwd(), "uploads", user, case_number)
     db_path = os.path.join(case_folder, "normalization.db")
+
+    ''' USB Behavior Process'''
     time_db_path = os.path.join(case_folder, "time_normalization.db")
     if time_parsing(db_path, time_db_path) :
         print("Success Time Parsing")
-        printer_behavior(db_path, time_db_path)
-
+        usb_results = usb_behavior(db_path, time_db_path)
+        for i in usb_results :
+            print(i['Connection'], i['Start'], i['End'], i['Accessed_File_List'])
     else :
         print("Failed Time Parsing")
+
+    ''' Printer Behavior Process'''
+    printer_results = printer_behavior(db_path)
+    for i in printer_results :
+        print(i['Print_Event_Date'], i['Accessed_File_List'])
+
     
 
 
