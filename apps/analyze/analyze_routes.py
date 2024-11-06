@@ -146,12 +146,44 @@ def redirect_analyze_case_final(data) :
 
     return jsonify({'success': True})
 
-def redirect_analyze_case_final_result(id) :
-    usb_results = UsbData_final.query.filter_by(case_id = id).first().usb_data
-    printer_results = PrinterData_final.query.filter_by(case_id = id).first().printer_data
+def redirect_analyze_case_final_result(id):
+    usb_results = UsbData_final.query.filter_by(case_id=id).first().usb_data
+    printer_results = PrinterData_final.query.filter_by(case_id=id).first().printer_data
+    
+    timeline_data = []
+    has_valid_timeline = False
+    
+    for result in printer_results:
+        event_data = []
+        # Check if there are actual printed files
+        # if result['Accessed_File_List']:
+        has_valid_timeline = True
+        event_data.append({
+            'datetime': result['Print_Event_Date'],
+            'name': 'Print Event',
+            'type': 'Print',
+            'Content': f"Printed files: {', '.join(result['Accessed_File_List'])}",
+        })
+        
+        # Add file activities from df
+        if 'df' in result and result['df'] and len(result['df']) > 0:
+            for activity in result['df'][0]['data']:
+                event_data.append({
+                    'datetime': activity['timestamp'],
+                    'name': f"File {activity['type']}",
+                    'type': activity['type'],
+                    'Content': activity['main_data'] if activity['main_data'] else 'No additional data'
+                })
+            
+        # Sort activities by datetime
+        event_data.sort(key=lambda x: x['datetime'])
+        timeline_data.append(event_data)
+
     return render_template('analyze/final_result.html',
-                            usb_results = usb_results,
-                            printer_results = printer_results)
+                         usb_results=usb_results,
+                         printer_results=printer_results,
+                         timeline_data=timeline_data,
+                         has_valid_timeline=has_valid_timeline)
 
 
 

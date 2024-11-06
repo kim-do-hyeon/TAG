@@ -1,7 +1,8 @@
 {% extends "layouts/base.html" %}
 
 {% block title %} Final Analyze {% endblock %}
-
+<link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
 {% block content %}
 <div class="pcoded-main-container">
     <div class="pcoded-content">
@@ -25,6 +26,8 @@
         </div>
         <!-- [ breadcrumb ] end -->
         <!-- [ Main Content ] start -->
+        
+        
         <div class="row">
             <div class="col-sm-12">
                 <div class="card">
@@ -35,8 +38,9 @@
                             <td>행위 대상</td>
                             <th>시간대</th>
                             <th>설명</th>
+                            <th>타임라인</th>
                         </tr>
-                        {% for i in usb_results %}
+                        <!-- {% for i in usb_results %}
                             <tr>
                                 <td>
                                     {{loop.index}}
@@ -53,8 +57,13 @@
                                 <td>
                                     {{i['Accessed_File_List']}}
                                 </td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm" onclick="showTimeline({{loop.index}}, 'usb')">
+                                        타임라인 보기
+                                    </button>
+                                </td>
                             </tr>
-                        {% endfor %}
+                        {% endfor %} -->
                         {% for i in printer_results %}
                             <tr>
                                 <td>
@@ -72,6 +81,11 @@
                                 <td>
                                     {{i['Accessed_File_List']}}
                                 </td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm" onclick="showTimeline({{loop.index}}, 'printer')">
+                                        타임라인 보기
+                                    </button>
+                                </td>
                             </tr>
                         {% endfor %}
                     </table>
@@ -83,19 +97,148 @@
     </div>
 </div>
 
+<!-- 모달 수정 -->
+<div class="modal fade" id="timelineModal" tabindex="-1" aria-labelledby="TimeLineModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="TimeLineModalLabel">타임라인 정보</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="overflow-y: auto;">
+                <div id="modalTimeline"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- jQuery와 Bootstrap JS 추가 (head 또는 body 끝부분에) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
+
+
+<!-- Timeline 스크립트 수정 -->
+<script>
+// 한국어 locale 추가
+var koLocale = {
+    current: '현재',
+    time: '시간',
+    deleteSelected: '선택 항목 삭제',
+    editable: {
+        add: '추가',
+        remove: '삭제',
+        updateTime: '시간 수정'
+    }
+};
+
+function showTimeline(index, type) {
+    var timelineData = [];
+    
+    {% for events in timeline_data %}
+        timelineData.push([
+            {% for event in events %}
+                {
+                    id: {{ loop.index }},
+                    content: '{{ event.name }}: {{ event.Content }}',
+                    start: '{{ event.datetime }}',
+                    type: 'point',
+                    className: 'timeline-event-{{ event.type.lower() }}',
+                    title: '{{ event.Content }}'
+                },
+            {% endfor %}
+        ]);
+    {% endfor %}
+
+    // jQuery를 사용한 모달 표시
+    jQuery('#timelineModal').modal('show');
+
+    // 타임라인 생성
+    setTimeout(() => {
+        var container = document.getElementById('modalTimeline');
+        var items = new vis.DataSet(timelineData[index - 1]);
+        var options = {
+            height: '900px',
+            locale: 'ko',
+            locales: {
+                ko: koLocale
+            },
+            orientation: 'top',
+            zoomable: true,
+            tooltip: {
+                followMouse: true,
+                overflowMethod: 'cap'
+            }
+        };
+
+        new vis.Timeline(container, items, options);
+    }, 500);
+}
+
+// jQuery를 사용한 모달 이벤트 처리
+jQuery('#timelineModal').on('hidden.bs.modal', function () {
+    document.getElementById('modalTimeline').innerHTML = '';
+});
+</script>
+
+<style>
+/* 기존 스타일 유지 */
+.modal-xl {
+    max-width: 95%;
+    margin: 1.75rem auto;
+}
+
+.modal-content {
+    height: auto;
+    min-height: 80vh;
+}
+
+#modalTimeline {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+/* 타임라인 이벤트 스타일 유지 */
+.timeline-event-create {
+    background-color: #4CAF50 !important;
+    border-color: #4CAF50 !important;
+}
+
+.timeline-event-delete {
+    background-color: #f44336 !important;
+    border-color: #f44336 !important;
+}
+
+.timeline-event-modify {
+    background-color: #2196F3 !important;
+    border-color: #2196F3 !important;
+}
+
+.timeline-event-rename {
+    background-color: #FF9800 !important;
+    border-color: #FF9800 !important;
+}
+
+.timeline-event-print {
+    background-color: #9C27B0 !important;
+    border-color: #9C27B0 !important;
+}
+
+.vis-item {
+    color: white;
+    border-radius: 3px;
+    padding: 8px;
+    font-size: 1.1em;
+}
+</style>
+
 {% endblock content %}
 
 {% block javascripts %}
-<script>
-    // Add event listener to capture the case ID when the delete button is clicked
-    document.addEventListener('DOMContentLoaded', function() {
-        var deleteModal = document.getElementById('deleteModal');
-        deleteModal.addEventListener('show.bs.modal', function(event) {
-            var button = event.relatedTarget; // Button that triggered the modal
-            var caseId = button.getAttribute('data-case-id'); // Extract case ID from data attribute
-            var caseIdInput = document.getElementById('caseIdToDelete'); // Hidden input field in the form
-            caseIdInput.value = caseId; // Set the case ID in the form input
-        });
-    });
-</script>
+
 {% endblock javascripts %}
