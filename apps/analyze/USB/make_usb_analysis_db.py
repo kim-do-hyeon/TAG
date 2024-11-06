@@ -93,54 +93,56 @@ def usb_behavior(normalization, time_normalization) :
 
     normal_conn = sqlite3.connect(normalization)
     time_normal_conn = sqlite3.connect(time_normalization)
+    try :
+        usb_df = pd.read_sql_query("SELECT * FROM `Windows_Event_Logs___Storage_Device_Events`  ", normal_conn)
+        usb_df['Created_Date/Time_-_UTC_(yyyy-mm-dd)'] = pd.to_datetime(usb_df['Created_Date/Time_-_UTC_(yyyy-mm-dd)'])
+        usb_df = usb_df.sort_values(by='Created_Date/Time_-_UTC_(yyyy-mm-dd)')
+        LogFile_df = pd.read_sql_query("SELECT * FROM `LogFile_Analysis`", normal_conn)
+        for index, row in LogFile_df.iterrows() :
+            if pd.isna(row['Event_Date/Time_-_UTC_(yyyy-mm-dd)']) :
+                LogFile_df.loc[index, 'Event_Date/Time_-_UTC_(yyyy-mm-dd)'] = LogFile_df.loc[index-1, 'Event_Date/Time_-_UTC_(yyyy-mm-dd)']
+        LogFile_df['Event_Date/Time_-_UTC_(yyyy-mm-dd)'] = pd.to_datetime(LogFile_df['Event_Date/Time_-_UTC_(yyyy-mm-dd)'])
+        LogFile_df = LogFile_df.sort_values(by='Event_Date/Time_-_UTC_(yyyy-mm-dd)')
+        time_df = pd.read_sql_query("SELECT * FROM data", time_normal_conn)
+        for index, row in time_df.iterrows() :
+            row['timestamp'] = pd.to_datetime(row['timestamp'])
+            if row['main_data'].count('%') > 1 :
+                row['main_data'] = urllib.parse.unquote(row['main_data'])
+            time_df.loc[index] = row
+        time_df.sort_values(by='timestamp')
 
-    usb_df = pd.read_sql_query("SELECT * FROM Windows_Event_Logs___Storage_Device_Events", normal_conn)
-    usb_df['Created_Date/Time_-_UTC_(yyyy-mm-dd)'] = pd.to_datetime(usb_df['Created_Date/Time_-_UTC_(yyyy-mm-dd)'])
-    usb_df = usb_df.sort_values(by='Created_Date/Time_-_UTC_(yyyy-mm-dd)')
-    LogFile_df = pd.read_sql_query("SELECT * FROM LogFile_Analysis", normal_conn)
-    for index, row in LogFile_df.iterrows() :
-        if pd.isna(row['Event_Date/Time_-_UTC_(yyyy-mm-dd)']) :
-            LogFile_df.loc[index, 'Event_Date/Time_-_UTC_(yyyy-mm-dd)'] = LogFile_df.loc[index-1, 'Event_Date/Time_-_UTC_(yyyy-mm-dd)']
-    LogFile_df['Event_Date/Time_-_UTC_(yyyy-mm-dd)'] = pd.to_datetime(LogFile_df['Event_Date/Time_-_UTC_(yyyy-mm-dd)'])
-    LogFile_df = LogFile_df.sort_values(by='Event_Date/Time_-_UTC_(yyyy-mm-dd)')
-    time_df = pd.read_sql_query("SELECT * FROM data", time_normal_conn)
-    for index, row in time_df.iterrows() :
-        row['timestamp'] = pd.to_datetime(row['timestamp'])
-        if row['main_data'].count('%') > 1 :
-            row['main_data'] = urllib.parse.unquote(row['main_data'])
-        time_df.loc[index] = row
-    time_df.sort_values(by='timestamp')
 
+        time_range = extract_usb_time(usb_df)
 
-    time_range = extract_usb_time(usb_df)
-
-    results = []
-    for model, start, end in time_range :
-        filetered_df, filename_list = extract_doc_and_program(LogFile_df, time_df, start, end)
-        if not filetered_df.empty :
-            print(f"Connection with {model} : {start.strftime('%Y-%m-%d %H:%M:%S')} ~ {end.strftime('%Y-%m-%d %H:%M:%S')}")
-            print(f'Accessed file list : {filename_list}')
-            data = {
-                'Connection': model,
-                'Start': start.strftime('%Y-%m-%d %H:%M:%S'),
-                'End': end.strftime('%Y-%m-%d %H:%M:%S'),
-                'Accessed_File_List': filename_list,
-                'filtered_df': filetered_df[['timestamp', 'type', 'main_data']].to_dict('records')  # DataFrame을 dictionary 리스트로 변환
-            }
-            for record in data['filtered_df']:
-                record['timestamp'] = record['timestamp'].strftime('%Y-%m-%d %H:%M:%S')
-            results.append(data)
-            # 'main_data' 열을 왼쪽 정렬하여 출력
-            max_lengths = filetered_df[['timestamp', 'type', 'main_data']].applymap(str).apply(lambda x: x.str.len().max(), axis=0)
-            filetered_df['main_data'] = filetered_df['main_data'].apply(lambda x: str(x).ljust(max_lengths['main_data']))
-            # print(filetered_df[['timestamp','type', 'main_data']].to_string(index=False, justify='left'))
-            # for index, filename in enumerate(filename_list) :
-            #     LogFile_dict = extract_transaction_LogFile_Analysis(normal_conn, filename)
-            #     print()
-            #     print(f'{index}. {filename}')
-            #     print(f'  Catched MFT_Reference_Number : {list(LogFile_dict.keys())}')
-            #     for key, value in LogFile_dict.items() :
-            #         print('  ',key)
-            #         print('  ',value[['Event_Date/Time_-_UTC_(yyyy-mm-dd)', 'File_Operation', 'Original_File_Name', 'Current_File_Name']].to_string(index=False, justify='left'))
-            # print('\n+-----------------------------------------------------------------------------+\n')
-    return results
+        results = []
+        for model, start, end in time_range :
+            filetered_df, filename_list = extract_doc_and_program(LogFile_df, time_df, start, end)
+            if not filetered_df.empty :
+                print(f"Connection with {model} : {start.strftime('%Y-%m-%d %H:%M:%S')} ~ {end.strftime('%Y-%m-%d %H:%M:%S')}")
+                print(f'Accessed file list : {filename_list}')
+                data = {
+                    'Connection': model,
+                    'Start': start.strftime('%Y-%m-%d %H:%M:%S'),
+                    'End': end.strftime('%Y-%m-%d %H:%M:%S'),
+                    'Accessed_File_List': filename_list,
+                    'filtered_df': filetered_df[['timestamp', 'type', 'main_data']].to_dict('records')  # DataFrame을 dictionary 리스트로 변환
+                }
+                for record in data['filtered_df']:
+                    record['timestamp'] = record['timestamp'].strftime('%Y-%m-%d %H:%M:%S')
+                results.append(data)
+                # 'main_data' 열을 왼쪽 정렬하여 출력
+                max_lengths = filetered_df[['timestamp', 'type', 'main_data']].applymap(str).apply(lambda x: x.str.len().max(), axis=0)
+                filetered_df['main_data'] = filetered_df['main_data'].apply(lambda x: str(x).ljust(max_lengths['main_data']))
+                # print(filetered_df[['timestamp','type', 'main_data']].to_string(index=False, justify='left'))
+                # for index, filename in enumerate(filename_list) :
+                #     LogFile_dict = extract_transaction_LogFile_Analysis(normal_conn, filename)
+                #     print()
+                #     print(f'{index}. {filename}')
+                #     print(f'  Catched MFT_Reference_Number : {list(LogFile_dict.keys())}')
+                #     for key, value in LogFile_dict.items() :
+                #         print('  ',key)
+                #         print('  ',value[['Event_Date/Time_-_UTC_(yyyy-mm-dd)', 'File_Operation', 'Original_File_Name', 'Current_File_Name']].to_string(index=False, justify='left'))
+                # print('\n+-----------------------------------------------------------------------------+\n')
+        return results
+    except :
+        return []
