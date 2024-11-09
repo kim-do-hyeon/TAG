@@ -1,7 +1,7 @@
 import sqlite3, os, json
 import pandas as pd
 from flask import request, render_template, session, redirect, url_for, flash, Request, jsonify, render_template_string
-from apps.authentication.models import Upload_Case, Normalization, GraphData, PromptQuries, UsbData, FilteringData, GroupParingResults, PrinterData_final, UsbData_final
+from apps.authentication.models import Analyzed_file_list, Upload_Case, Normalization, GraphData, PromptQuries, UsbData, FilteringData, GroupParingResults, PrinterData_final, UsbData_final
 from apps import db
 from apps.case.case_analyze import case_analyze_view
 from apps.analyze.analyze_usb import usb_connection
@@ -107,6 +107,9 @@ def redirect_analyze_case_final(data) :
     case_folder = os.path.join(os.getcwd(), "uploads", user, case_number)
     db_path = os.path.join(case_folder, "normalization.db")
 
+    ''' Tagging Process '''
+    all_tag_process(data)
+
     ''' USB Behavior Process'''
     time_db_path = os.path.join(case_folder, "time_normalization.db")
     if time_parsing(db_path, time_db_path) :
@@ -138,9 +141,26 @@ def redirect_analyze_case_final(data) :
     db.session.add(printer_data_db)
     db.session.commit()
 
-    ''' Tagging Process '''
-    all_tag_process(data)
 
+    analyzed_file_list = []
+    ''' USB Filelist process '''
+    usb_json = UsbData_final.query.filter(case_id==case_id).first().usb_data
+    for group_usb_time in usb_json :
+        usb_df = pd.DataFrame(group_usb_time['filtered_df'])
+        for filename in group_usb_time['Accessed_File_List'] :
+            timelist_df = usb_df[usb_df['main_data'].str.contains(filename)]
+            usb_file_row = {
+                'type' : 'USB',
+                'usb_name' : group_usb_time['Connection'],
+                'filename' : filename,
+                'data' : timelist_df.to_dict(orient='records')
+            }
+            analyzed_file_list.append(usb_file_row)
+            
+    analyzed_file_db = Analyzed_file_list(case_id = case_id, data = analyzed_file_list)
+    db.session.add(analyzed_file_db)
+    db.session.commit()
+    
     # Print Debug
     # for i in printer_results :
         # print(i['Print_Event_Date'], i['Accessed_File_List'], i['df'])
@@ -150,6 +170,7 @@ def redirect_analyze_case_final(data) :
 def redirect_analyze_case_final_result(id):
     usb_results = UsbData_final.query.filter_by(case_id=id).first().usb_data
     printer_results = PrinterData_final.query.filter_by(case_id=id).first().printer_data
+    analyzed_file_list = json.loads(Analyzed_file_list.query.filter_by(case_id=id).first().data)
     
     timeline_data = []
     has_valid_timeline = False
@@ -179,9 +200,16 @@ def redirect_analyze_case_final_result(id):
         # Sort activities by datetime
         event_data.sort(key=lambda x: x['datetime'])
         timeline_data.append(event_data)
+        
 
     return render_template('analyze/final_result.html',
                          usb_results=usb_results,
                          printer_results=printer_results,
                          timeline_data=timeline_data,
-                         has_valid_timeline=has_valid_timeline)
+                         has_valid_timeline=has_valid_timeline,
+                         analyzed_file_list=analyzed_file_list,
+                         case_id = id)
+    
+def redirect_analyze_case_final_connection_result(id, row_index):
+    
+    return render_template('analyze/final_connection_result.html')

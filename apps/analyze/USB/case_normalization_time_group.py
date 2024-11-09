@@ -86,7 +86,7 @@ def time_parsing(db_path, new_db_path) :
                     if df is None:
                         continue
                     dataframes.append(df)
-
+    
 
     # 모든 데이터프레임을 하나로 합치기 & 그룹화
     if dataframes:

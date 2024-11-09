@@ -95,7 +95,7 @@ def case_analyze_filtering_history(id) :
 
 @blueprint.route('/case/analyze/filtering/history/view/<int:id>', methods = ['GET', 'POST'])
 def case_analyze_filtering_history_view(id) :
-    return redirect_case_analyze_filtering_history_view(id)
+    return redirect_case_analyze_filtering_history_view(id, 0)
 
 # Version 1.3 - Analyze Final
 @blueprint.route('/case/analyze/final', methods = ['POST'])
@@ -106,6 +106,10 @@ def case_analyze_final() :
 @blueprint.route('/case/analyze/final/<int:id>')
 def case_analyze_final_result(id) :
     return redirect_analyze_case_final_result(id)
+
+@blueprint.route('/case/analyze/final/<int:id>/connection')
+def case_analyze_final_connection_result(id) :
+    return redirect_analyze_case_final_connection_result(id, 0)
 
 ''' End Case analyze '''
 

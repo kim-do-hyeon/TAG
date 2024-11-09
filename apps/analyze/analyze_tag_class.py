@@ -570,3 +570,4 @@ class LogTaggerManager:
         _, tagger_class = tagger_info
         tagger_instance = tagger_class(self.db_url)
         tagger_instance.apply_tags()
+        print(f'DB path : {self.db_url} 에 적용되었습니다.')
