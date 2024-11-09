@@ -9,7 +9,7 @@ with open("criteria.json", "r", encoding="utf-8") as f:
 print("점수 기준 파일이 성공적으로 로드되었습니다.")
 
 # Step 2: DB 연결 및 특정 확장자의 파일 이름 중복 제거하여 가져오기
-conn = sqlite3.connect(r"C:\Users\addy0\OneDrive\바탕 화면\DB 모음\2024-10-27 - 복사본.db")
+conn = sqlite3.connect(r"D:\프로젝트\정규화 파일\Task이후\1029\2024-10-29 - 복사본.db")
 cursor = conn.cursor()
 query = """
 SELECT DISTINCT File_Name
@@ -105,19 +105,50 @@ for file_name, grouped_entries in search_results.items():
         for entry in group:
             table = entry["Table"]
             data = entry["Data"]
-            
+
+                        ## 여기부터
             if table in scoring_criteria:
+                # presence_score가 있는 경우 그룹 점수에 추가
                 if "presence_score" in scoring_criteria[table]:
                     group_score += scoring_criteria[table]["presence_score"]
-                
+
                 table_criteria = scoring_criteria[table]
-                for key, conditions in table_criteria.items():
-                    if isinstance(conditions, list):
-                        for condition in conditions:
-                            if key in data and "match_value" in condition and data[key] == condition["match_value"]:
-                                group_score += condition["score"]
-                    elif key in data and "match_value" in table_criteria[key] and data[key] == table_criteria[key]["match_value"]:
-                        group_score += table_criteria[key]["score"]
+                # 조건 그룹이 있는 경우, 각 조건 그룹을 확인
+                if "conditions" in table_criteria:
+                    for condition in table_criteria["conditions"]:
+                        all_conditions_met = True
+                        for key, match_value in zip(condition["keys"], condition["match_values"]):
+                            if key not in data:
+                                all_conditions_met = False
+                                break
+                            # UsnJrnl 테이블에서 File_Name에 ".lnk"가 포함되어 있으면 조건 만족
+                            if table == "UsnJrnl" and key == "File_Name" and ".lnk" not in data[key]:
+                                all_conditions_met = False
+                                break
+                            # UsnJrnl 이외의 테이블에서는 기존 조건을 그대로 적용
+                            elif key == "File_Name" and table != "UsnJrnl" and data[key] != match_value:
+                                all_conditions_met = False
+                                break
+                            elif key != "File_Name" and data[key] != match_value:
+                                all_conditions_met = False
+                                break
+                        # 모든 조건이 만족된 경우에만 score 추가
+                        if all_conditions_met:
+                            group_score += condition["score"]
+            ## 여기까지 변경
+            
+            # if table in scoring_criteria:
+            #     if "presence_score" in scoring_criteria[table]:
+            #         group_score += scoring_criteria[table]["presence_score"]
+                
+            #     table_criteria = scoring_criteria[table]
+            #     for key, conditions in table_criteria.items():
+            #         if isinstance(conditions, list):
+            #             for condition in conditions:
+            #                 if key in data and "match_value" in condition and data[key] == condition["match_value"]:
+            #                     group_score += condition["score"]
+            #         elif key in data and "match_value" in table_criteria[key] and data[key] == table_criteria[key]["match_value"]:
+            #             group_score += table_criteria[key]["score"]
 
         group.append({"Group_Score": group_score})
 print("각 그룹에 점수가 부여되었습니다.")

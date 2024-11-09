@@ -1,13 +1,10 @@
 {
     "UsnJrnl": {
-        "Reason": [
+        "conditions": [
             {
-                "match_value": "The object identifier of a file or directory is changed.",
-                "score": 1
-            },
-            {
-                "match_value": "The object identifier of a file or directory is changed.\r\nThe file or directory is closed.",
-                "score": 1
+                "keys": ["Reason", "File_Name"],
+                "match_values": ["The file or directory is extended (added to).\r\nThe file or directory is created for the first time.\r\nThe file or directory is closed.", "*.lnk"],
+                "score": 5
             }
         ]
     },
