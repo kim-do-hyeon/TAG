@@ -1,7 +1,7 @@
 import sqlite3, os, json
 import pandas as pd
 from flask import request, render_template, session, redirect, url_for, flash, Request, jsonify, render_template_string
-from apps.authentication.models import Analyzed_file_list, Upload_Case, Normalization, GraphData, PromptQuries, UsbData, FilteringData, GroupParingResults, PrinterData_final, UsbData_final
+from apps.authentication.models import Analyzed_file_list, Upload_Case, Normalization, GraphData, PromptQuries, UsbData, FilteringData, GroupParingResults, PrinterData_final, UsbData_final, Mail_final
 from apps import db
 from apps.case.case_analyze import case_analyze_view
 from apps.analyze.analyze_usb import usb_connection
@@ -11,9 +11,11 @@ from apps.analyze.analyze_util import *
 from apps.analyze.USB.case_normalization_time_group import *
 from apps.analyze.USB.make_usb_analysis_db import usb_behavior
 from apps.analyze.Printer.printer_process import printer_behavior
+from apps.analyze.Upload.mail_upload_parser import mail_behavior
 import threading
 
 from flask import current_app
+from datetime import datetime
 
 def create_dict_from_file_paths(file_path):
     # 파일명 추출
@@ -100,6 +102,15 @@ def redirect_case_analyze_filtering_history_view(id) :
     body_html, scripts_html, tables = extract_body_and_scripts(filtering_data)
     return render_template('analyze/filtering.html', body_html=body_html, scripts_html=scripts_html,  tables=tables)
 
+def convert_datetime_to_string(obj):
+    if isinstance(obj, datetime):
+        return obj.isoformat()
+    elif isinstance(obj, dict):
+        return {key: convert_datetime_to_string(value) for key, value in obj.items()}
+    elif isinstance(obj, list):
+        return [convert_datetime_to_string(item) for item in obj]
+    return obj
+
 def redirect_analyze_case_final(data) :
     user = session.get('username')
     case_id = data['case_id']
@@ -108,27 +119,37 @@ def redirect_analyze_case_final(data) :
     db_path = os.path.join(case_folder, "normalization.db")
 
     ''' Tagging Process '''
-    all_tag_process(data)
+    TAG_Process = all_tag_process(data)
+
+    ''' Mail Behavior Process '''
+    if TAG_Process:
+        mail_results = mail_behavior(db_path)
+        
+        # Convert all datetime objects to strings recursively
+        mail_results = convert_datetime_to_string(mail_results)
+
+        mail_data_db = Mail_final(case_id=case_id, mail_data=mail_results)
+        db.session.add(mail_data_db)
+        db.session.commit()
 
     ''' USB Behavior Process'''
     time_db_path = os.path.join(case_folder, "time_normalization.db")
-    if time_parsing(db_path, time_db_path) :
-        print("Success Time Parsing")
+    if os.path.isfile(time_db_path) == False :
+        if time_parsing(db_path, time_db_path) :
+            print("Success Time Parsing")
 
-        usb_results = usb_behavior(db_path, time_db_path)
-        # Convert any DataFrame objects to dictionaries/lists before storing
-        for result in usb_results:
-            if 'df' in result:
-                result['filtered_df'] = result['filtered_df'].to_dict('records')  # Convert DataFrame to list of dictionaries
-                
-        usb_data_db = UsbData_final(case_id = case_id, usb_data = usb_results)
-        db.session.add(usb_data_db)
-        db.session.commit()
-        # USB Debug
-        # for i in usb_results :
-        #     print(i['Connection'], i['Start'], i['End'], i['Accessed_File_List'])
-    else :
-        print("Failed Time Parsing")
+    usb_results = usb_behavior(db_path, time_db_path)
+    for result in usb_results:
+        if 'df' in result:
+            result['filtered_df'] = result['filtered_df'].to_dict('records')  # Convert DataFrame to list of dictionaries
+            
+    usb_data_db = UsbData_final(case_id = case_id, usb_data = usb_results)
+    db.session.add(usb_data_db)
+    db.session.commit()
+    # USB Debug
+    # for i in usb_results :
+    #     print(i['Connection'], i['Start'], i['End'], i['Accessed_File_List'])
+
 
     ''' Printer Behavior Process'''
     printer_results = printer_behavior(db_path)
@@ -170,7 +191,9 @@ def redirect_analyze_case_final(data) :
 def redirect_analyze_case_final_result(id):
     usb_results = UsbData_final.query.filter_by(case_id=id).first().usb_data
     printer_results = PrinterData_final.query.filter_by(case_id=id).first().printer_data
-    analyzed_file_list = json.loads(Analyzed_file_list.query.filter_by(case_id=id).first().data)
+    analyzed_file_list = Analyzed_file_list.query.filter_by(case_id=id).first().data
+    mail_results = Mail_final.query.filter_by(case_id=id).first().mail_data
+
     
     timeline_data = []
     has_valid_timeline = False
@@ -208,6 +231,7 @@ def redirect_analyze_case_final_result(id):
                          timeline_data=timeline_data,
                          has_valid_timeline=has_valid_timeline,
                          analyzed_file_list=analyzed_file_list,
+                         mail_results=mail_results,
                          case_id = id)
     
 def redirect_analyze_case_final_connection_result(id, row_index):

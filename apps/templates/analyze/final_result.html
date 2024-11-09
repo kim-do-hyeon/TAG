@@ -41,7 +41,7 @@
                             <th>세부사항 및 커넥션</th>
                             <th>타임라인</th>
                         </tr>
-                        <!-- {% for i in usb_results %}
+                        {% for i in usb_results %}
                             <tr>
                                 <td>
                                     {{loop.index}}
@@ -64,8 +64,8 @@
                                     </button>
                                 </td>
                             </tr>
-                        {% endfor %} -->
-                        {% for i in analyzed_file_list %}
+                        {% endfor %}
+                        {% for i in printer_results %}
                             <tr>
                                 <td>
                                     {{loop.index}}
@@ -74,13 +74,42 @@
                                     <p>기술 유출</p>
                                 </td>
                                 <td>
-                                    <p>{{i['type']}}</p>
+                                    <p>Printer</p>
                                 </td>
                                 <td>
-                                    <!-- {{i['Print_Event_Date']}} -->
+                                    {{i['Print_Event_Date']}}
                                 </td>
                                 <td>
-                                    {{i['filename']}}
+                                    {{i['Accessed_File_List']}}
+                                </td>
+                                <td>
+                                    <button class="btn btn-primary btn-connection" row-index="{{loop.index}}">
+                                        보기
+                                    </button>
+                                </td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm" onclick="showTimeline({{loop.index}}, 'printer')">
+                                        타임라인 보기
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        {% for i in mail_results %}
+                            <tr>
+                                <td>
+                                    {{loop.index}}
+                                </td>
+                                <td>
+                                    <p>기술 유출</p>
+                                </td>
+                                <td>
+                                    <p>Mail</p>
+                                </td>
+                                <td>
+                                    {{i['First_Timestamp']}}
+                                </td>
+                                <td>
+                                    {{i['File_Name']}}
                                 </td>
                                 <td>
                                     <button class="btn btn-primary btn-connection" row-index="{{loop.index}}">
@@ -161,7 +190,7 @@
                         console.log(data)
                         showProgress(caseId, function(){
                             alert('정상적으로 처리되었습니다.');
-                            window.location.href = "/case/analyze/usb/" + {{case.id}};
+                            window.location.href = "/case/analyze/usb/" + {{caseId}};
                         });
                     } else {
                         alert('Failed to submit the prompt.');
