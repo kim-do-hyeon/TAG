@@ -1,0 +1,29 @@
+{
+    "UsnJrnl": {
+        "Reason": [
+            {
+                "match_value": "The object identifier of a file or directory is changed.",
+                "score": 1
+            },
+            {
+                "match_value": "The object identifier of a file or directory is changed.\r\nThe file or directory is closed.",
+                "score": 1
+            }
+        ]
+    },
+    "LNK_Files": {
+        "presence_score": 1
+    },
+    "Edge/Internet_Explorer_10_11_Main_History": {
+        "presence_score": 1
+    },
+    "MRU_Recent_Files_&_Folders": {
+        "presence_score": 1
+    },
+    "Jump_Lists": {
+        "presence_score": 1
+    },
+    "Locally_Accessed_Files_and_Folders": {
+        "presence_score": 1
+    }
+}
