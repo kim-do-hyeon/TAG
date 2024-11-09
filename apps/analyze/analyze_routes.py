@@ -247,6 +247,42 @@ def redirect_analyze_case_final_result(id):
             event_data.sort(key=lambda x: x['datetime'])
             mail_timeline_data.append(event_data)
 
+    # USB 타임라인 데이터 처리 추가
+    usb_timeline_data = []
+    has_usb_timeline = False
+    
+    for connection in usb_results:
+        has_usb_timeline = True
+        event_data = []
+        
+        # USB 연결/해제 이벤트 추가
+        event_data.append({
+            'datetime': connection['Start'],
+            'name': f"USB Connected - {connection['Connection']}",
+            'type': 'usb_connect',
+            'Content': f"USB device connected: {connection['Connection']}"
+        })
+        
+        event_data.append({
+            'datetime': connection['End'],
+            'name': f"USB Disconnected - {connection['Connection']}",
+            'type': 'usb_disconnect',
+            'Content': f"USB device disconnected: {connection['Connection']}"
+        })
+        
+        # 파일 접근 이벤트 추가
+        for activity in connection['filtered_df']:
+            event_data.append({
+                'datetime': activity['timestamp'],
+                'name': f"File {activity['type']}",
+                'type': activity['type'],
+                'Content': activity['main_data']
+            })
+        
+        # 시간순 정렬
+        event_data.sort(key=lambda x: x['datetime'])
+        usb_timeline_data.append(event_data)
+    print(usb_timeline_data)
     return render_template('analyze/final_result.html',
                          usb_results=usb_results,
                          printer_results=printer_results,
@@ -256,6 +292,8 @@ def redirect_analyze_case_final_result(id):
                          mail_results=mail_results,
                          mail_timeline_data=mail_timeline_data,
                          has_mail_timeline=has_mail_timeline,
+                         usb_timeline_data=usb_timeline_data,
+                         has_usb_timeline=has_usb_timeline,
                          case_id=id)
     
 def redirect_analyze_case_final_connection_result(id, row_index):
