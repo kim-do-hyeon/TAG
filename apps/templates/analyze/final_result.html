@@ -59,6 +59,11 @@
                                     {{i['Accessed_File_List']}}
                                 </td>
                                 <td>
+                                    <button class="btn btn-primary btn-connection" row-index="{{loop.index}}">
+                                        보기
+                                    </button>
+                                </td>
+                                <td>
                                     <button class="btn btn-primary btn-sm" onclick="showTimeline({{loop.index}}, 'usb')">
                                         타임라인 보기
                                     </button>
@@ -117,7 +122,7 @@
                                     </button>
                                 </td>
                                 <td>
-                                    <button class="btn btn-primary btn-sm" onclick="showTimeline({{loop.index}}, 'printer')">
+                                    <button class="btn btn-primary btn-sm" onclick="showTimeline({{loop.index}}, 'mail')">
                                         타임라인 보기
                                     </button>
                                 </td>
@@ -159,7 +164,7 @@
 
 <!-- Timeline 스크립트 수정 -->
 <script>
-    // 한국어 locale 추가
+    // Move locale definition outside
     var koLocale = {
         current: '현재',
         time: '시간',
@@ -171,26 +176,121 @@
         }
     };
 
+    // Make showTimeline globally accessible
+    function showTimeline(index, type) {
+        if (type == 'printer') {
+            var PrintertimelineData = [];
+            {% for events in printer_timeline_data %}
+                PrintertimelineData.push([
+                    {% for event in events %}
+                        {
+                            id: {{ loop.index }},
+                            content: '{{ event.name }}: {{ event.Content }}',
+                            start: '{{ event.datetime }}',
+                            type: 'point',
+                            className: 'timeline-event-{{ event.type.lower() }}',
+                            title: '{{ event.Content }}'
+                        },
+                    {% endfor %}
+                ]);
+            {% endfor %}
+
+            // jQuery를 사용한 모달 표시
+            jQuery('#timelineModal').modal('show');
+
+            // 타임라인 생성
+            setTimeout(() => {
+                var container = document.getElementById('modalTimeline');
+                var items = new vis.DataSet(PrintertimelineData[index - 1].map(item => {
+                    const eventType = item.className.replace('timeline-event-', '');
+                    const color = getColorForEventType(eventType);
+                    item.style = `background-color: ${color}; border-color: ${color};`;
+                    return item;
+                }));
+                var options = {
+                    height: '900px',
+                    locale: 'ko',
+                    locales: {
+                        ko: koLocale
+                    },
+                    orientation: 'top',
+                    zoomable: true,
+                    tooltip: {
+                        followMouse: true,
+                        overflowMethod: 'cap'
+                    }
+                };
+
+                new vis.Timeline(container, items, options);
+            }, 500);
+        }
+        else if (type == 'mail') {
+            var MailtimelineData = [];
+            {% for events in mail_timeline_data %}
+            MailtimelineData.push([
+                    {% for event in events %}
+                        {
+                            id: {{ loop.index }},
+                            content: '{{ event.name }}: {{ event.Content }}',
+                            start: '{{ event.datetime }}',
+                            type: 'point',
+                            className: 'timeline-event-{{ event.type.lower() }}',
+                            title: '{{ event.Content }}'
+                        },
+                    {% endfor %}
+                ]);
+            {% endfor %}
+
+            // jQuery를 사용한 모달 표시
+            jQuery('#timelineModal').modal('show');
+
+            // 타임라인 생성
+            setTimeout(() => {
+                var container = document.getElementById('modalTimeline');
+                var items = new vis.DataSet(MailtimelineData[index - 1].map(item => {
+                    const eventType = item.className.replace('timeline-event-', '');
+                    const color = getColorForEventType(eventType);
+                    item.style = `background-color: ${color}; border-color: ${color};`;
+                    return item;
+                }));
+                var options = {
+                    height: '900px',
+                    locale: 'ko',
+                    locales: {
+                        ko: koLocale
+                    },
+                    orientation: 'top',
+                    zoomable: true,
+                    tooltip: {
+                        followMouse: true,
+                        overflowMethod: 'cap'
+                    }
+                };
+
+                new vis.Timeline(container, items, options);
+            }, 500);
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.btn-connection').forEach(function(button) {
             button.addEventListener('click', function() {
-                var caseId = this.getAttribute('row-index');
+                var rowIndex = this.getAttribute('row-index');
                 var caseId = {{ case_id }};
                 fetch(`/case/analyze/final/${caseId}/connection`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ case_id: caseId}),
+                    body: JSON.stringify({ case_id: caseId }),
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Redirect based on the URL provided by the server
-                        console.log(data)
+                        console.log(data);
                         showProgress(caseId, function(){
                             alert('정상적으로 처리되었습니다.');
-                            window.location.href = "/case/analyze/usb/" + {{caseId}};
+                            window.location.href = "/case/analyze/usb/" + caseId;
                         });
                     } else {
                         alert('Failed to submit the prompt.');
@@ -203,53 +303,30 @@
             });
         });
 
-    function showTimeline(index, type) {
-        var timelineData = [];
-        
-        {% for events in timeline_data %}
-            timelineData.push([
-                {% for event in events %}
-                    {
-                        id: {{ loop.index }},
-                        content: '{{ event.name }}: {{ event.Content }}',
-                        start: '{{ event.datetime }}',
-                        type: 'point',
-                        className: 'timeline-event-{{ event.type.lower() }}',
-                        title: '{{ event.Content }}'
-                    },
-                {% endfor %}
-            ]);
-        {% endfor %}
+        // Modal close event
+        jQuery('#timelineModal').on('hidden.bs.modal', function () {
+            document.getElementById('modalTimeline').innerHTML = '';
+        });
+    });
 
-        // jQuery를 사용한 모달 표시
-        jQuery('#timelineModal').modal('show');
+    // 이벤트 타입별 색상을 저장할 객체
+    const eventColors = {};
 
-        // 타임라인 생성
-        setTimeout(() => {
-            var container = document.getElementById('modalTimeline');
-            var items = new vis.DataSet(timelineData[index - 1]);
-            var options = {
-                height: '900px',
-                locale: 'ko',
-                locales: {
-                    ko: koLocale
-                },
-                orientation: 'top',
-                zoomable: true,
-                tooltip: {
-                    followMouse: true,
-                    overflowMethod: 'cap'
-                }
-            };
-
-            new vis.Timeline(container, items, options);
-        }, 500);
+    function getColorForEventType(eventType) {
+        // 이미 할당된 색상이 있으면 재사용
+        if (eventColors[eventType]) {
+            return eventColors[eventType];
+        }
+        // 새로운 색상 생성 및 저장
+        const color = generateRandomColor();
+        eventColors[eventType] = color;
+        return color;
     }
 
-    // jQuery를 사용한 모달 이벤트 처리
-    jQuery('#timelineModal').on('hidden.bs.modal', function () {
-        document.getElementById('modalTimeline').innerHTML = '';
-    });
+    function generateRandomColor() {
+        const hue = Math.floor(Math.random() * 360);
+        return `hsl(${hue}, 70%, 50%)`;
+    }
 </script>
 
 <style>

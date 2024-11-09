@@ -195,7 +195,7 @@ def redirect_analyze_case_final_result(id):
     mail_results = Mail_final.query.filter_by(case_id=id).first().mail_data
 
     
-    timeline_data = []
+    printer_timeline_data = []
     has_valid_timeline = False
     
     for result in printer_results:
@@ -222,17 +222,41 @@ def redirect_analyze_case_final_result(id):
             
         # Sort activities by datetime
         event_data.sort(key=lambda x: x['datetime'])
-        timeline_data.append(event_data)
+        printer_timeline_data.append(event_data)
         
+
+    # Add mail timeline data processing
+    mail_timeline_data = []
+    has_mail_timeline = False
+    
+    if mail_results:
+        has_mail_timeline = True
+        for file_group in mail_results:
+            event_data = []
+            
+            # Add each activity from Group_Data
+            for activity in file_group['Group_Data']:
+                event_data.append({
+                    'datetime': activity['Timestamp'],
+                    'name': f"Mail Activity - {activity['Table']}",
+                    'type': activity['Table'],
+                    'Content': f"File: {file_group['File_Name']}, Action: {activity['Table']}"
+                })
+            
+            # Sort activities by datetime
+            event_data.sort(key=lambda x: x['datetime'])
+            mail_timeline_data.append(event_data)
 
     return render_template('analyze/final_result.html',
                          usb_results=usb_results,
                          printer_results=printer_results,
-                         timeline_data=timeline_data,
+                         printer_timeline_data=printer_timeline_data,
                          has_valid_timeline=has_valid_timeline,
                          analyzed_file_list=analyzed_file_list,
                          mail_results=mail_results,
-                         case_id = id)
+                         mail_timeline_data=mail_timeline_data,
+                         has_mail_timeline=has_mail_timeline,
+                         case_id=id)
     
 def redirect_analyze_case_final_connection_result(id, row_index):
     
