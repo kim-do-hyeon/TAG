@@ -245,6 +245,8 @@
         }
     };
 
+    const analyzed_file_list = {{ analyzed_file_list | tojson | safe }};
+
     const eventColors = {};  // 한 번만 선언
 
     function generateRandomColor() {
@@ -265,7 +267,7 @@
     window.showDetail = function(index) {
         console.log(index);
 
-        var content = "{{ analyzed_file_list[index] | safe  }}";
+        var content = JSON.stringify(analyzed_file_list[index], null, 2);
 
         // 모달 내용 설정
         document.getElementById('modalDetail').innerHTML = content;
