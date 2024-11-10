@@ -73,7 +73,7 @@ def extract_doc_and_program(LogFile_df, time_df, start_time, end_time) :
     return new_df, filename_list
 
 def extract_transaction_LogFile_Analysis(normal_conn, filename) :
-        filename = os.path.basename(filename)
+        # filename = os.path.basename(filename)
         df = pd.read_sql_query(f"SELECT * FROM LogFile_Analysis WHERE Current_File_Name LIKE '%{filename}%' OR Original_File_Name LIKE '%{filename}%'", normal_conn)
         mft_num_list = list(set(df['MFT_Reference_Number'].to_list()))
         return_dict = {}

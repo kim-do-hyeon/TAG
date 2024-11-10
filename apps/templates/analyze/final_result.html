@@ -42,7 +42,7 @@
                             <th>세부사항 및 커넥션</th>
                             <th>타임라인</th>
                         </tr>
-                        {% for i in analyzed_file_list %}
+                        <!-- {% for i in analyzed_file_list %}
                             <tr>
                                 <td>
                                     {{loop.index}}
@@ -69,8 +69,8 @@
                                     </button>
                                 </td>
                             </tr>
-                        {% endfor %}
-                        <!-- {% for i in usb_results %}
+                        {% endfor %} -->
+                        {% for i in usb_results %}
                             <tr>
                                 <td>
                                     {{loop.index}}
@@ -90,7 +90,11 @@
                                     {% else %}
                                         <ul class="file-list">
                                         {% for file in i.Accessed_File_List %}
-                                            <li>{{ file }}</li>
+                                            <li>{{ file }}
+                                                <button class="btn btn-primary btn-connection" row-index="{{loop.index}}" onclick="showDetail('{{file}}')">
+                                                    보기
+                                                </button>
+                                            </li>
                                         {% endfor %}
                                         </ul>
                                     {% endif %}
@@ -127,8 +131,12 @@
                                     {% else %}
                                         <ul class="file-list">
                                         {% for file in i.Accessed_File_List %}
-                                            <li>{{ file }}</li>
-                                        {% endfor %}
+                                            <li>{{ file }}
+                                                <button class="btn btn-primary btn-connection" row-index="{{loop.index}}" onclick="showDetail('{{file}}')">
+                                                    보기
+                                                </button>
+                                            </li>
+                                            {% endfor %}
                                         </ul>
                                     {% endif %}
                                 </td>
@@ -161,10 +169,17 @@
                                 <td class="description-cell">
                                     {% if i.File_Name is string %}
                                         {{ i.File_Name }}
+                                        <button class="btn btn-primary btn-connection" row-index="{{loop.index}}" onclick="showDetail('{{i.File_Name}}')">
+                                            보기
+                                        </button>
                                     {% else %}
                                         <ul class="file-list">
                                         {% for file in i.File_Name %}
-                                            <li>{{ file }}</li>
+                                            <li>{{ file }}
+                                                <button class="btn btn-primary btn-connection" row-index="{{loop.index}}" onclick="showDetail('{{file}}')">
+                                                    보기
+                                                </button>
+                                            </li>
                                         {% endfor %}
                                         </ul>
                                     {% endif %}
@@ -180,7 +195,7 @@
                                     </button>
                                 </td>
                             </tr>
-                        {% endfor %} -->
+                        {% endfor %}
                     </table>
                 </div>
                 
@@ -266,139 +281,143 @@
     }
 
     // 노드 및 세부사항 표시 함수
-    window.showDetail = function(index) {
-        var analyzed_file = analyzed_file_list[index];
-        var content = JSON.stringify(analyzed_file['data'], null, 2);
-        var logfile_json;
-        const requestData = {
-            case_id : '{{case_id}}',
-            filename : analyzed_file['filename']
-        };
+    window.showDetail = function(file_name) {
+        // filename으로 해당 파일 정보 찾기
+        var analyzed_file = analyzed_file_list.find(item => item.filename === file_name);
         
-        // Fetch API를 사용하여 POST 요청 보내기
-        fetch(`/logfile_tracking`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(requestData)
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('네트워크 응답이 올바르지 않습니다.');
-            }
-            return response.json();
-        })
-        .then(data => {
-            // 응답 데이터를 JSON 형식으로 포맷
-            var logfile_json = JSON.stringify(data, null, 2);
-
-            // 두 번째 fetch 요청
-            return fetch(`/file_connection`, {
+        if (analyzed_file) {
+            var content = JSON.stringify(analyzed_file['data'], null, 2);
+            var logfile_json;
+            const requestData = {
+                case_id: '{{case_id}}',
+                filename: analyzed_file['filename']
+            };
+            
+            // Fetch API를 사용하여 POST 요청 보내기
+            fetch(`/logfile_tracking`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ time_data: analyzed_file['data'], logfile_data: data})
-            });
-        })
-        .then(secondResponse => {
-            if (!secondResponse.ok) {
-                throw new Error('두 번째 네트워크 응답이 올바르지 않습니다.');
-            }
-            return secondResponse.json();
-        })
-        .then(secondData => {
-            // 두 번째 응답 데이터를 처리
-            var secondLogfileJson = JSON.stringify(secondData, null, 2);
-            console.log(secondData.edges);
-            console.log(secondData.nodes);
-            //document.getElementById('modalDetail').innerHTML += `<pre>${secondLogfileJson}</pre>`;
-            //var nodes = new vis.DataSet(secondData.nodes);
-            //var edges = new vis.DataSet(secondData.edges);
-            //var container = document.getElementById('network_graph');
-            //var data = {
-            //    nodes: nodes,
-            //    edges: edges
-            //};
-            //var options = {
-            //    nodes: {
-            //        shape: 'ellipse',
-            //        size: 16,
-            //        font: {
-            //            size: 14
-            //        }
-            //    },
-            //    edges: {
-            //        width: 2,
-            //        arrows: {
-            //            to :{ enabled: true, scaleFactor: 1 }
-            //        }
-            //    },
-            //    interaction: {
-            //        hover: true,
-            //        dragNodes: false,
-            //        dragView: false
-            //    } // 노드에 마우스를 올리는 기능 활성화
-            //};
-            //var network = new vis.Network(container, data, options);
+                body: JSON.stringify(requestData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('네트워크 응답이 올바르지 않습니다.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // 응답 데이터를 JSON 형식으로 포맷
+                var logfile_json = JSON.stringify(data, null, 2);
 
-            jQuery('#detailModal').on('shown.bs.modal', function () {
-                var nodes = new vis.DataSet(secondData.nodes);
-                var edges = new vis.DataSet(secondData.edges);
-                var container = document.getElementById('network_graph');
-                var data = {
-                    nodes: nodes,
-                    edges: edges
-                };
-                var options = {
-                    nodes: {
-                        shape: 'ellipse',
-                        size: 10,
-                        font: {
-                            size: 14
-                        }
+                // 두 번째 fetch 요청
+                return fetch(`/file_connection`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
                     },
-                    edges: {
-                        width: 2,
-                        arrows: {
-                            to: { enabled: true, scaleFactor: 1 }
-                        }
-                    },
-                    interaction: {
-                        hover: true,
-                        dragNodes: true,
-                        dragView: true
-                    },
-                    physics: {
-                        enabled: true,
-                        solver: 'forceAtlas2Based',
-                        forceAtlas2Based: {
-                            gravitationalConstant: -30, // 중력 상수 조절
-                            centralGravity: 0.002,
-                            springLength: 250, // 스프링 길이 조절
-                            springConstant: 0.05
+                    body: JSON.stringify({ time_data: analyzed_file['data'], logfile_data: data})
+                });
+            })
+            .then(secondResponse => {
+                if (!secondResponse.ok) {
+                    throw new Error('두 번째 네트워크 응답이 올바르지 않습니다.');
+                }
+                return secondResponse.json();
+            })
+            .then(secondData => {
+                // 두 번째 응답 데이터를 처리
+                var secondLogfileJson = JSON.stringify(secondData, null, 2);
+                console.log(secondData.edges);
+                console.log(secondData.nodes);
+                //document.getElementById('modalDetail').innerHTML += `<pre>${secondLogfileJson}</pre>`;
+                //var nodes = new vis.DataSet(secondData.nodes);
+                //var edges = new vis.DataSet(secondData.edges);
+                //var container = document.getElementById('network_graph');
+                //var data = {
+                //    nodes: nodes,
+                //    edges: edges
+                //};
+                //var options = {
+                //    nodes: {
+                //        shape: 'ellipse',
+                //        size: 16,
+                //        font: {
+                //            size: 14
+                //        }
+                //    },
+                //    edges: {
+                //        width: 2,
+                //        arrows: {
+                //            to :{ enabled: true, scaleFactor: 1 }
+                //        }
+                //    },
+                //    interaction: {
+                //        hover: true,
+                //        dragNodes: false,
+                //        dragView: false
+                //    } // 노드에 마우스를 올리는 기능 활성화
+                //};
+                //var network = new vis.Network(container, data, options);
+
+                jQuery('#detailModal').on('shown.bs.modal', function () {
+                    var nodes = new vis.DataSet(secondData.nodes);
+                    var edges = new vis.DataSet(secondData.edges);
+                    var container = document.getElementById('network_graph');
+                    var data = {
+                        nodes: nodes,
+                        edges: edges
+                    };
+                    var options = {
+                        nodes: {
+                            shape: 'ellipse',
+                            size: 10,
+                            font: {
+                                size: 14
+                            }
                         },
-                        maxVelocity: 50,
-                        minVelocity: 0.1,
-                        timestep: 0.5,
-                        stabilization: {
-                            iterations: 150
+                        edges: {
+                            width: 2,
+                            arrows: {
+                                to: { enabled: true, scaleFactor: 1 }
+                            }
+                        },
+                        interaction: {
+                            hover: true,
+                            dragNodes: true,
+                            dragView: true
+                        },
+                        physics: {
+                            enabled: true,
+                            solver: 'forceAtlas2Based',
+                            forceAtlas2Based: {
+                                gravitationalConstant: -30, // 중력 상수 조절
+                                centralGravity: 0.002,
+                                springLength: 250, // 스프링 길이 조절
+                                springConstant: 0.05
+                            },
+                            maxVelocity: 50,
+                            minVelocity: 0.1,
+                            timestep: 0.5,
+                            stabilization: {
+                                iterations: 150
+                            }
                         }
-                    }
-                };
-                var network = new vis.Network(container, data, options);
-            });
+                    };
+                    var network = new vis.Network(container, data, options);
+                });
 
-            // 모달 표시
-            jQuery('#detailModal').modal('show');
-            
-        })
-        .catch(error => {
-            console.error('데이터 요청 실패:', error);
-            document.getElementById('modalDetail').innerHTML = `<p>데이터를 가져오는 데 실패했습니다.</p>`;
-            jQuery('#detailModal').modal('show');
-        });
+                // 모달 표시
+                jQuery('#detailModal').modal('show');
+                
+            })
+            .catch(error => {
+                console.error('데이터 요청 실패:', error);
+                document.getElementById('modalDetail').innerHTML = `<p>데이터를 가져오는 데 실패했습니다.</p>`;
+                jQuery('#detailModal').modal('show');
+            });
+        }
     }
 
     // Timeline 표시 함수
