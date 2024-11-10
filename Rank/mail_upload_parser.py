@@ -2,30 +2,18 @@ import sqlite3
 from datetime import datetime, timedelta
 import json
 import pandas as pd
+import re
 
 # Step 1: 점수 기준 파일 로드 (criteria.json)
 with open("criteria.json", "r", encoding="utf-8") as f:
     scoring_criteria = json.load(f)
 print("점수 기준 파일이 성공적으로 로드되었습니다.")
 
-# Step 2: DB 연결 및 특정 확장자의 파일 이름 중복 제거하여 가져오기
+# DB 연결
 conn = sqlite3.connect(r"C:\Users\addy0\OneDrive\바탕 화면\DB 모음\2024-10-27 - 복사본.db")
 cursor = conn.cursor()
-query = """
-SELECT DISTINCT File_Name
-FROM UsnJrnl
-WHERE File_Name LIKE '%.pdf'
-   OR File_Name LIKE '%.pptx'
-   OR File_Name LIKE '%.zip'
-   OR File_Name LIKE '%.hwp'
-"""
-cursor.execute(query)
-unique_files = [row[0] for row in cursor.fetchall()]
-print(f"중복 제거된 파일 이름 리스트가 성공적으로 가져왔습니다. 파일 개수: {len(unique_files)}")
 
-# Step 3: 테이블에서 데이터 검색 및 그룹화
-search_results = {}
-
+# 검색할 테이블과 컬럼 설정
 tables_to_search = {
     "UsnJrnl": {"search_column": "File_Name"},
     "LNK_Files": {"search_column": "Linked_Path"},
@@ -35,6 +23,43 @@ tables_to_search = {
     "Locally_Accessed_Files_and_Folders": {"search_column": "Path"}
 }
 
+# 특정 확장자를 가진 파일 이름을 가져오는 정규식
+file_extensions = (".pdf", ".pptx", ".zip", ".hwp")
+file_name_pattern = re.compile(r'[^\\/]+\.(pdf|pptx|zip|hwp)$', re.IGNORECASE)
+
+unique_files = set()  # 중복 제거를 위해 집합 사용
+unique_file_names = set()
+
+# 각 테이블에서 파일 이름 가져오기
+for table, columns in tables_to_search.items():
+    search_column = columns["search_column"]
+    
+    # 파일 확장자를 기준으로 필터링하는 쿼리 생성
+    query = f"""
+    SELECT DISTINCT "{search_column}"
+    FROM "{table}"
+    WHERE { " OR ".join([f'"{search_column}" LIKE "%{ext}"' for ext in file_extensions]) }
+    """
+    
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    
+    # 각 행에서 파일 이름 추출
+    for row in rows:
+        full_path = row[0]
+        # 정규식으로 파일 이름만 추출
+        match = file_name_pattern.search(full_path)
+        if match:
+            file_name = match.group()
+            unique_files.add(file_name)  # 집합에 추가하여 중복 제거
+            only_file_name = file_name.rsplit('.', 1)[0]
+            unique_file_names.add(only_file_name)
+
+# 집합을 리스트로 변환하여 정렬
+unique_files = sorted(unique_files)
+unique_file_names = sorted(unique_file_names)
+
+search_results = {}
 time_columns = {
     "UsnJrnl": ["Timestamp_Date/Time_-_UTC_(yyyy-mm-dd)"],
     "LNK_Files": ["Created_Date/Time_-_UTC_(yyyy-mm-dd)", "Last_Modified_Date/Time_-_UTC_(yyyy-mm-dd)", "Accessed_Date/Time_-_UTC_(yyyy-mm-dd)"],
@@ -95,35 +120,45 @@ for file_name, entries in search_results.items():
     search_results[file_name] = grouped_entries
 print("데이터 검색 및 그룹화가 완료되었습니다.")
 
-
 # Step 4: 그룹 점수 추가
-
 for file_name, grouped_entries in search_results.items():
     for group in grouped_entries:
         group_score = 0
-        tables_in_group = {entry["Table"] for entry in group}
         for entry in group:
             table = entry["Table"]
             data = entry["Data"]
-            
-            if table in scoring_criteria:
-                if "presence_score" in scoring_criteria[table]:
-                    group_score += scoring_criteria[table]["presence_score"]
-                
-                table_criteria = scoring_criteria[table]
-                for key, conditions in table_criteria.items():
-                    if isinstance(conditions, list):
-                        for condition in conditions:
-                            if key in data and "match_value" in condition and data[key] == condition["match_value"]:
+
+            # LogFile_Analysis의 동적 Original_File_Name 조건 확인
+            if table == "LogFile_Analysis" and "Original_File_Name" in scoring_criteria[table]:
+                for filename in unique_file_names:
+                    dynamic_match_value = f"{filename}.lnk"
+                    
+                    # Original_File_Name 동적 조건이 일치할 경우에만 operation 조건 체크
+                    if data.get("Original_File_Name") == dynamic_match_value:
+                        for condition in scoring_criteria[table]["operation"]:
+                            if data.get("operation") == condition["match_value"]:
                                 group_score += condition["score"]
-                    elif key in data and "match_value" in table_criteria[key] and data[key] == table_criteria[key]["match_value"]:
-                        group_score += table_criteria[key]["score"]
+
+                        # 동적 조건 일치 시 기본 점수도 추가
+                        group_score += scoring_criteria[table]["Original_File_Name"][0]["score"]
+
+            # 기본 presence_score 계산
+            if table in scoring_criteria and "presence_score" in scoring_criteria[table]:
+                group_score += scoring_criteria[table]["presence_score"]
+
+            # 기존 조건 처리
+            table_criteria = scoring_criteria[table]
+            for key, conditions in table_criteria.items():
+                if isinstance(conditions, list) and key not in ["Original_File_Name", "operation"]:  # 중복 방지
+                    for condition in conditions:
+                        if key in data and "match_value" in condition and data[key] == condition["match_value"]:
+                            group_score += condition["score"]
 
         group.append({"Group_Score": group_score})
+
 print("각 그룹에 점수가 부여되었습니다.")
 
 # Step 5: Group_Score 기준으로 정렬 및 출력
-# 모든 그룹을 단일 리스트로 수집 (Group_Score 기준으로 정렬하기 위함)
 all_groups = []
 for file_name, grouped_entries in search_results.items():
     for group in grouped_entries:
@@ -135,17 +170,9 @@ for file_name, grouped_entries in search_results.items():
         }
         all_groups.append(group_with_score)
 
-# Group_Score 기준으로 내림차순 정렬
 all_groups_sorted = sorted(all_groups, key=lambda x: x["Group_Score"], reverse=True)
 
-# 첫 데이터의 시간값과 파일 이름 출력
-# for group in all_groups_sorted:
-#     print(f"File Name: {group['File_Name']}, First Timestamp: {group['First_Timestamp']}, Group Score: {group['Group_Score']}")
-
-
-
 all_tagged_data = []
-
 tables_with_tags = {
     "Edge_Chromium_Web_Visits": ["Date_Visited_Date/Time_-_UTC_(yyyy-mm-dd)"],
     "Chrome_Web_Visits": ["Date_Visited_Date/Time_-_UTC_(yyyy-mm-dd)"],
@@ -167,7 +194,6 @@ for table, time_columns in tables_with_tags.items():
 
     for row in rows:
         base_data = {col: val for col, val in zip(column_names, row)}
-
         for time_column in time_columns:
             if time_column in base_data and base_data[time_column] is not None:
                 try:
@@ -182,48 +208,32 @@ for table, time_columns in tables_with_tags.items():
                 except ValueError as e:
                     print(f"시간 변환 오류 발생 (테이블: {table}, 컬럼: {time_column}): {e}")
 
-# 전체 데이터를 시간 순서대로 정렬
 all_tagged_data_sorted = sorted(all_tagged_data, key=lambda x: x["Timestamp"])
 
-# 결과 출력
-# for entry in all_tagged_data_sorted:
-#     print(f"Table: {entry['Table']}, Time Column: {entry['Time_Column']}, Timestamp: {entry['Timestamp']}")
-#     print(f"Data: {entry['Data']}\n")
-
-
-# Step: 각 그룹의 First_Timestamp 기준으로 가장 가까운 이전 태그 데이터 찾기 및 서비스별 관련 데이터 추가
 result_with_tag_data = []
-
 for group in all_groups_sorted:
     first_timestamp = group["First_Timestamp"]
     closest_tag_data = None
 
-    # all_tagged_data_sorted를 역순으로 순회하여 가장 가까운 이전 태그 데이터를 찾음
     for tag_data in reversed(all_tagged_data_sorted):
-        if tag_data["Timestamp"] < first_timestamp:
+        if tag_data["Timestamp"] <= first_timestamp:
             closest_tag_data = tag_data
-            break  # 가장 가까운 이전 timestamp를 찾으면 중단
+            break
 
-    # closest_tag_data에서 서비스 이름 추출 및 해당 테이블의 데이터만 필터링
     if closest_tag_data:
         tag_value = closest_tag_data["Data"].get("_TAG_", "No _TAG_ found")
         service_name = "_".join(tag_value.split("_")[:2]) if "_" in tag_value else tag_value
         target_table = closest_tag_data["Table"]
 
-        # service_name이 포함되고, Table이 closest_tag_data와 동일한 데이터를 필터링
         related_tagged_data = [
             data for data in all_tagged_data_sorted 
             if service_name in data["Data"].get("_TAG_", "") and data["Table"] == target_table
         ]
         
-        # 시간순으로 정렬
         related_tagged_data_sorted = sorted(related_tagged_data, key=lambda x: x["Timestamp"])
-
-        # 최소 및 최대 타임스탬프 계산
         min_timestamp = related_tagged_data_sorted[0]["Timestamp"] if related_tagged_data_sorted else None
         max_timestamp = related_tagged_data_sorted[-1]["Timestamp"] if related_tagged_data_sorted else None
 
-        # DataFrame 생성
         df_data = {
             "timestamp": [entry["Timestamp"] for entry in related_tagged_data_sorted],
             "type": [entry["Data"].get("_TAG_", "") for entry in related_tagged_data_sorted],
@@ -231,17 +241,15 @@ for group in all_groups_sorted:
         }
         df = pd.DataFrame(df_data)
 
-        # 결과에 그룹 데이터와 가장 가까운 태그 데이터 및 관련된 태그 데이터를 결합
         result_with_tag_data.append({
             "File_Name": group["File_Name"],
             "Group_Score": group["Group_Score"],
             "First_Timestamp": first_timestamp,
             "Group_Data": group["Group_Data"],
             "Closest_Tag_Data": closest_tag_data,
-            "Related_Tag_Data": related_tagged_data_sorted 
+            "Related_Tag_Data": related_tagged_data_sorted  
         })
 
-        # Print Event Summary and DataFrame
         print(f"Event Date : {first_timestamp}")
         print(f"Accessed File : [{group['File_Name']}]")
         print("=" * 50)
@@ -249,19 +257,18 @@ for group in all_groups_sorted:
         print(f"Event : {min_timestamp} ~ {max_timestamp}")
         print(df.to_string(index=False),"\n")
     else:
-        # 태그 데이터가 없는 경우
         result_with_tag_data.append({
             "File_Name": group["File_Name"],
             "Group_Score": group["Group_Score"],
             "First_Timestamp": first_timestamp,
             "Group_Data": group["Group_Data"],
             "Closest_Tag_Data": None,
-            "Related_Tag_Data": []  # 관련된 태그 데이터 없음
+            "Related_Tag_Data": []
         })
 
-# 최종 결과를 JSON 파일로 저장
 output_file = "grouped_data_with_related_tag_data.json"
 with open(output_file, "w", encoding="utf-8") as f:
     json.dump(result_with_tag_data, f, indent=4, ensure_ascii=False, default=str)
 
 print(f"최종 그룹 데이터가 {output_file} 파일에 저장되었습니다.")
+
