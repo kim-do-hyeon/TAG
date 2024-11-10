@@ -7,6 +7,13 @@ def printer_behavior(db_path) :
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
+    cursor.execute("PRAGMA table_info(LogFile_Analysis)")
+    columns = [column[1] for column in cursor.fetchall()]
+
+    ORIGINAL_FILE_NAME = (columns.index("Original_File_Name"))
+    FILE_OPERATION = (columns.index("File_Operation"))
+    MFT_RECORD_NUMBER = (columns.index("MFT_Record_Number"))
+
     # LogFile_Analysis 테이블의 모든 데이터를 가져옴
     cursor.execute("SELECT * FROM LogFile_Analysis")
     all_data = cursor.fetchall()
@@ -16,9 +23,8 @@ def printer_behavior(db_path) :
 
     spl_fixed_date = []
     for i in spl_shd_indices :
-        if (all_data[i][18]) == "Create" :
+        if (all_data[i][FILE_OPERATION]) == "Delete" or (all_data[i][FILE_OPERATION]) == "Create" :
             spl_fixed_date.append(i)
-    print(spl_fixed_date)
 
 
     # 중복 제거를 위한 set 생성
@@ -28,15 +34,14 @@ def printer_behavior(db_path) :
 
     for index in spl_fixed_date:
         start_index = max(0, index - 1000)
-        result_data = all_data[start_index:index]
+        result_data = all_data[start_index:index] 
         unique_results = []
         for row in result_data:
             # 마지막 값이 지정된 확장자로 끝나는지 확인
-            if row[-1] and any(str(row[-1]).endswith(ext) for ext in ('pptx', 'xlsx', 'docx', 'hwp', 'pdf', 'jpg')):
-                unique_results.append(row[21])
+            if row[-1] and any(str(row[-1]).endswith(ext) for ext in ('pptx', 'xlsx', 'docx', 'hwp', 'pdf', 'jpg', 'lnk')):
+                unique_results.append(row[ORIGINAL_FILE_NAME])
         unique_results = list(set(unique_results))
         file_name_datas.append(unique_results)
-
     results = []
     for index, value in enumerate(file_name_datas) :
         data = {}
@@ -54,7 +59,7 @@ def printer_behavior(db_path) :
                 print(f"File {i} Behavior")
                 cursor.execute(f"SELECT * FROM LogFile_Analysis WHERE Original_File_Name LIKE '%{i}%'")
                 all_datas = cursor.fetchall()
-                mft_record_number = list(set(j[3] for j in all_datas))
+                mft_record_number = list(set(j[MFT_RECORD_NUMBER ] for j in all_datas))
 
                 for record_number in mft_record_number:
                     cursor.execute(f"SELECT `Event_Date/Time_-_UTC_(yyyy-mm-dd)` AS Event_Date, File_Operation, Original_File_Name FROM LogFile_Analysis WHERE MFT_Record_Number = '{record_number}' ORDER BY Event_Date ASC")
