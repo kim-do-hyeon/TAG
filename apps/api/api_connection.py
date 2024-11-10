@@ -15,7 +15,7 @@ def redirect_logfile(data) :
         result = extract_transaction_LogFile_Analysis(db_conn, filename)
         for key, value in result.items() :
             tmp = value[['Event_Date/Time_-_UTC_(yyyy-mm-dd)', 'Original_File_Name', 'Current_File_Name', 'File_Operation']]
-            tmp['Event_Date/Time_-_UTC_(yyyy-mm-dd)'] = tmp['Event_Date/Time_-_UTC_(yyyy-mm-dd)'].astype(str)
+            tmp.loc[:,'Event_Date/Time_-_UTC_(yyyy-mm-dd)'] = tmp['Event_Date/Time_-_UTC_(yyyy-mm-dd)'].astype(str)
             result[key] = tmp.to_dict(orient='records')
         result['success'] = True     
         
@@ -64,11 +64,35 @@ def file_connect_node(data) :
                 rows.append(row)
         new_df = pd.concat([new_df, pd.DataFrame(rows)], ignore_index=True)
         new_df = new_df.sort_values(by='timestamp')
-        new_df['timestamp'] = new_df['timestamp'].astype(str)
+        new_dict = new_df.to_dict(orient='records')
+        #new_df['timestamp'] = new_df['timestamp'].astype(str)
+        
+        nodes = []
+        edges = []
+        for idx, row in enumerate(new_dict) :
+            if row['operation'] == 'Rename' :
+                nodes.append({
+                    'id' : idx,
+                    'label' : f'Rename\n{row["filename"]} -> {row["after_filename"]}',
+                    'shape' : 'ellipse'
+                })
+            else :
+                nodes.append({
+                    'id' : idx,
+                    'label' : '\n'.join([row['operation'], row['filename']]),
+                    'shape' : 'ellipse'
+                })
+            if idx != 0 :
+                edges.append({'from' : idx-1, 'to' : idx})                
+        
+        
         result = {
             'data' : new_df.to_dict(orient='records'),
+            'nodes' : nodes,
+            'edges' : edges,
             'success' : True
         }
+        print(jsonify(result))
         return jsonify(result)
     except Exception as e :
         return jsonify({'success' : False, 'message' : e})
