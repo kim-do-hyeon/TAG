@@ -265,15 +265,43 @@
 
     // 노드 및 세부사항 표시 함수
     window.showDetail = function(index) {
-        console.log(index);
+        var analyzed_file = analyzed_file_list[index];
+        var content = JSON.stringify(analyzed_file['data'], null, 2);
+        var logfile_json;
+        const requestData = {
+            case_id : '{{case_id}}',
+            filename : analyzed_file['filename']
+        };
+        
+        // Fetch API를 사용하여 POST 요청 보내기
+        fetch(`/logfile_tracking`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestData)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('네트워크 응답이 올바르지 않습니다.');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // 응답 데이터를 JSON 형식으로 포맷
+            var logfile_json = JSON.stringify(data, null, 2);
 
-        var content = JSON.stringify(analyzed_file_list[index], null, 2);
+            // 모달 내용 설정
+            document.getElementById('modalDetail').innerHTML = `<pre>${content}</pre><pre>${logfile_json}</pre>`;
 
-        // 모달 내용 설정
-        document.getElementById('modalDetail').innerHTML = content;
-
-        // 모달 표시
-        jQuery('#detailModal').modal('show');
+            // 모달 표시
+            jQuery('#detailModal').modal('show');
+        })
+        .catch(error => {
+            console.error('데이터 요청 실패:', error);
+            document.getElementById('modalDetail').innerHTML = `<p>데이터를 가져오는 데 실패했습니다.</p>`;
+            jQuery('#detailModal').modal('show');
+        });
     }
 
     // Timeline 표시 함수
