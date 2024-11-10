@@ -314,37 +314,85 @@
             console.log(secondData.edges);
             console.log(secondData.nodes);
             //document.getElementById('modalDetail').innerHTML += `<pre>${secondLogfileJson}</pre>`;
-            var nodes = new vis.DataSet(secondData.nodes);
-            var edges = new vis.DataSet(secondData.edges);
-            var container = document.getElementById('network_graph');
-            var data = {
-                nodes: nodes,
-                edges: edges
-            };
-            var options = {
-                nodes: {
-                    shape: 'ellipse',
-                    size: 16,
-                    font: {
-                        size: 14
+            //var nodes = new vis.DataSet(secondData.nodes);
+            //var edges = new vis.DataSet(secondData.edges);
+            //var container = document.getElementById('network_graph');
+            //var data = {
+            //    nodes: nodes,
+            //    edges: edges
+            //};
+            //var options = {
+            //    nodes: {
+            //        shape: 'ellipse',
+            //        size: 16,
+            //        font: {
+            //            size: 14
+            //        }
+            //    },
+            //    edges: {
+            //        width: 2,
+            //        arrows: {
+            //            to :{ enabled: true, scaleFactor: 1 }
+            //        }
+            //    },
+            //    interaction: {
+            //        hover: true,
+            //        dragNodes: false,
+            //        dragView: false
+            //    } // 노드에 마우스를 올리는 기능 활성화
+            //};
+            //var network = new vis.Network(container, data, options);
+
+            jQuery('#detailModal').on('shown.bs.modal', function () {
+                var nodes = new vis.DataSet(secondData.nodes);
+                var edges = new vis.DataSet(secondData.edges);
+                var container = document.getElementById('network_graph');
+                var data = {
+                    nodes: nodes,
+                    edges: edges
+                };
+                var options = {
+                    nodes: {
+                        shape: 'ellipse',
+                        size: 10,
+                        font: {
+                            size: 14
+                        }
+                    },
+                    edges: {
+                        width: 2,
+                        arrows: {
+                            to: { enabled: true, scaleFactor: 1 }
+                        }
+                    },
+                    interaction: {
+                        hover: true,
+                        dragNodes: true,
+                        dragView: true
+                    },
+                    physics: {
+                        enabled: true,
+                        solver: 'forceAtlas2Based',
+                        forceAtlas2Based: {
+                            gravitationalConstant: -50, // 중력 상수 조절
+                            centralGravity: 0.005,
+                            springLength: 250, // 스프링 길이 조절
+                            springConstant: 0.08
+                        },
+                        maxVelocity: 50,
+                        minVelocity: 0.1,
+                        timestep: 0.5,
+                        stabilization: {
+                            iterations: 150
+                        }
                     }
-                },
-                edges: {
-                    width: 2,
-                    arrows: {
-                        to :{ enabled: true, scaleFactor: 1 }
-                    }
-                },
-                interaction: {
-                    hover: true,
-                    dragNodes: false,
-                    dragView: false
-                } // 노드에 마우스를 올리는 기능 활성화
-            };
-            var network = new vis.Network(container, data, options);
+                };
+                var network = new vis.Network(container, data, options);
+            });
 
             // 모달 표시
             jQuery('#detailModal').modal('show');
+            
         })
         .catch(error => {
             console.error('데이터 요청 실패:', error);
@@ -439,6 +487,14 @@
     padding: 20px;
     border-radius: 8px;
 }
+
+
+#network_graph {
+    width: 100%;  /* 너비를 100%로 설정 */
+    height: 500px;  /* 높이를 500px로 설정 */
+    border: 1px solid lightgray;  /* 테두리 추가 (선택 사항) */
+}
+
 
 /* 타임라인 이벤트 스타일 유지 */
 .timeline-event-create {
