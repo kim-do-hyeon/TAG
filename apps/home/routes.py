@@ -11,7 +11,7 @@ from apps.case.case_normalization_routes import *
 from apps.analyze.analyze_routes import *
 from apps.dashboard.dashboard_routes import *
 from apps.analyze.analyze_filtering import *
-from apps.api.find_by_logfile import *
+from apps.api.api_connection import *
 
 progress = {}
 UPLOAD_FOLDER = 'uploads'  # You can adjust this path as per your project structure
@@ -120,6 +120,11 @@ def case_analyze_final_connection_result(id) :
 def find_from_logfile() :
     data = request.get_json()
     return redirect_logfile(data)
+
+@blueprint.route('/file_connection', methods=['POST'])
+def file_connection() :
+    data = request.get_json()
+    return file_connect_node(data)
 
 
 @blueprint.route('/<template>')
