@@ -15,8 +15,8 @@ def case_upload() :
     analyst = request.form.get('analyst')
     case_number = request.form.get('caseNumber')
     description = request.form.get('description')
+    case_type = request.form.get('caseType')
     file = request.files.get('caseFile')
-
     # Check if file is present and allowed
     if file and allowed_file(file.filename):
         # Get the current user from the session
@@ -45,6 +45,7 @@ def case_upload() :
             case_number=case_number,
             description=description,
             file=file_path,
+            case_type = case_type,
             normalization = None
         )
         db.session.add(new_case)
