@@ -177,25 +177,29 @@ def redirect_analyze_case_final(data) :
                 'data' : timelist_df.to_dict(orient='records')
             }
             analyzed_file_list.append(usb_file_row)
+
     printer_json = PrinterData_final.query.filter(case_id == case_id).first().printer_data
-    for printer_time in printer_json :
-        printer_df = pd.DataFrame(printer_time['filtered_df'])
-        for filename in printer_time['Accessed_File_List'] :
-            timelist_df = printer_df[printer_df['main_data'].str.contains(filename)]
-            printer_file_row = {
-                'type' : 'Printer',
-                'filename' : filename,
-                'data' : printer_df.to_dict(orient='records')
-            }
-            analyzed_file_list.append(printer_file_row)    
-    
+    for printer_time in printer_json:
+        # printer_time['df']가 리스트이므로 첫 번째 항목의 'data' 사용
+        if printer_time['df'] and isinstance(printer_time['df'], list):
+            printer_df = pd.DataFrame(printer_time['df'][0]['data'])
+            for filename in printer_time['Accessed_File_List']:
+                if filename:  # filename이 None이 아닌 경우에만 처리
+                    timelist_df = printer_df[printer_df['main_data'].str.contains(filename, na=False)]
+                    printer_file_row = {
+                        'type': 'Printer',
+                        'filename': filename,
+                        'data': timelist_df.to_dict(orient='records')
+                    }
+                    analyzed_file_list.append(printer_file_row)
+
     analyzed_file_db = Analyzed_file_list(case_id = case_id, data = analyzed_file_list)
     db.session.add(analyzed_file_db)
     db.session.commit()
     
     # Print Debug
-    # for i in printer_results :
-        # print(i['Print_Event_Date'], i['Accessed_File_List'], i['df'])
+    for i in printer_results :
+        print(i['Print_Event_Date'], i['Accessed_File_List'], i['df'])
 
     return jsonify({'success': True})
 
@@ -293,7 +297,7 @@ def redirect_analyze_case_final_result(id):
         # 시간순 정렬
         event_data.sort(key=lambda x: x['datetime'])
         usb_timeline_data.append(event_data)
-    print(usb_timeline_data)
+    # print(usb_timeline_data)
     return render_template('analyze/final_result.html',
                          usb_results=usb_results,
                          printer_results=printer_results,
