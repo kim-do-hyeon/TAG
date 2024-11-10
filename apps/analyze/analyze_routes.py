@@ -163,8 +163,8 @@ def redirect_analyze_case_final(data) :
     db.session.commit()
 
 
-    analyzed_file_list = []
     ''' USB Filelist process '''
+    analyzed_file_list = []
     usb_json = UsbData_final.query.filter(case_id==case_id).first().usb_data
     for group_usb_time in usb_json :
         usb_df = pd.DataFrame(group_usb_time['filtered_df'])
@@ -177,7 +177,18 @@ def redirect_analyze_case_final(data) :
                 'data' : timelist_df.to_dict(orient='records')
             }
             analyzed_file_list.append(usb_file_row)
-            
+    printer_json = PrinterData_final.query.filter(case_id == case_id).first().printer_data
+    for printer_time in printer_json :
+        printer_df = pd.DataFrame(printer_time['filtered_df'])
+        for filename in printer_time['Accessed_File_List'] :
+            timelist_df = printer_df[printer_df['main_data'].str.contains(filename)]
+            printer_file_row = {
+                'type' : 'Printer',
+                'filename' : filename,
+                'data' : printer_df.to_dict(orient='records')
+            }
+            analyzed_file_list.append(printer_file_row)    
+    
     analyzed_file_db = Analyzed_file_list(case_id = case_id, data = analyzed_file_list)
     db.session.add(analyzed_file_db)
     db.session.commit()

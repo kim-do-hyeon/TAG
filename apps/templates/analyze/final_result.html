@@ -41,7 +41,35 @@
                             <th>세부사항 및 커넥션</th>
                             <th>타임라인</th>
                         </tr>
-                        {% for i in usb_results %}
+                        {% for i in analyzed_file_list %}
+                            <tr>
+                                <td>
+                                    {{loop.index}}
+                                </td>
+                                <td>
+                                    <p>기술 유출</p>
+                                </td>
+                                <td>
+                                    <p>{{i['type']}}</p>
+                                </td>
+                                <td>
+                                </td>
+                                <td class="description-cell">
+                                    {{i['filename']}}
+                                </td>
+                                <td>
+                                    <button class="btn btn-primary btn-connection" row-index="{{loop.index}}" onclick="showDetail({{loop.index-1}})">
+                                        보기
+                                    </button>
+                                </td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm" onclick="showTimeline({{loop.index}}, 'usb')">
+                                        타임라인 보기
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        <!-- {% for i in usb_results %}
                             <tr>
                                 <td>
                                     {{loop.index}}
@@ -151,7 +179,7 @@
                                     </button>
                                 </td>
                             </tr>
-                        {% endfor %}
+                        {% endfor %} -->
                     </table>
                 </div>
                 
@@ -178,6 +206,23 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="DetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="DetailModalLabel">타임라인 정보</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="overflow-y: auto;">
+                <div id="modalDetail"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <!-- jQuery와 Bootstrap JS 추가 (head 또는 body 끝부분에) -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -214,6 +259,19 @@
         const color = generateRandomColor();
         eventColors[eventType] = color;
         return color;
+    }
+
+    // 노드 및 세부사항 표시 함수
+    window.showDetail = function(index) {
+        console.log(index);
+
+        var content = "{{ analyzed_file_list[index] | safe  }}";
+
+        // 모달 내용 설정
+        document.getElementById('modalDetail').innerHTML = content;
+
+        // 모달 표시
+        jQuery('#detailModal').modal('show');
     }
 
     // Timeline 표시 함수
@@ -275,6 +333,12 @@
         // Modal close event
         jQuery('#timelineModal').on('hidden.bs.modal', function () {
             document.getElementById('modalTimeline').innerHTML = '';
+        });
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+        // Modal close event
+        jQuery('#detailModal').on('hidden.bs.modal', function () {
+            document.getElementById('modalDetail').innerHTML = '';
         });
     });
 </script>
