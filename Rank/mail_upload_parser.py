@@ -240,7 +240,7 @@ for table in cache_tables:
                     url_cache_data.append(entry)
                 except ValueError as e:
                     print(f"시간 변환 오류 발생 (테이블: {table}, 컬럼: {time_column}): {e}")
-                    
+
 # URL 캐시 데이터를 타임스탬프 기준으로 정렬
 url_cache_data_sorted = sorted(url_cache_data, key=lambda x: x["Timestamp"])
 def extract_tag_prefix(tag_value):
@@ -282,11 +282,14 @@ for group in all_groups_sorted:
             tag_value = closest_tag_data["Data"].get("_TAG_", "No _TAG_ found")
             tag_prefix = extract_tag_prefix(tag_value)
             tag_prefix_lower = tag_prefix.lower()
+            table_name_value = closest_tag_data["Data"].get("artifact_name", "No artifact_name found")
             
             # closest_cache_data의 URL에서 tag_prefix 포함 여부 확인
             url_check = closest_cache_data.get("URL", "").lower()
-            if tag_prefix_lower in url_check or (tag_prefix_lower == "outlook" and "owa" in url_check):
+            if tag_prefix_lower in url_check or (tag_prefix_lower == "outlook" and "owa" and "live.com" in url_check):
                 pass  # 포함되어 있으면 점수를 유지
+            elif "Firefox" in table_name_value:
+                pass  # Firefox의 경우 예외로 점수를 유지
             else:
                 group["Group_Score"] = 0  # 포함되지 않으면 점수를 0점으로 설정
 
