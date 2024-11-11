@@ -282,7 +282,7 @@ for group in all_groups_sorted:
             tag_value = closest_tag_data["Data"].get("_TAG_", "No _TAG_ found")
             tag_prefix = extract_tag_prefix(tag_value)
             tag_prefix_lower = tag_prefix.lower()
-            table_name_value = closest_tag_data["Data"].get("artifact_name", "No artifact_name found")
+            table_name_value = closest_tag_data["Data"].get("artifact_name", "No artifact_name found")          
             
             # closest_cache_data의 URL에서 tag_prefix 포함 여부 확인
             url_check = closest_cache_data.get("URL", "").lower()
@@ -293,6 +293,25 @@ for group in all_groups_sorted:
             else:
                 group["Group_Score"] = 0  # 포함되지 않으면 점수를 0점으로 설정
 
+        service_name = "_".join(tag_value.split("_")[:2]) if "_" in tag_value else tag_value
+        target_table = closest_tag_data["Table"]
+                  
+        related_tagged_data = [
+            data for data in all_tagged_data_sorted 
+            if service_name in data["Data"].get("_TAG_", "") and data["Table"] == target_table
+        ]        
+                
+        related_tagged_data_sorted = sorted(related_tagged_data, key=lambda x: x["Timestamp"])
+        min_timestamp = related_tagged_data_sorted[0]["Timestamp"] if related_tagged_data_sorted else None
+        max_timestamp = related_tagged_data_sorted[-1]["Timestamp"] if related_tagged_data_sorted else None
+
+        df_data = {
+            "timestamp": [entry["Timestamp"] for entry in related_tagged_data_sorted],
+            "type": [entry["Data"].get("_TAG_", "") for entry in related_tagged_data_sorted],
+            "main_data": [entry["Data"].get("URL", "None") for entry in related_tagged_data_sorted]
+        }
+        df = pd.DataFrame(df_data)        
+
         # 최종 결과에 저장
         result_with_tag_data.append({
             "File_Name": group["File_Name"],
@@ -302,6 +321,13 @@ for group in all_groups_sorted:
             "Closest_Tag_Data": closest_tag_data,
             "Closest_Cache_Data": closest_cache_data  # 가장 가까운 캐시 데이터도 결과에 포함
         })
+
+        print(f"Event Date : {first_timestamp}")
+        print(f"Accessed File : [{group['File_Name']}]")
+        print("=" * 50)
+        print(f"File {group['File_Name']} Behavior")
+        print(f"Event : {min_timestamp} ~ {max_timestamp}")
+        print(df.to_string(index=False),"\n")        
     else:
         # closest_tag_data가 없는 경우
         result_with_tag_data.append({
@@ -320,9 +346,3 @@ with open(output_file, "w", encoding="utf-8") as f:
 
 print(f"최종 그룹 데이터가 {output_file} 파일에 저장되었습니다.")
 
-        # print(f"Event Date : {first_timestamp}")
-        # print(f"Accessed File : [{group['File_Name']}]")
-        # print("=" * 50)
-        # print(f"File {group['File_Name']} Behavior")
-        # print(f"Event : {min_timestamp} ~ {max_timestamp}")
-        # print(df.to_string(index=False),"\n")
