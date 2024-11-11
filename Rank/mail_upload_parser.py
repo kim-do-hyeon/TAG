@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 import json
 import pandas as pd
 import re
+from operator import itemgetter
 
 # Step 1: 점수 기준 파일 로드 (criteria.json)
 with open("criteria.json", "r", encoding="utf-8") as f:
@@ -208,67 +209,117 @@ for table, time_columns in tables_with_tags.items():
                 except ValueError as e:
                     print(f"시간 변환 오류 발생 (테이블: {table}, 컬럼: {time_column}): {e}")
 
+url_cache_data = []
+cache_tables = ["Chrome_Cache_Records", "Edge_Chromium_Cache_Records", "Firefox_Cache_Records"]
+
+for table in cache_tables:
+    query = f"""
+    SELECT *, "URL"
+    FROM "{table}"
+    WHERE "URL" IS NOT NULL
+    """
+    cursor.execute(query)
+    column_names = [description[0] for description in cursor.description]
+    rows = cursor.fetchall()
+
+    for row in rows:
+        base_data = {col: val for col, val in zip(column_names, row)}
+        # "Last_Synced_Date/Time_-_UTC_(yyyy-mm-dd)"를 제외한 나머지 시간값만 처리
+        valid_time_columns = [col for col in tables_with_tags[table] if col != "Last_Synced_Date/Time_-_UTC_(yyyy-mm-dd)"]
+        
+        for time_column in valid_time_columns:
+            if time_column in base_data and base_data[time_column] is not None:
+                try:
+                    timestamp = datetime.strptime(base_data[time_column], "%Y-%m-%d %H:%M:%S.%f")
+                    entry = {
+                        "Table": table,
+                        "Timestamp": timestamp,
+                        "URL": base_data["URL"],
+                        "Time_Column": time_column,
+                    }
+                    url_cache_data.append(entry)
+                except ValueError as e:
+                    print(f"시간 변환 오류 발생 (테이블: {table}, 컬럼: {time_column}): {e}")
+                    
+# URL 캐시 데이터를 타임스탬프 기준으로 정렬
+url_cache_data_sorted = sorted(url_cache_data, key=lambda x: x["Timestamp"])
+def extract_tag_prefix(tag_value):
+    return tag_value.split("_")[0] if "_" in tag_value else tag_value
+
 all_tagged_data_sorted = sorted(all_tagged_data, key=lambda x: x["Timestamp"])
 
+# 테이블 이름에서 첫 번째 언더바 이전의 문자열을 추출하는 함수
+def extract_prefix_from_table(table_name):
+    return table_name.split("_")[0] if "_" in table_name else table_name
+
+# Step: 각 그룹의 First_Timestamp 기준으로 가장 가까운 이전 태그 데이터 및 캐시 데이터 찾기 및 관련된 데이터 추가
 result_with_tag_data = []
 for group in all_groups_sorted:
     first_timestamp = group["First_Timestamp"]
+    
+    # 1. 가장 가까운 이전의 closest_tag_data 찾기
     closest_tag_data = None
-
     for tag_data in reversed(all_tagged_data_sorted):
         if tag_data["Timestamp"] <= first_timestamp:
             closest_tag_data = tag_data
             break
 
+    # closest_tag_data의 테이블 이름에서 접두어 추출
     if closest_tag_data:
-        tag_value = closest_tag_data["Data"].get("_TAG_", "No _TAG_ found")
-        service_name = "_".join(tag_value.split("_")[:2]) if "_" in tag_value else tag_value
-        target_table = closest_tag_data["Table"]
+        tag_table_prefix = extract_prefix_from_table(closest_tag_data["Table"])
 
-        related_tagged_data = [
-            data for data in all_tagged_data_sorted 
-            if service_name in data["Data"].get("_TAG_", "") and data["Table"] == target_table
-        ]
-        
-        related_tagged_data_sorted = sorted(related_tagged_data, key=lambda x: x["Timestamp"])
-        min_timestamp = related_tagged_data_sorted[0]["Timestamp"] if related_tagged_data_sorted else None
-        max_timestamp = related_tagged_data_sorted[-1]["Timestamp"] if related_tagged_data_sorted else None
+        # 2. 가장 가까운 이전의 캐시 데이터 찾기 (테이블 접두어가 같은 경우만 선택)
+        closest_cache_data = None
+        for cache_data in reversed(url_cache_data_sorted):
+            cache_table_prefix = extract_prefix_from_table(cache_data["Table"])
+            if cache_data["Timestamp"] <= first_timestamp and cache_table_prefix == tag_table_prefix:
+                closest_cache_data = cache_data
+                break
 
-        df_data = {
-            "timestamp": [entry["Timestamp"] for entry in related_tagged_data_sorted],
-            "type": [entry["Data"].get("_TAG_", "") for entry in related_tagged_data_sorted],
-            "main_data": [entry["Data"].get("URL", "None") for entry in related_tagged_data_sorted]
-        }
-        df = pd.DataFrame(df_data)
+        # 3. 조건 확인 및 Group_Score 설정
+        if closest_cache_data:
+            # closest_tag_data의 _TAG_에서 서비스 이름 추출
+            tag_value = closest_tag_data["Data"].get("_TAG_", "No _TAG_ found")
+            tag_prefix = extract_tag_prefix(tag_value)
+            tag_prefix_lower = tag_prefix.lower()
+            
+            # closest_cache_data의 URL에서 tag_prefix 포함 여부 확인
+            url_check = closest_cache_data.get("URL", "").lower()
+            if tag_prefix_lower in url_check or (tag_prefix_lower == "outlook" and "owa" in url_check):
+                pass  # 포함되어 있으면 점수를 유지
+            else:
+                group["Group_Score"] = 0  # 포함되지 않으면 점수를 0점으로 설정
 
+        # 최종 결과에 저장
         result_with_tag_data.append({
             "File_Name": group["File_Name"],
             "Group_Score": group["Group_Score"],
             "First_Timestamp": first_timestamp,
             "Group_Data": group["Group_Data"],
             "Closest_Tag_Data": closest_tag_data,
-            "Related_Tag_Data": related_tagged_data_sorted  
+            "Closest_Cache_Data": closest_cache_data  # 가장 가까운 캐시 데이터도 결과에 포함
         })
-
-        print(f"Event Date : {first_timestamp}")
-        print(f"Accessed File : [{group['File_Name']}]")
-        print("=" * 50)
-        print(f"File {group['File_Name']} Behavior")
-        print(f"Event : {min_timestamp} ~ {max_timestamp}")
-        print(df.to_string(index=False),"\n")
     else:
+        # closest_tag_data가 없는 경우
         result_with_tag_data.append({
             "File_Name": group["File_Name"],
             "Group_Score": group["Group_Score"],
             "First_Timestamp": first_timestamp,
             "Group_Data": group["Group_Data"],
             "Closest_Tag_Data": None,
-            "Related_Tag_Data": []
+            "Closest_Cache_Data": None
         })
 
+# JSON 파일로 결과 저장
 output_file = "grouped_data_with_related_tag_data.json"
 with open(output_file, "w", encoding="utf-8") as f:
     json.dump(result_with_tag_data, f, indent=4, ensure_ascii=False, default=str)
 
 print(f"최종 그룹 데이터가 {output_file} 파일에 저장되었습니다.")
 
+        # print(f"Event Date : {first_timestamp}")
+        # print(f"Accessed File : [{group['File_Name']}]")
+        # print("=" * 50)
+        # print(f"File {group['File_Name']} Behavior")
+        # print(f"Event : {min_timestamp} ~ {max_timestamp}")
+        # print(df.to_string(index=False),"\n")
