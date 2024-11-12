@@ -13,7 +13,7 @@ criteria_files = {
 }
 
 # DB 연결
-conn = sqlite3.connect(r"C:\Users\addy0\OneDrive\바탕 화면\DB 모음\2024-10-29 - 복사본.db")
+conn = sqlite3.connect(r"C:\Users\addy0\OneDrive\바탕 화면\DB 모음\2024-10-27 - 복사본.db")
 cursor = conn.cursor()
 
 # 검색할 테이블과 컬럼 설정
