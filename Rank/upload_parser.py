@@ -361,6 +361,7 @@ for criteria_file, (output_file, custom_output_file) in criteria_files.items():
             custom_output_entry = {
                 "timerange": f"{min_timestamp} ~ {max_timestamp}",
                 "filename": group["File_Name"],
+                "browser": "_".join(closest_tag_data["Table"].split("_")[:1]),
                 "description": list(df["type"]),
                 "priority": group["Group_Score"],
                 "connection": [
