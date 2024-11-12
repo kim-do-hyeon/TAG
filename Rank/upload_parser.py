@@ -7,9 +7,9 @@ from operator import itemgetter
 
 # 기준 파일과 출력 파일 이름 설정
 criteria_files = {
-    "criteria_mail.json": "mail_grouped_data_with_related_tag_data.json",
-    "criteria_drive.json": "drive_grouped_data_with_related_tag_data.json",
-    "criteria_blog.json": "blog_grouped_data_with_related_tag_data.json"
+    "criteria_mail.json": ("mail_grouped_data_with_related_tag_data.json", "output_mail.json"),
+    "criteria_drive.json": ("drive_grouped_data_with_related_tag_data.json", "output_drive.json"),
+    "criteria_blog.json": ("blog_grouped_data_with_related_tag_data.json", "output_blog.json")
 }
 
 # DB 연결
@@ -31,7 +31,7 @@ file_extensions = (".pdf", ".pptx", ".zip", ".hwp")
 file_name_pattern = re.compile(r'[^\\/]+\.(pdf|pptx|zip|hwp)$', re.IGNORECASE)
 
 # 기준 파일별로 전체 코드를 반복 실행
-for criteria_file, output_file in criteria_files.items():
+for criteria_file, (output_file, custom_output_file) in criteria_files.items():
     # Step 1: 점수 기준 파일 로드
     with open(criteria_file, "r", encoding="utf-8") as f:
         scoring_criteria = json.load(f)
@@ -159,27 +159,27 @@ for criteria_file, output_file in criteria_files.items():
                 if table in scoring_criteria and "presence_score" in scoring_criteria[table]:
                     group_score += scoring_criteria[table]["presence_score"]
                     table_criteria = scoring_criteria[table]
-                    if "conditions" in table_criteria:
-                        for condition in table_criteria["conditions"]:
-                            all_conditions_met = True
-                            for key, match_value in zip(condition["keys"], condition["match_values"]):
-                                if key not in data:
-                                    all_conditions_met = False
-                                    break
-                                # UsnJrnl 테이블에서 File_Name에 ".lnk"가 포함되어 있으면 조건 만족
-                                if table == "UsnJrnl" and key == "File_Name" and ".lnk" not in data[key]:
-                                    all_conditions_met = False
-                                    break
-                                # UsnJrnl 이외의 테이블에서는 기존 조건을 그대로 적용
-                                elif key == "File_Name" and table != "UsnJrnl" and data[key] != match_value:
-                                    all_conditions_met = False
-                                    break
-                                elif key != "File_Name" and data[key] != match_value:
-                                    all_conditions_met = False
-                                    break
-                            # 모든 조건이 만족된 경우에만 score 추가
-                            if all_conditions_met:
-                                group_score += condition["score"]                    
+                if "conditions" in table_criteria:
+                    for condition in table_criteria["conditions"]:
+                        all_conditions_met = True
+                        for key, match_value in zip(condition["keys"], condition["match_values"]):
+                            if key not in data:
+                                all_conditions_met = False
+                                break
+                            # UsnJrnl 테이블에서 File_Name에 ".lnk"가 포함되어 있으면 조건 만족
+                            if table == "UsnJrnl" and key == "File_Name" and ".lnk" not in data[key]:
+                                all_conditions_met = False
+                                break
+                            # UsnJrnl 이외의 테이블에서는 기존 조건을 그대로 적용
+                            elif key == "File_Name" and table != "UsnJrnl" and data[key] != match_value:
+                                all_conditions_met = False
+                                break
+                            elif key != "File_Name" and data[key] != match_value:
+                                all_conditions_met = False
+                                break
+                        # 모든 조건이 만족된 경우에만 score 추가
+                        if all_conditions_met:
+                            group_score += condition["score"]                    
 
                 # 기존 조건 처리
                 table_criteria = scoring_criteria[table]
@@ -288,6 +288,7 @@ for criteria_file, output_file in criteria_files.items():
 
     # Step: 각 그룹의 First_Timestamp 기준으로 가장 가까운 이전 태그 데이터 및 캐시 데이터 찾기 및 관련된 데이터 추가
     result_with_tag_data = []
+    custom_output_data = []
     for group in all_groups_sorted:
         first_timestamp = group["First_Timestamp"]
         
@@ -356,6 +357,30 @@ for criteria_file, output_file in criteria_files.items():
                 "Closest_Cache_Data": closest_cache_data  # 가장 가까운 캐시 데이터도 결과에 포함
             })
 
+            # 추가 JSON 파일에 포함할 데이터 구성
+            custom_output_entry = {
+                "timerange": f"{min_timestamp} ~ {max_timestamp}",
+                "filename": group["File_Name"],
+                "description": list(df["type"]),
+                "priority": group["Group_Score"],
+                "connection": [
+                    {
+                        "timestamp": timestamp,
+                        "type": type_,
+                        "main_data": main_data,
+                        "hit_id": entry["Data"].get("hit_id")  # Group_Data의 각 entry에서 hit_id 추출
+                    }
+                    for timestamp, type_, main_data, entry in zip(
+                        df["timestamp"],
+                        df["type"],
+                        df["main_data"],
+                        group["Group_Data"]  # Group_Data 리스트에서 각 entry에 접근
+                    )
+                ],
+                "timeline": f"{min_timestamp} ~ {max_timestamp}"
+            }
+            custom_output_data.append(custom_output_entry)
+
             print(f"Event Date : {first_timestamp}")
             print(f"Accessed File : [{group['File_Name']}]")
             print("=" * 50)
@@ -376,5 +401,10 @@ for criteria_file, output_file in criteria_files.items():
     # JSON 파일로 결과 저장
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump(result_with_tag_data, f, indent=4, ensure_ascii=False, default=str)
+    
+    # 새로 정의된 조건의 JSON 파일 생성
+    with open(custom_output_file, "w", encoding="utf-8") as f:
+        json.dump(custom_output_data, f, indent=4, ensure_ascii=False, default=str)
 
     print(f"최종 그룹 데이터가 {output_file} 파일에 저장되었습니다.")
+    print(f"추가 데이터가 {custom_output_file} 파일에 저장되었습니다.")
