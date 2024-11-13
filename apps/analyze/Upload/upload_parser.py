@@ -33,6 +33,9 @@ def mail_behavior(db_path) :
 
     # 기준 파일별로 전체 코드를 반복 실행
     for criteria_file, (output_file, custom_output_file) in criteria_files.items():
+        # 기준 파일에서 문자열(예: "mail", "drive", "blog") 추출
+        criteria_type = os.path.basename(criteria_file).split("_")[1].split(".")[0]
+
         # Step 1: 점수 기준 파일 로드
         with open(criteria_file, "r", encoding="utf-8") as f:
             scoring_criteria = json.load(f)
@@ -303,6 +306,9 @@ def mail_behavior(db_path) :
             # closest_tag_data의 테이블 이름에서 접두어 추출
             if closest_tag_data:
                 tag_table_prefix = extract_prefix_from_table(closest_tag_data["Table"])
+                tag_value = closest_tag_data["Data"].get("_TAG_", "").lower()
+                if criteria_type not in tag_value:
+                    group["Group_Score"] = 0                    
 
                 # 2. 가장 가까운 이전의 캐시 데이터 찾기 (테이블 접두어가 같은 경우만 선택)
                 closest_cache_data = None
