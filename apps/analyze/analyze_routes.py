@@ -121,16 +121,9 @@ def redirect_analyze_case_final(data) :
     ''' Tagging Process '''
     TAG_Process = all_tag_process(data)
 
-    ''' Mail Behavior Process '''
+    ''' Upload Behavior Process '''
     if TAG_Process:
-        mail_results = mail_behavior(db_path)
-        
-        # Convert all datetime objects to strings recursively
-        mail_results = convert_datetime_to_string(mail_results)
-
-        mail_data_db = Mail_final(case_id=case_id, mail_data=mail_results)
-        db.session.add(mail_data_db)
-        db.session.commit()
+        Upload_results = mail_behavior(db_path)
 
     ''' USB Behavior Process'''
     time_db_path = os.path.join(case_folder, "time_normalization.db")
@@ -207,7 +200,12 @@ def redirect_analyze_case_final_result(id):
     usb_results = UsbData_final.query.filter_by(case_id=id).first().usb_data
     printer_results = PrinterData_final.query.filter_by(case_id=id).first().printer_data
     analyzed_file_list = Analyzed_file_list.query.filter_by(case_id=id).first().data
-    mail_results = Mail_final.query.filter_by(case_id=id).first().mail_data
+    case_number = Upload_Case.query.filter_by(id = id).first().case_number
+    mail_output = (os.path.join(os.getcwd(), "uploads", session['username'], case_number, "output_mail.json"))
+    with open(mail_output, 'r', encoding='utf-8') as file:
+        mail_results = json.load(file)
+    print(mail_results)
+
 
     
     printer_timeline_data = []
@@ -238,29 +236,6 @@ def redirect_analyze_case_final_result(id):
         # Sort activities by datetime
         event_data.sort(key=lambda x: x['datetime'])
         printer_timeline_data.append(event_data)
-        
-
-    # Add mail timeline data processing
-    mail_timeline_data = []
-    has_mail_timeline = False
-    
-    if mail_results:
-        has_mail_timeline = True
-        for file_group in mail_results:
-            event_data = []
-            
-            # Add each activity from Group_Data
-            for activity in file_group['Group_Data']:
-                event_data.append({
-                    'datetime': activity['Timestamp'],
-                    'name': f"Mail Activity - {activity['Table']}",
-                    'type': activity['Table'],
-                    'Content': f"File: {file_group['File_Name']}, Action: {activity['Table']}"
-                })
-            
-            # Sort activities by datetime
-            event_data.sort(key=lambda x: x['datetime'])
-            mail_timeline_data.append(event_data)
 
     # USB 타임라인 데이터 처리 추가
     usb_timeline_data = []
@@ -297,7 +272,28 @@ def redirect_analyze_case_final_result(id):
         # 시간순 정렬
         event_data.sort(key=lambda x: x['datetime'])
         usb_timeline_data.append(event_data)
-    # print(usb_timeline_data)
+
+    # 메일 타임라인 데이터 처리 추가
+    mail_timeline_data = []
+    has_mail_timeline = False
+    
+    for mail_event in mail_results:
+        has_mail_timeline = True
+        event_data = []
+        
+        # 각 메일 이벤트의 connection 데이터를 타임라인에 추가
+        for activity in mail_event['connection']:
+            event_data.append({
+                'datetime': activity['timestamp'],
+                'name': f"Mail Activity - {activity['type']}",
+                'type': 'mail',
+                'Content': f"File: {mail_event['filename']}, Action: {activity['type']}, URL: {activity['main_data']}"
+            })
+        
+        # 시간순 정렬
+        event_data.sort(key=lambda x: x['datetime'])
+        mail_timeline_data.append(event_data)
+
     return render_template('analyze/final_result.html',
                          usb_results=usb_results,
                          printer_results=printer_results,

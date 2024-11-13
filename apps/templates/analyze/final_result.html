@@ -164,17 +164,17 @@
                                     <p>Mail</p>
                                 </td>
                                 <td>
-                                    {{i['First_Timestamp']}}
+                                    {{i['timerange']}}
                                 </td>
                                 <td class="description-cell">
-                                    {% if i.File_Name is string %}
-                                        {{ i.File_Name }}
+                                    {% if i.filename is string %}
+                                        {{ i.filename }}
                                         <button class="btn btn-primary btn-connection" row-index="{{loop.index}}" onclick="showDetail('{{i.File_Name}}')">
                                             보기
                                         </button>
                                     {% else %}
                                         <ul class="file-list">
-                                        {% for file in i.File_Name %}
+                                        {% for file in i.filename %}
                                             <li>{{ file }}
                                                 <button class="btn btn-primary btn-connection" row-index="{{loop.index}}" onclick="showDetail('{{file}}')">
                                                     보기
@@ -578,96 +578,4 @@
 {% endblock content %}
 
 {% block javascripts %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
-<script>
-    // 전역 변수 및 유틸리티 함수 정의
-    const koLocale = {
-        current: '현재',
-        time: '시간',
-        deleteSelected: '선택 항목 삭제',
-        editable: {
-            add: '추가',
-            remove: '삭제',
-            updateTime: '시간 수정'
-        }
-    };
-
-    const eventColors = {};  // 한 번만 선언
-
-    function generateRandomColor() {
-        const hue = Math.floor(Math.random() * 360);
-        return `hsl(${hue}, 70%, 50%)`;
-    }
-
-    function getColorForEventType(eventType) {
-        if (eventColors[eventType]) {
-            return eventColors[eventType];
-        }
-        const color = generateRandomColor();
-        eventColors[eventType] = color;
-        return color;
-    }
-
-    // Timeline 표시 함수
-    window.showTimeline = function(index, type) {  // window 객체에 함수 추가
-        if (type === 'usb') {
-            var timelineData = {{ usb_timeline_data | tojson | safe }};
-        } else if (type === 'printer') {
-            var timelineData = {{ printer_timeline_data | tojson | safe }};
-        } else if (type === 'mail') {
-            var timelineData = {{ mail_timeline_data | tojson | safe }};
-        }
-
-        // jQuery를 사용한 모달 표시
-        jQuery('#timelineModal').modal('show');
-
-        setTimeout(() => {
-            var container = document.getElementById('modalTimeline');
-            
-            if (!timelineData[index - 1]) {
-                console.error('No timeline data found for index:', index);
-                return;
-            }
-
-            var items = new vis.DataSet(timelineData[index - 1].map(item => {
-                const eventType = item.type;
-                const color = getColorForEventType(eventType);
-                return {
-                    id: item.id || Math.random(),  // id가 없는 경우 랜덤 값 사용
-                    content: `<div class="timeline-content">
-                        <div class="event-name">${item.name}</div>
-                        <div class="event-description">${item.Content}</div>
-                    </div>`,
-                    start: item.datetime,
-                    type: 'point',
-                    style: `background-color: ${color}; border-color: ${color};`
-                };
-            }));
-
-            var options = {
-                height: '900px',
-                locale: 'ko',
-                locales: {
-                    ko: koLocale
-                },
-                orientation: 'top',
-                zoomable: true,
-                tooltip: {
-                    followMouse: true,
-                    overflowMethod: 'cap'
-                }
-            };
-
-            new vis.Timeline(container, items, options);
-        }, 500);
-    };
-
-    // DOM 로드 완료 후 실행될 코드
-    document.addEventListener('DOMContentLoaded', function() {
-        // Modal close event
-        jQuery('#timelineModal').on('hidden.bs.modal', function () {
-            document.getElementById('modalTimeline').innerHTML = '';
-        });
-    });
-</script>
 {% endblock javascripts %}
