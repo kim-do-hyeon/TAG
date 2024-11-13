@@ -48,6 +48,8 @@ def printer_behavior(db_path) :
         # print(f"Print Event Date : {all_data[spl_fixed_date[index]][17]}")
         # print(f"Accessed File List : {value}")
         df_datas = []
+        min_timestamp = None
+        max_timestamp = None  # Initialize timestamps
         if value != [] :
             renamed_value = []
             for i in value :
@@ -71,10 +73,14 @@ def printer_behavior(db_path) :
 
                 df = pd.DataFrame(final_data, columns=["timestamp", "type", "main_data"])
                 df["timestamp"] = pd.to_datetime(df["timestamp"])
-                min_timestamp = df["timestamp"].min()
-                max_timestamp = df["timestamp"].max()
-                print(f"Print Event : {min_timestamp} ~ {max_timestamp}")
-                df = df.sort_values(by="timestamp", ascending=True)
+                current_min = df["timestamp"].min()
+                current_max = df["timestamp"].max()
+                
+                # Update min_timestamp and max_timestamp
+                if min_timestamp is None or current_min < min_timestamp:
+                    min_timestamp = current_min
+                if max_timestamp is None or current_max > max_timestamp:
+                    max_timestamp = current_max
                 
                 # timestamp 열을 문자열로 변환
                 df["timestamp"] = df["timestamp"].apply(lambda x: x.strftime('%Y-%m-%d %H:%M:%S.%f'))
@@ -88,6 +94,13 @@ def printer_behavior(db_path) :
                 df_datas.append(df_dict)
                 
         data['Print_Event_Date'] = all_data[spl_fixed_date[index]][17]
+        # Add checks before using timestamps
+        if min_timestamp and max_timestamp:
+            data['Start'] = min_timestamp.strftime('%Y-%m-%d %H:%M:%S.%f')
+            data['End'] = max_timestamp.strftime('%Y-%m-%d %H:%M:%S.%f')
+        else:
+            data['Start'] = None
+            data['End'] = None
         data['Accessed_File_List'] = value
         data['df'] = df_datas
         results.append(data)
