@@ -11,7 +11,7 @@ from apps.analyze.analyze_util import *
 from apps.analyze.USB.case_normalization_time_group import *
 from apps.analyze.USB.make_usb_analysis_db import usb_behavior
 from apps.analyze.Printer.printer_process import printer_behavior
-from apps.analyze.Upload.mail_upload_parser import mail_behavior
+from apps.analyze.Upload.upload_parser import mail_behavior
 import threading
 
 from flask import current_app

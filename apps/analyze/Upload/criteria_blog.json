@@ -1,0 +1,26 @@
+{
+    "UsnJrnl": {
+        "conditions": [
+            {
+                "keys": ["Reason", "File_Name"],
+                "match_values": ["The file or directory is extended (added to).\r\nThe file or directory is created for the first time.\r\nThe file or directory is closed.", "*.lnk"],
+                "score": 5
+            }
+        ]
+    },
+    "LNK_Files": {
+        "presence_score": 1
+    },
+    "Edge/Internet_Explorer_10_11_Main_History": {
+        "presence_score": 1
+    },
+    "MRU_Recent_Files_&_Folders": {
+        "presence_score": 1
+    },
+    "Jump_Lists": {
+        "presence_score": 1
+    },
+    "Locally_Accessed_Files_and_Folders": {
+        "presence_score": 1
+    }
+}
