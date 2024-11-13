@@ -204,9 +204,14 @@ def redirect_analyze_case_final_result(id):
     mail_output = (os.path.join(os.getcwd(), "uploads", session['username'], case_number, "output_mail.json"))
     with open(mail_output, 'r', encoding='utf-8') as file:
         mail_results = json.load(file)
-    print(mail_results)
+    
+    drive_output = (os.path.join(os.getcwd(), "uploads", session['username'], case_number, "output_drive.json"))
+    with open(drive_output, 'r', encoding='utf-8') as file:
+        drive_results = json.load(file)
 
-
+    blog_output = (os.path.join(os.getcwd(), "uploads", session['username'], case_number, "output_blog.json"))
+    with open(blog_output, 'r', encoding='utf-8') as file:
+        blog_results = json.load(file)
     
     printer_timeline_data = []
     has_valid_timeline = False
@@ -294,6 +299,48 @@ def redirect_analyze_case_final_result(id):
         event_data.sort(key=lambda x: x['datetime'])
         mail_timeline_data.append(event_data)
 
+    # 드라이브 타임라인 데이터 처리 추가
+    drive_timeline_data = []
+    has_drive_timeline = False
+    
+    for drive_event in drive_results:
+        has_drive_timeline = True
+        event_data = []
+        
+        # 각 드라이브 이벤트의 connection 데이터를 타임라인에 추가
+        for activity in drive_event['connection']:
+            event_data.append({
+                'datetime': activity['timestamp'],
+                'name': f"Drive Activity - {activity['type']}",
+                'type': 'drive',
+                'Content': f"File: {drive_event['filename']}, Action: {activity['type']}, URL: {activity['main_data']}"
+            })
+        
+        # 시간순 정렬
+        event_data.sort(key=lambda x: x['datetime'])
+        drive_timeline_data.append(event_data)
+
+    # 블로그 타임라인 데이터 처리 추가
+    blog_timeline_data = []
+    has_blog_timeline = False
+    
+    for blog_event in blog_results:
+        has_blog_timeline = True
+        event_data = []
+        
+        # 각 블로그 이벤트의 connection 데이터를 타임라인에 추가
+        for activity in blog_event['connection']:
+            event_data.append({
+                'datetime': activity['timestamp'],
+                'name': f"Blog Activity - {activity['type']}",
+                'type': 'blog',
+                'Content': f"File: {blog_event['filename']}, Action: {activity['type']}, URL: {activity['main_data']}"
+            })
+        
+        # 시간순 정렬
+        event_data.sort(key=lambda x: x['datetime'])
+        blog_timeline_data.append(event_data)
+
     return render_template('analyze/final_result.html',
                          usb_results=usb_results,
                          printer_results=printer_results,
@@ -303,9 +350,15 @@ def redirect_analyze_case_final_result(id):
                          mail_results=mail_results,
                          mail_timeline_data=mail_timeline_data,
                          has_mail_timeline=has_mail_timeline,
+                         drive_timeline_data=drive_timeline_data,
+                         has_drive_timeline=has_drive_timeline,
+                         blog_timeline_data=blog_timeline_data,
+                         has_blog_timeline=has_blog_timeline,
                          usb_timeline_data=usb_timeline_data,
                          has_usb_timeline=has_usb_timeline,
-                         case_id=id)
+                         case_id=id,
+                         drive_results=drive_results,
+                         blog_results=blog_results)
     
 def redirect_analyze_case_final_connection_result(id, row_index):
     

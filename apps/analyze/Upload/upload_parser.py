@@ -222,30 +222,33 @@ def mail_behavior(db_path) :
         }
 
         for table, time_columns in tables_with_tags.items():
-            query = f"""
-            SELECT *, "_Tag_"
-            FROM "{table}"
-            WHERE "_Tag_" IS NOT NULL
-            """
-            cursor.execute(query)
-            column_names = [description[0] for description in cursor.description]
-            rows = cursor.fetchall()
+            try :
+                query = f"""
+                SELECT *, "_Tag_"
+                FROM "{table}"
+                WHERE "_Tag_" IS NOT NULL
+                """
+                cursor.execute(query)
+                column_names = [description[0] for description in cursor.description]
+                rows = cursor.fetchall()
 
-            for row in rows:
-                base_data = {col: val for col, val in zip(column_names, row)}
-                for time_column in time_columns:
-                    if time_column in base_data and base_data[time_column] is not None:
-                        try:
-                            timestamp = datetime.strptime(base_data[time_column], "%Y-%m-%d %H:%M:%S.%f")
-                            tagged_entry = {
-                                "Table": table,
-                                "Timestamp": timestamp,
-                                "Data": base_data,
-                                "Time_Column": time_column
-                            }
-                            all_tagged_data.append(tagged_entry)
-                        except ValueError as e:
-                            print(f"시간 변환 오류 발생 (테이블: {table}, 컬럼: {time_column}): {e}")
+                for row in rows:
+                    base_data = {col: val for col, val in zip(column_names, row)}
+                    for time_column in time_columns:
+                        if time_column in base_data and base_data[time_column] is not None:
+                            try:
+                                timestamp = datetime.strptime(base_data[time_column], "%Y-%m-%d %H:%M:%S.%f")
+                                tagged_entry = {
+                                    "Table": table,
+                                    "Timestamp": timestamp,
+                                    "Data": base_data,
+                                    "Time_Column": time_column
+                                }
+                                all_tagged_data.append(tagged_entry)
+                            except ValueError as e:
+                                print(f"시간 변환 오류 발생 (테이블: {table}, 컬럼: {time_column}): {e}")
+            except Exception as e:
+                print(f"테이블 조회 오류 발생: {e}")
 
         url_cache_data = []
         cache_tables = ["Chrome_Cache_Records", "Edge_Chromium_Cache_Records", "Firefox_Cache_Records"]

@@ -42,34 +42,6 @@
                             <th>세부사항 및 커넥션</th>
                             <th>타임라인</th>
                         </tr>
-                        <!-- {% for i in analyzed_file_list %}
-                            <tr>
-                                <td>
-                                    {{loop.index}}
-                                </td>
-                                <td>
-                                    <p>기술 유출</p>
-                                </td>
-                                <td>
-                                    <p>{{i['type']}}</p>
-                                </td>
-                                <td>
-                                </td>
-                                <td class="description-cell">
-                                    {{i['filename']}}
-                                </td>
-                                <td>
-                                    <button class="btn btn-primary btn-connection" row-index="{{loop.index}}" onclick="showDetail({{loop.index-1}})">
-                                        보기
-                                    </button>
-                                </td>
-                                <td>
-                                    <button class="btn btn-primary btn-sm" onclick="showTimeline({{loop.index}}, 'usb')">
-                                        타임라인 보기
-                                    </button>
-                                </td>
-                            </tr>
-                        {% endfor %} -->
                         {% for i in usb_results %}
                             <tr>
                                 <td>
@@ -82,7 +54,7 @@
                                     <p>USB</p>
                                 </td>
                                 <td>
-                                    {{i['Start']}}
+                                    {{i['Start']}} ~ {{i['End']}}
                                 </td>
                                 <td class="description-cell">
                                     {% if i.Accessed_File_List is string %}
@@ -90,12 +62,13 @@
                                     {% else %}
                                         <ul class="file-list">
                                         {% for file in i.Accessed_File_List %}
-                                            <li>{{ file }}
-                                                <button class="btn btn-primary btn-connection" row-index="{{loop.index}}" onclick="showDetail('{{file}}')">
-                                                    보기
-                                                </button>
+                                            <li>
+                                                <a href="#" onclick="showDetail('{{file}}'); return false;" style="text-decoration: none; color: inherit;"><font color="blue">{{ file }}</font></a>
                                             </li>
                                         {% endfor %}
+                                            <li>
+                                                <p>USB가 꽂힌 시간대에서 이동 / 복사 / 이름변경 / 삭제 등의 행위가 탐지됨</p>
+                                            </li>
                                         </ul>
                                     {% endif %}
                                 </td>
@@ -123,20 +96,31 @@
                                     <p>Printer</p>
                                 </td>
                                 <td>
+                                    출력일시
+                                    <br>
                                     {{i['Print_Event_Date']}}
+                                    <br>
+                                    {% if i['Start'] is not none %}
+                                        행위 시간대<br>
+                                        {{i['Start']}}<br>~{{i['End']}}
+                                    {% endif %}
                                 </td>
                                 <td class="description-cell">
                                     {% if i.Accessed_File_List is string %}
                                         {{ i.Accessed_File_List }}
                                     {% else %}
                                         <ul class="file-list">
-                                        {% for file in i.Accessed_File_List %}
-                                            <li>{{ file }}
-                                                <button class="btn btn-primary btn-connection" row-index="{{loop.index}}" onclick="showDetail('{{file}}')">
-                                                    보기
-                                                </button>
-                                            </li>
-                                            {% endfor %}
+                                            {% if i.Accessed_File_List | length > 0 %}
+                                                {% for file in i.Accessed_File_List %}
+                                                    <li>
+                                                        <a href="#" onclick="showDetail('{{file}}'); return false;" style="text-decoration: none; color: inherit;"><font color="red">{{ file }}</font>이 출력된 것으로 추정됨</a>
+                                                    </li>
+                                                {% endfor %}
+                                            {% else %}
+                                                <li>
+                                                    <p>출력이 된 흔적이 파악되었지만, 실제 어떤 문서인지 확인할 수 없음</p>
+                                                </li>
+                                            {% endif %}
                                         </ul>
                                     {% endif %}
                                 </td>
@@ -153,48 +137,129 @@
                             </tr>
                         {% endfor %}
                         {% for i in mail_results %}
-                            <tr>
-                                <td>
-                                    {{loop.index}}
-                                </td>
-                                <td>
-                                    <p>기술 유출</p>
-                                </td>
-                                <td>
-                                    <p>Mail</p>
-                                </td>
-                                <td>
-                                    {{i['timerange']}}
-                                </td>
-                                <td class="description-cell">
-                                    {% if i.filename is string %}
-                                        {{ i.filename }}
-                                        <button class="btn btn-primary btn-connection" row-index="{{loop.index}}" onclick="showDetail('{{i.File_Name}}')">
+                            {% if i['priority'] > 0 %}
+                                <tr>
+                                    <td>
+                                        {{loop.index}}
+                                    </td>
+                                    <td>
+                                        <p>기술 유출</p>
+                                    </td>
+                                    <td>
+                                        <p>Mail - {{i['browser']}}</p>
+                                    </td>
+                                    <td>
+                                        {{i['timerange']}}
+                                    </td>
+                                    <td class="description-cell">
+                                        {% if i.filename is string %}
+                                            <font color="blue">{{i['browser']}}</font>를 통해 <font color="red">{{ i.filename }}</font>을 <font color="orange">{{i['description'][0].split("_")[0]}}</font>메일을 사용해서 전송
+                                        {% else %}
+                                            <ul class="file-list">
+                                            {% for file in i.filename %}
+                                                <li>
+                                                    <font color="blue">{{i['browser']}}</font>를 통해 <font color="red">{{ file }}</font>을 <font color="orange">{{i['description'][0].split("_")[0]}}</font>메일을 사용해서 전송
+                                                </li>
+                                            {% endfor %}
+                                            </ul>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-primary btn-connection" row-index="{{loop.index}}">
                                             보기
                                         </button>
-                                    {% else %}
-                                        <ul class="file-list">
-                                        {% for file in i.filename %}
-                                            <li>{{ file }}
-                                                <button class="btn btn-primary btn-connection" row-index="{{loop.index}}" onclick="showDetail('{{file}}')">
-                                                    보기
-                                                </button>
-                                            </li>
-                                        {% endfor %}
-                                        </ul>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <button class="btn btn-primary btn-connection" row-index="{{loop.index}}">
-                                        보기
-                                    </button>
-                                </td>
-                                <td>
-                                    <button class="btn btn-primary btn-sm" onclick="showTimeline({{loop.index}}, 'mail')">
-                                        타임라인 보기
-                                    </button>
-                                </td>
-                            </tr>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" onclick="showTimeline({{loop.index}}, 'mail')">
+                                            타임라인 보기
+                                        </button>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% for i in drive_results %}
+                            {% if i['priority'] > 0 %}
+                                <tr>
+                                    <td>
+                                        {{loop.index}}
+                                    </td>
+                                    <td>
+                                        <p>기술 유출</p>
+                                    </td>
+                                    <td>
+                                        <p>Drive - {{i['browser']}}</p>
+                                    </td>
+                                    <td>
+                                        {{i['timerange']}}
+                                    </td>
+                                    <td class="description-cell">
+                                        {% if i.filename is string %}
+                                            <font color="blue">{{i['browser']}}</font>를 통해 <font color="red">{{ i.filename }}</font>을 드라이브에 업로드 전송
+                                        {% else %}
+                                            <ul class="file-list">
+                                            {% for file in i.filename %}
+                                                <li>
+                                                    <font color="blue">{{i['browser']}}</font>를 통해 <font color="red">{{ file }}</font>을 드라이브에 업로드 전송
+                                                </li>
+                                            {% endfor %}
+                                            </ul>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-primary btn-connection" row-index="{{loop.index}}">
+                                            보기
+                                        </button>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" onclick="showTimeline({{loop.index}}, 'drive')">
+                                            타임라인 보기
+                                        </button>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% for i in blog_results %}
+                            {% if i['priority'] > 0 %}
+                                <tr>
+                                    <td>
+                                        {{loop.index}}
+                                    </td>
+                                    <td>
+                                        <p>기술 유출</p>
+                                    </td>
+                                    <td>
+                                        <p>Blog - {{i['browser']}}</p>
+                                    </td>
+                                    <td>
+                                        {{i['timerange']}}
+                                    </td>
+                                    <td class="description-cell">
+                                        {% if i.filename is string %}
+                                        <font color="blue">{{i['browser']}}</font>를 통해 <font color="red">{{ i.filename }}</font>을 <font color="orange">{{i['description'][0].split("_")[0]}}</font>블로그에 업로드
+                                        {% else %}
+                                            <ul class="file-list">
+                                            {% for file in i.filename %}
+                                                <li>
+                                                    <font color="blue">{{i['browser']}}</font>를 통해 <font color="red">{{ file }}</font>을 <font color="orange">{{i['description'][0].split("_")[0]}}</font>블로그에 업로드
+                                                </li>
+                                            {% endfor %}
+                                            </ul>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-primary btn-connection" row-index="{{loop.index}}">
+                                            보기
+                                        </button>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" onclick="showTimeline({{loop.index}}, 'drive')">
+                                            타임라인 보기
+                                        </button>
+                                    </td>
+                                </tr>
+                            {% endif %}
                         {% endfor %}
                     </table>
                 </div>
@@ -428,6 +493,10 @@
             var timelineData = {{ printer_timeline_data | tojson | safe }};
         } else if (type === 'mail') {
             var timelineData = {{ mail_timeline_data | tojson | safe }};
+        } else if (type === 'blog') {
+            var timelineData = {{ blog_timeline_data | tojson | safe }};
+        } else if (type === 'drive') {
+            var timelineData = {{ drive_timeline_data | tojson | safe }};
         }
 
         // jQuery를 사용한 모달 표시
