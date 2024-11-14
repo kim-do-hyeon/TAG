@@ -385,35 +385,6 @@
                 var secondLogfileJson = JSON.stringify(secondData, null, 2);
                 console.log(secondData.edges);
                 console.log(secondData.nodes);
-                //document.getElementById('modalDetail').innerHTML += `<pre>${secondLogfileJson}</pre>`;
-                //var nodes = new vis.DataSet(secondData.nodes);
-                //var edges = new vis.DataSet(secondData.edges);
-                //var container = document.getElementById('network_graph');
-                //var data = {
-                //    nodes: nodes,
-                //    edges: edges
-                //};
-                //var options = {
-                //    nodes: {
-                //        shape: 'ellipse',
-                //        size: 16,
-                //        font: {
-                //            size: 14
-                //        }
-                //    },
-                //    edges: {
-                //        width: 2,
-                //        arrows: {
-                //            to :{ enabled: true, scaleFactor: 1 }
-                //        }
-                //    },
-                //    interaction: {
-                //        hover: true,
-                //        dragNodes: false,
-                //        dragView: false
-                //    } // 노드에 마우스를 올리는 기능 활성화
-                //};
-                //var network = new vis.Network(container, data, options);
 
                 jQuery('#detailModal').on('shown.bs.modal', function () {
                     var nodes = new vis.DataSet(secondData.nodes);
@@ -426,16 +397,23 @@
                     
                     var options = {
                         layout: {
-                            hierarchical: {
-                                direction: 'LR', // Left to Right, 가로 방향 설정
-                                sortMethod: 'hubsize' // 노드 정렬 방법
-                            }
+                            improvedLayout: false,
+                            randomSeed : undefined
+                            //hierarchical: {
+                            //    direction: 'LR', // Left to Right, 가로 방향 설정
+                            //    sortMethod: 'hubsize', // 노드 정렬 방법
+                            //    levelSeparation: 200
+                            //}
                         },
                         nodes: {
                             shape: 'dot',
                             size: 12,
                             font: {
                                 size: 14
+                            },
+                            fixed: {
+                                x: false,
+                                y: false
                             }
                         },
                         edges: {
@@ -450,7 +428,7 @@
                             dragView: true
                         },
                         physics: {
-                            enabled: true,
+                            enabled: false,
                             solver: 'forceAtlas2Based',
                             forceAtlas2Based: {
                                 gravitationalConstant: -25, // 중력 상수 조절
