@@ -158,7 +158,7 @@ def redirect_analyze_case_final(data) :
 
     ''' USB Filelist process '''
     analyzed_file_list = []
-    usb_json = UsbData_final.query.filter(case_id==case_id).first().usb_data
+    usb_json = UsbData_final.query.filter_by(case_id = str(case_id)).first().usb_data
     for group_usb_time in usb_json :
         usb_df = pd.DataFrame(group_usb_time['filtered_df'])
         for filename in group_usb_time['Accessed_File_List'] :
@@ -173,7 +173,7 @@ def redirect_analyze_case_final(data) :
             }
             analyzed_file_list.append(usb_file_row)
 
-    printer_json = PrinterData_final.query.filter(case_id == case_id).first().printer_data
+    printer_json = PrinterData_final.query.filter_by(case_id=str(case_id)).first().printer_data
     for printer_time in printer_json:
         # printer_time['df']가 리스트이므로 첫 번째 항목의 'data' 사용
         if printer_time['df'] and isinstance(printer_time['df'], list):
@@ -188,7 +188,7 @@ def redirect_analyze_case_final(data) :
                     }
                     analyzed_file_list.append(printer_file_row)
 
-    analyzed_file_db = Analyzed_file_list(case_id = case_id, data = analyzed_file_list)
+    analyzed_file_db = Analyzed_file_list(case_id=case_id, data=analyzed_file_list)
     db.session.add(analyzed_file_db)
     db.session.commit()
     

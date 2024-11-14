@@ -382,7 +382,10 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ time_data: analyzed_file['data'], logfile_data: data})
+                    body: JSON.stringify({ 
+                        time_data: analyzed_file,
+                        logfile_data: data
+                    })
                 });
             })
             .then(secondResponse => {
@@ -434,16 +437,23 @@
                         nodes: nodes,
                         edges: edges
                     };
+                    
                     var options = {
+                        layout: {
+                            hierarchical: {
+                                direction: 'LR', // Left to Right, 가로 방향 설정
+                                sortMethod: 'hubsize' // 노드 정렬 방법
+                            }
+                        },
                         nodes: {
-                            shape: 'ellipse',
-                            size: 10,
+                            shape: 'dot',
+                            size: 12,
                             font: {
                                 size: 14
                             }
                         },
                         edges: {
-                            width: 2,
+                            width: 1,
                             arrows: {
                                 to: { enabled: true, scaleFactor: 1 }
                             }
@@ -457,10 +467,10 @@
                             enabled: true,
                             solver: 'forceAtlas2Based',
                             forceAtlas2Based: {
-                                gravitationalConstant: -30, // 중력 상수 조절
-                                centralGravity: 0.002,
-                                springLength: 250, // 스프링 길이 조절
-                                springConstant: 0.05
+                                gravitationalConstant: -25, // 중력 상수 조절
+                                centralGravity: 0.005,
+                                springLength: 180, // 스프링 길이 조절
+                                springConstant: 0.1
                             },
                             maxVelocity: 50,
                             minVelocity: 0.1,

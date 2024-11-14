@@ -1,4 +1,5 @@
-from flask import jsonify, session
+import pprint
+from flask import jsonify, session, url_for
 from apps.authentication.models import Normalization
 from apps.analyze.USB.make_usb_analysis_db import extract_transaction_LogFile_Analysis
 import sqlite3
@@ -33,10 +34,22 @@ def redirect_logfile(data) :
 
 
 def file_connect_node(data) :
+    
+    def cmp_file_loose_ext(filename1, filename2):
+        name1, ext1 = os.path.basename(filename1).rsplit('.', 1)
+        name2, ext2 = os.path.basename(filename2).rsplit('.', 1)
+        print(f'Compare with : {name1}.{ext1}({ext1.lower()}), {name2}.{ext2}({ext2.lower()}) : {str(name1==name2 and ext1.lower() == ext2.lower())}')
+        try :
+            return name1==name2 and ext1.lower() == ext2.lower()
+        except Exception as e :
+            return False
+    
     try :
-        time_data_list = list(data.get('time_data'))
+        all_data = dict(data.get('time_data'))
+        time_data_list = list(all_data['data'])
         logfile_data_list = dict(data.get('logfile_data'))
         
+        pprint.pprint(time_data_list)
         
         # 새로운 리스트를 만들어서 통합된 데이터를 저장
         consolidated_time_data_list = []
@@ -48,14 +61,12 @@ def file_connect_node(data) :
             # 연속된 행을 확인할 수 있는지 체크
             j = i
             while (j < len(time_data_list) and
-                   pd.to_datetime(time_data_list[j]['timestamp']) - current_timestamp <= pd.Timedelta(seconds=1) and
-                   current['main_data'] == time_data_list[j]['main_data']):
+                   pd.to_datetime(time_data_list[j]['timestamp']) - current_timestamp <= pd.Timedelta(seconds=2) and
+                   cmp_file_loose_ext(current['main_data'], time_data_list[j]['main_data'])):
                 j += 1
             
-            # j는 현재 그룹의 끝 다음 인덱스를 가리킴
-            types = {time_data_list[k]['type'] for k in range(i, j)}
-            
             # 'modify', 'access', 'create'가 모두 포함되어 있는지 확인
+            types = {time_data_list[k]['type'] for k in range(i, j)}
             if 'modify' in types and 'access' in types and 'create' in types:
                 # 'create'가 포함된 행으로 통합
                 consolidated_time_data_list.append({
@@ -64,22 +75,28 @@ def file_connect_node(data) :
                     'main_data': current['main_data']
                 })
             else:
-                # 동일한 'type'이 있는 경우 하나로 통합
-                for t in types:
-                    # 같은 타입의 데이터가 1초 이내에 발생한 경우 통합
-                    same_type_data = [time_data_list[k] for k in range(i, j) if time_data_list[k]['type'] == t]
-                    if same_type_data:
-                        consolidated_time_data_list.append({
-                            'timestamp': same_type_data[0]['timestamp'],
-                            'type': t,
-                            'main_data': same_type_data[0]['main_data']
-                        })
+                consolidated_time_data_list.extend(time_data_list[i:j])
             
             i = j  # 다음 그룹으로 이동
         
-        
         new_df = pd.DataFrame(columns=['timestamp', 'operation', 'filename', 'after_filename', 'mft_num'])
         rows = []
+        if all_data['type'] == 'USB' :
+            rows.append({
+                'timestamp' : pd.to_datetime(all_data['time_start']),
+                'operation' : 'USB_Connected',
+                'filename' : all_data['usb_name'],
+                'after_filename' : None,
+                'mft_num' : None
+            })
+            rows.append({
+                'timestamp' : pd.to_datetime(all_data['time_end']),
+                'operation' : 'USB_Disconnected',
+                'filename' : all_data['usb_name'],
+                'after_filename' : None,
+                'mft_num' : None
+            })
+        
         for time_data in consolidated_time_data_list :
             row = {
                 'timestamp' : pd.to_datetime(time_data['timestamp']),
@@ -112,30 +129,59 @@ def file_connect_node(data) :
                     row['after_filename'] = None 
                 rows.append(row)
         new_df = pd.concat([new_df, pd.DataFrame(rows)], ignore_index=True)
-        new_df = new_df.sort_values(by='timestamp')
+        new_df = new_df.sort_values(by='timestamp').reset_index(drop=True)
         new_dict = new_df.to_dict(orient='records')
         #new_df['timestamp'] = new_df['timestamp'].astype(str)
         
+        # Consolidate entries
+        consolidated_dict = []
+        i = 0
+        while i < len(new_dict):
+            current = new_dict[i]
+            current_timestamp = current['timestamp']
+            
+            j = i + 1
+            while j < len(new_dict):
+                next_item = new_dict[j]
+                next_timestamp = next_item['timestamp']
+                
+                if (next_timestamp - current_timestamp <= pd.Timedelta(seconds=1) and
+                    current['operation'] == next_item['operation'] and
+                    cmp_file_loose_ext(current['filename'], next_item['filename'])):
+                    print(current['timestamp'])
+                    j += 1
+                else:
+                    break
+            
+            consolidated_dict.append(current)  # Use the first item of the group
+            i = j
+        pprint.pprint(consolidated_dict)
+        
         nodes = []
         edges = []
-        for idx, row in enumerate(new_dict) :
-            if row['operation'] == 'Rename' :
+        for idx, row in enumerate(consolidated_dict) :
+            if 'USB' in row['operation'] :
                 nodes.append({
                     'id' : idx,
-                    'label' : f'Rename\n{row["filename"]} -> {row["after_filename"]}\n{row["timestamp"].strftime("%Y-%m-%d %H:%M:%S")}',
-                    'shape' : 'ellipse'
+                    'label' : f'{row["operation"]}\n{row["filename"]}',
+                    'image' : url_for('static', filename='graph_img/usb.svg', _external=True),
+                    'shape' : 'image',
+                    'size' : 25
+                })
+            elif row['operation'] == 'Rename' :
+                nodes.append({
+                    'id' : idx,
+                    'label' : f'Rename\n{row["filename"]} -> {row["after_filename"]}',
                 })
             elif row['operation'] == 'Move' :
                 nodes.append({
                     'id' : idx,
-                    'label' : f'Move Detected!\n{row["timestamp"].strftime("%Y-%m-%d %H:%M:%S")}',
-                    'shape' : 'ellipse'
+                    'label' : f'Move Detected!',
                 })
             else :
                 nodes.append({
                     'id' : idx,
-                    'label' : '\n'.join([row['operation'], os.path.basename(row['filename']), row["timestamp"].strftime("%Y-%m-%d %H:%M:%S")]),
-                    'shape' : 'ellipse'
+                    'label' : '\n'.join([row['operation'], os.path.basename(row['filename'])]),
                 })
             if idx != 0 :
                 edges.append({'from' : idx-1, 'to' : idx})                
@@ -147,7 +193,7 @@ def file_connect_node(data) :
             'edges' : edges,
             'success' : True
         }
-        print(jsonify(result))
+        #pprint.pprint(result)
         return jsonify(result)
     except Exception as e :
         return jsonify({'success' : False, 'message' : e})

@@ -259,7 +259,11 @@ def mail_behavior(db_path) :
             FROM "{table}"
             WHERE "URL" IS NOT NULL
             """
-            cursor.execute(query)
+            try :
+                cursor.execute(query)
+            except Exception as e :
+                print(f'[*] Failed load table {e} in upload_paser.py')
+                continue
             column_names = [description[0] for description in cursor.description]
             rows = cursor.fetchall()
 
