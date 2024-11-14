@@ -39,6 +39,7 @@ def file_connect_node(data) :
         if filename1 is None or filename2 is None:
             return False
         
+        
         try:
             # 파일명에서 확장자 분리 시도
             try:
@@ -59,6 +60,12 @@ def file_connect_node(data) :
         except Exception as e:
             print(f'Error in comparison: {str(e)}')
             return False
+    
+    def shorten_string(s) :
+        if len(s) > 40 :
+            return s[0:35] + '...'
+        else :
+            return s
     
     try :
         all_data = dict(data.get('time_data'))
@@ -173,32 +180,71 @@ def file_connect_node(data) :
             i = j
         pprint.pprint(consolidated_dict)
         
+        
+        img_dict = {
+            'usb' : url_for('static', filename='graph_img/usb.svg', _external=True),
+            'printer' : url_for('static', filename='graph_img/printer.svg', _external=True),
+            'firefox' : url_for('static', filename='graph_img/firefox_logo.svg', _external=True),
+            'chrome' : url_for('static', filename='graph_img/chrome-logo.svg', _external=True),
+            'gmail' : url_for('static', filename='graph_img/gmail-icon.svg', _external=True),
+            'google_drive' : url_for('static', filename='graph_img/google_drive_icon.svg', _external=True),
+            '.ppt' : url_for('static', filename='graph_img/powerpoint.svg', _external=True),
+            '.hwp' : url_for('static', filename='graph_img/hwp.svg', _external=True),
+            '.show' : url_for('static', filename='graph_img/hanshow.svg', _external=True),
+            '.docx' : url_for('static', filename='graph_img/docx.svg', _external=True),
+            '.pdf' : url_for('static', filename='graph_img/pdf.svg', _external=True),
+            'mega_drive' : url_for('static', filename='graph_img/mega_drive.svg', _external=True)
+        }
         nodes = []
         edges = []
+        node_x = 0
+        node_y = 0
         for idx, row in enumerate(consolidated_dict) :
+            #row['filename'] = shorten_string(row['filename'])
+            node = {}
             if 'USB' in row['operation'] :
-                nodes.append({
+                node = {
                     'id' : idx,
                     'label' : f'{row["operation"]}\n{row["filename"]}',
                     'image' : url_for('static', filename='graph_img/usb.svg', _external=True),
                     'shape' : 'image',
                     'size' : 25
-                })
+                }
             elif row['operation'] == 'Rename' :
-                nodes.append({
+                node = {
                     'id' : idx,
                     'label' : f'Rename\n{row["filename"]} -> {row["after_filename"]}',
-                })
+                }
             elif row['operation'] == 'Move' :
-                nodes.append({
+                node = {
                     'id' : idx,
-                    'label' : f'Move Detected!',
-                })
+                    'label' : f'Move Detected!\n{row["filename"]}',
+                }
             else :
-                nodes.append({
+                node = {
                     'id' : idx,
                     'label' : '\n'.join([row['operation'], os.path.basename(row['filename'])]),
-                })
+                }
+            
+            for keyword, val in img_dict.items() :
+                if keyword in row['operation'].lower() :
+                    node['image'] = val
+                    node['shape'] = 'image'
+                    node['size'] = 25
+                elif  keyword in row['filename'].lower() :
+                    node['image'] = val
+                    node['shape'] = 'image'
+                    node['size'] = 25
+            
+            if (idx % 5) != 0 :
+                if (idx // 5) % 2 == 0 :
+                    node_x += 220
+                else :
+                    node_x -= 220
+            node_y += 150 if idx % 5 == 0 else 0
+            node['x'] = node_x
+            node['y'] = node_y + 15 if idx % 2 == 0 else node_y - 15
+            nodes.append(node)
             if idx != 0 :
                 edges.append({'from' : idx-1, 'to' : idx})                
         
