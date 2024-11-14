@@ -165,6 +165,8 @@ def redirect_analyze_case_final(data) :
             timelist_df = usb_df[usb_df['main_data'].str.contains(filename)]
             usb_file_row = {
                 'type' : 'USB',
+                'time_start' : group_usb_time['Start'],
+                'time_end' : group_usb_time['End'],
                 'usb_name' : group_usb_time['Connection'],
                 'filename' : filename,
                 'data' : timelist_df.to_dict(orient='records')

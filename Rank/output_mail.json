@@ -1,0 +1,2132 @@
+[
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "TAG_기밀자료_3.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 7,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "399427"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "278493"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "278494"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "278495"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "TAG_기밀자료_3.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 5,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "129845"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "129846"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "129847"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "129848"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "TAG_기밀자료_3.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 1,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "399427"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Book1.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "149620"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "149621"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "149622"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "149623"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Book1.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "152832"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "152833"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "152834"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "152835"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Book2.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "155013"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "155014"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "155015"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "155016"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Book2.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "156384"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "156385"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "156386"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "156387"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Book3.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "149122"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "149123"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "149124"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "149125"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Book4.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "141948"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "141949"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "141950"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "141951"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Book4.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "156834"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "156835"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "156836"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "156837"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Book5.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "140394"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "140395"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "140396"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "140397"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Book5.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "153847"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "153848"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "153849"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "153850"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "DaisyStyle1.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "150473"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "150474"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "150475"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "150476"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "DaisyStyle2.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "144822"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "144823"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "144824"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "144825"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Letter1.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "145374"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "145375"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "145376"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "145377"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Letter1.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "151865"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "151866"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "151867"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "151868"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Letter2.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "140673"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "140674"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "140675"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "140676"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Letter2.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "149459"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "149461"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "149462"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "149463"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Letter3.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "141185"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "141186"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "141187"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "141188"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Letter3.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "149931"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "149932"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "149934"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "149935"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Letter4.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "148981"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "148982"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "148983"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "148984"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Letter5.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "139582"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "139583"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "139584"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "139585"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Letter5.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "156554"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "156555"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "156556"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "156557"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Paper1.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "145946"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "145947"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "145948"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "145949"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Paper2.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "147582"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "147583"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "147584"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "147585"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Paper2.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "150539"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "150540"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "150541"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "150542"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Present1.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "140255"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "140256"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "140257"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "140258"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Present1.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "151242"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "151244"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "151245"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "151246"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Present2.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "144557"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "144558"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "144559"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "144560"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Present2.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "151690"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "151691"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "151692"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "151693"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Present3.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "141493"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "141494"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "141495"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "141496"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Present3.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "157183"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "157184"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "157185"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "157186"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Present4.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "141579"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "141580"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "141581"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "141582"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Present4.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "148110"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "148111"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "148112"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "148113"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Present5.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "147562"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "147563"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "147564"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "147565"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Present5.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "156789"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "156790"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "156791"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "156792"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Report1.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "140495"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "140496"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "140497"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "140498"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Report1.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "146825"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "146826"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "146828"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "146829"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Report2.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "141773"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "141776"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "141777"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "141778"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Report2.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "152606"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "152607"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "152608"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "152609"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Report3.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "144244"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "144245"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "144246"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "144247"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Report3.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "152842"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "152843"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "152844"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "152845"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Report4.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "140897"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "140898"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "140899"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "140900"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Report4.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "144993"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "144994"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "144995"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "144996"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "SolidLists.pdf",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "148544"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "148545"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "148546"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "148548"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "SolidOCR.pdf",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "143786"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "143788"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "143789"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "143790"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "TAG_기밀자료_3.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "279097"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Thesis1.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "156949"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "156950"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "156951"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "156952"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Thesis2.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "151540"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "151542"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "151543"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "151544"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Thesis2.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "155406"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "155407"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "155408"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "155409"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Thesis3.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "143236"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "143237"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "143239"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "143240"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "Thesis3.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "150735"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "150736"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "150737"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "150738"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "memo_preset.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "142834"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "142835"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "142836"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "142837"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "paper3.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "140229"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "140230"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "140231"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "140232"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "paper3.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "154319"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "154320"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "154321"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "154322"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "textart_preset.hwp",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "148444"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "148445"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "148446"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "148447"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    },
+    {
+        "timerange": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55",
+        "filename": "tfont.zip",
+        "description": [
+            "Kakao_Mail_Login",
+            "Kakao_Mail_Inbox",
+            "Kakao_Mail_Write",
+            "Kakao_Mail_Inbox"
+        ],
+        "priority": 0,
+        "connection": [
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Login",
+                "main_data": "https://logins.daum.net/accounts/kakaossotokenlogin.do?redirect=true&ssotoken=9b53c23d955432e48913e083cd502a0f&url=https%3A%2F%2Fmail.kakao.com",
+                "hit_id": "154882"
+            },
+            {
+                "timestamp": "2024-11-09 15:32:33",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "154883"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:06",
+                "type": "Kakao_Mail_Write",
+                "main_data": "https://mail.kakao.com/top/INBOX?composer",
+                "hit_id": "154884"
+            },
+            {
+                "timestamp": "2024-11-09 15:33:55",
+                "type": "Kakao_Mail_Inbox",
+                "main_data": "https://mail.kakao.com/top/INBOX",
+                "hit_id": "154885"
+            }
+        ],
+        "timeline": "2024-11-09 15:32:33 ~ 2024-11-09 15:33:55"
+    }
+]
