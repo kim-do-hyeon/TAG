@@ -36,12 +36,28 @@ def redirect_logfile(data) :
 def file_connect_node(data) :
     
     def cmp_file_loose_ext(filename1, filename2):
-        name1, ext1 = os.path.basename(filename1).rsplit('.', 1)
-        name2, ext2 = os.path.basename(filename2).rsplit('.', 1)
-        print(f'Compare with : {name1}.{ext1}({ext1.lower()}), {name2}.{ext2}({ext2.lower()}) : {str(name1==name2 and ext1.lower() == ext2.lower())}')
-        try :
+        if filename1 is None or filename2 is None:
+            return False
+        
+        try:
+            # 파일명에서 확장자 분리 시도
+            try:
+                name1, ext1 = os.path.basename(str(filename1)).rsplit('.', 1)
+            except ValueError:
+                # 확장자가 없는 경우
+                name1, ext1 = str(filename1), ''
+            
+            try:
+                name2, ext2 = os.path.basename(str(filename2)).rsplit('.', 1)
+            except ValueError:
+                # 확장자가 없는 경우
+                name2, ext2 = str(filename2), ''
+            
+            print(f'Compare with : {name1}.{ext1}({ext1.lower()}), {name2}.{ext2}({ext2.lower()}) : {str(name1==name2 and ext1.lower() == ext2.lower())}')
             return name1==name2 and ext1.lower() == ext2.lower()
-        except Exception as e :
+        
+        except Exception as e:
+            print(f'Error in comparison: {str(e)}')
             return False
     
     try :

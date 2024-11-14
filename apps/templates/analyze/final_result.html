@@ -153,12 +153,12 @@
                                     </td>
                                     <td class="description-cell">
                                         {% if i.filename is string %}
-                                            <font color="blue">{{i['browser']}}</font>를 통해 <font color="red">{{ i.filename }}</font>을 <font color="orange">{{i['description'][0].split("_")[0]}}</font>메일을 사용해서 전송
+                                            <font color="blue">{{i['browser']}}</font>를 통해 <a href="#" onclick="showDetail('{{i.filename}}'); return false;" style="text-decoration: none; color: inherit;"><font color="red">{{ i.filename }}</font></a>을 <font color="orange">{{i['description'][0].split("_")[0]}}</font>메일을 사용해서 전송
                                         {% else %}
                                             <ul class="file-list">
                                             {% for file in i.filename %}
                                                 <li>
-                                                    <font color="blue">{{i['browser']}}</font>를 통해 <font color="red">{{ file }}</font>을 <font color="orange">{{i['description'][0].split("_")[0]}}</font>메일을 사용해서 전송
+                                                    <font color="blue">{{i['browser']}}</font>를 통해 <a href="#" onclick="showDetail('{{ file }}'); return false;" style="text-decoration: none; color: inherit;"><font color="red">{{ file }}</font></a>을 <font color="orange">{{i['description'][0].split("_")[0]}}</font>메일을 사용해서 전송
                                                 </li>
                                             {% endfor %}
                                             </ul>
@@ -237,12 +237,12 @@
                                     </td>
                                     <td class="description-cell">
                                         {% if i.filename is string %}
-                                        <font color="blue">{{i['browser']}}</font>를 통해 <font color="red">{{ i.filename }}</font>을 <font color="orange">{{i['description'][0].split("_")[0]}}</font>블로그에 업로드
+                                        <font color="blue">{{i['browser']}}</font>를 통해 <a href="#" onclick="showDetail('{{i.filename}}'); return false;" style="text-decoration: none; color: inherit;"><font color="red">{{ i.filename }}</font></a>을 <font color="orange">{{i['description'][0].split("_")[0]}}</font>블로그에 업로드
                                         {% else %}
                                             <ul class="file-list">
                                             {% for file in i.filename %}
                                                 <li>
-                                                    <font color="blue">{{i['browser']}}</font>를 통해 <font color="red">{{ file }}</font>을 <font color="orange">{{i['description'][0].split("_")[0]}}</font>블로그에 업로드
+                                                    <font color="blue">{{i['browser']}}</font>를 통해 <a href="#" onclick="showDetail('{{ file }}'); return false;" style="text-decoration: none; color: inherit;"><font color="red">{{ file }}</font></a>을 <font color="orange">{{i['description'][0].split("_")[0]}}</font>블로그에 업로드
                                                 </li>
                                             {% endfor %}
                                             </ul>

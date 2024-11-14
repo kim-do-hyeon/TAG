@@ -200,6 +200,50 @@ def redirect_analyze_case_final(data) :
                         }
                         analyzed_file_list.append(printer_file_row)
 
+    ''' Upload Behavior Process Complete '''
+    case_number = Upload_Case.query.filter_by(id = case_id).first().case_number
+    mail_output = (os.path.join(os.getcwd(), "uploads", session['username'], case_number, "output_mail.json"))
+    with open(mail_output, 'r', encoding='utf-8') as file:
+        mail_results = json.load(file)
+    
+    # Mail 데이터 처리
+    for mail_event in mail_results:
+        mail_file_row = {
+            'type': 'Mail',
+            'time_start': mail_event['timerange'].split(' ~ ')[0],  # timerange에서 시작 시간 추출
+            'time_end': mail_event['timerange'].split(' ~ ')[1],    # timerange에서 종료 시간 추출
+            'filename': mail_event['filename'],
+            'browser': mail_event['browser'],
+            'priority': mail_event['priority'],  # 메일의 경우 priority 정보도 포함
+            'data': mail_event['connection']     # connection 데이터를 그대로 사용
+        }
+        analyzed_file_list.append(mail_file_row)
+
+
+    drive_output = (os.path.join(os.getcwd(), "uploads", session['username'], case_number, "output_drive.json"))
+    with open(drive_output, 'r', encoding='utf-8') as file:
+        drive_results = json.load(file)
+
+    ''' Drive 추가 안됨 '''
+    
+    blog_output = (os.path.join(os.getcwd(), "uploads", session['username'], case_number, "output_blog.json"))
+    with open(blog_output, 'r', encoding='utf-8') as file:
+        blog_results = json.load(file)
+
+    # Blog 데이터 처리
+    for blog_event in blog_results:
+        blog_file_row = {
+            'type': 'Blog',
+            'time_start': blog_event['timerange'].split(' ~ ')[0],  # timerange에서 시작 시간 추출
+            'time_end': blog_event['timerange'].split(' ~ ')[1],    # timerange에서 종료 시간 추출
+            'filename': blog_event['filename'],
+            'browser': blog_event['browser'],
+            'data': blog_event['connection']  # connection 데이터를 그대로 사용
+        }
+        analyzed_file_list.append(blog_file_row)
+
+    
+
     analyzed_file_db = Analyzed_file_list(case_id=case_id, data=analyzed_file_list)
     db.session.add(analyzed_file_db)
     db.session.commit()
