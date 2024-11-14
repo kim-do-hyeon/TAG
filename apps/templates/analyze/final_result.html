@@ -43,6 +43,7 @@
                             <th>타임라인</th>
                         </tr>
                         {% for i in usb_results %}
+                            {% set outer_index = loop.index %}
                             <tr>
                                 <td>
                                     {{loop.index}}
@@ -63,7 +64,7 @@
                                         <ul class="file-list">
                                         {% for file in i.Accessed_File_List %}
                                             <li>
-                                                <a href="#" onclick="showDetail('{{file}}'); return false;" style="text-decoration: none; color: inherit;"><font color="blue">{{ file }}</font></a>
+                                                <a href="#" onclick="showDetail('USB','{{outer_index}}', '{{file}}'); return false;" style="text-decoration: none; color: inherit;"><font color="blue">{{ file }}</font></a>
                                             </li>
                                         {% endfor %}
                                             <li>
@@ -137,6 +138,7 @@
                             </tr>
                         {% endfor %}
                         {% for i in mail_results %}
+                            {% set outer_index = loop.index %}
                             {% if i['priority'] > 0 %}
                                 <tr>
                                     <td>
@@ -153,12 +155,12 @@
                                     </td>
                                     <td class="description-cell">
                                         {% if i.filename is string %}
-                                            <font color="blue">{{i['browser']}}</font>를 통해 <a href="#" onclick="showDetail('{{i.filename}}'); return false;" style="text-decoration: none; color: inherit;"><font color="red">{{ i.filename }}</font></a>을 <font color="orange">{{i['description'][0].split("_")[0]}}</font>메일을 사용해서 전송
+                                            <font color="blue">{{i['browser']}}</font>를 통해 <a href="#" onclick="showDetail('Mail','{{outer_index}}', '{{i.filename}}'); return false;" style="text-decoration: none; color: inherit;"><font color="red">{{ i.filename }}</font></a>을 <font color="orange">{{i['description'][0].split("_")[0]}}</font>메일을 사용해서 전송
                                         {% else %}
                                             <ul class="file-list">
                                             {% for file in i.filename %}
                                                 <li>
-                                                    <font color="blue">{{i['browser']}}</font>를 통해 <a href="#" onclick="showDetail('{{ file }}'); return false;" style="text-decoration: none; color: inherit;"><font color="red">{{ file }}</font></a>을 <font color="orange">{{i['description'][0].split("_")[0]}}</font>메일을 사용해서 전송
+                                                    <font color="blue">{{i['browser']}}</font>를 통해 <a href="#" onclick="showDetail('Mail','{{outer_index}}', '{{file}}'); return false;" style="text-decoration: none; color: inherit;"><font color="red">{{ file }}</font></a>을 <font color="orange">{{i['description'][0].split("_")[0]}}</font>메일을 사용해서 전송
                                                 </li>
                                             {% endfor %}
                                             </ul>
@@ -179,6 +181,7 @@
                         {% endfor %}
 
                         {% for i in drive_results %}
+                            {% set outer_index = loop.index %}
                             {% if i['priority'] > 0 %}
                                 <tr>
                                     <td>
@@ -195,12 +198,12 @@
                                     </td>
                                     <td class="description-cell">
                                         {% if i.filename is string %}
-                                            <font color="blue">{{i['browser']}}</font>를 통해 <font color="red">{{ i.filename }}</font>을 드라이브에 업로드 전송
+                                            <font color="blue">{{i['browser']}}</font>를 통해 통해 <a href="#" onclick="showDetail('Drive','{{outer_index}}', '{{i.filename}}'); return false;" style="text-decoration: none; color: inherit;"><font color="red">{{ i.filename }}</font></a>을 드라이브에 업로드 전송
                                         {% else %}
                                             <ul class="file-list">
                                             {% for file in i.filename %}
                                                 <li>
-                                                    <font color="blue">{{i['browser']}}</font>를 통해 <font color="red">{{ file }}</font>을 드라이브에 업로드 전송
+                                                    <font color="blue">{{i['browser']}}</font>를 통해 통해 <a href="#" onclick="showDetail('Drive','{{outer_index}}', '{{file}}'); return false;" style="text-decoration: none; color: inherit;"><font color="red">{{ file }}</font></a>을 드라이브에 업로드 전송
                                                 </li>
                                             {% endfor %}
                                             </ul>
@@ -221,6 +224,7 @@
                         {% endfor %}
 
                         {% for i in blog_results %}
+                            {% set outer_index = loop.index %}
                             {% if i['priority'] > 0 %}
                                 <tr>
                                     <td>
@@ -237,12 +241,12 @@
                                     </td>
                                     <td class="description-cell">
                                         {% if i.filename is string %}
-                                        <font color="blue">{{i['browser']}}</font>를 통해 <a href="#" onclick="showDetail('{{i.filename}}'); return false;" style="text-decoration: none; color: inherit;"><font color="red">{{ i.filename }}</font></a>을 <font color="orange">{{i['description'][0].split("_")[0]}}</font>블로그에 업로드
+                                        <font color="blue">{{i['browser']}}</font>를 통해 통해 <a href="#" onclick="showDetail('Blog','{{outer_index}}', '{{i.filename}}'); return false;" style="text-decoration: none; color: inherit;"><font color="red">{{ i.filename }}</font></a>을 <font color="orange">{{i['description'][0].split("_")[0]}}</font>블로그에 업로드
                                         {% else %}
                                             <ul class="file-list">
                                             {% for file in i.filename %}
                                                 <li>
-                                                    <font color="blue">{{i['browser']}}</font>를 통해 <a href="#" onclick="showDetail('{{ file }}'); return false;" style="text-decoration: none; color: inherit;"><font color="red">{{ file }}</font></a>을 <font color="orange">{{i['description'][0].split("_")[0]}}</font>블로그에 업로드
+                                                    <font color="blue">{{i['browser']}}</font>를 통해 <a href="#" onclick="showDetail('Blog','{{outer_index}}', '{{ file}}'); return false;" style="text-decoration: none; color: inherit;"><font color="red">{{ file }}</font></a>을 <font color="orange">{{i['description'][0].split("_")[0]}}</font>블로그에 업로드
                                                 </li>
                                             {% endfor %}
                                             </ul>
@@ -254,7 +258,7 @@
                                         </button>
                                     </td>
                                     <td>
-                                        <button class="btn btn-primary btn-sm" onclick="showTimeline({{loop.index}}, 'drive')">
+                                        <button class="btn btn-primary btn-sm" onclick="showTimeline({{loop.index}}, 'blog')">
                                             타임라인 보기
                                         </button>
                                     </td>
@@ -346,10 +350,15 @@
     }
 
     // 노드 및 세부사항 표시 함수
-    window.showDetail = function(file_name) {
-        // filename으로 해당 파일 정보 찾기
-        var analyzed_file = analyzed_file_list.find(item => item.filename === file_name);
+    window.showDetail = function(type, outer_index, file_name) {
+        console.log(type, outer_index, file_name);
+        // 먼저 type이 같은 파일들만 필터링
+        const typeFilteredFiles = analyzed_file_list.filter(item => item.type === type);
+        console.log(typeFilteredFiles);
+        // 필터링된 파일들 중에서 index와 filename이 일치하는 파일 찾기
+        var analyzed_file = typeFilteredFiles[outer_index - 1];
         
+        console.log(analyzed_file);
         if (analyzed_file) {
             var content = JSON.stringify(analyzed_file['data'], null, 2);
             var logfile_json;
