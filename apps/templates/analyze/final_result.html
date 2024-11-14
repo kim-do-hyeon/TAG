@@ -86,6 +86,7 @@
                             </tr>
                         {% endfor %}
                         {% for i in printer_results %}
+                            {% set outer_index = loop.index %}
                             <tr>
                                 <td>
                                     {{loop.index}}
@@ -114,7 +115,7 @@
                                             {% if i.Accessed_File_List | length > 0 %}
                                                 {% for file in i.Accessed_File_List %}
                                                     <li>
-                                                        <a href="#" onclick="showDetail('{{file}}'); return false;" style="text-decoration: none; color: inherit;"><font color="red">{{ file }}</font>이 출력된 것으로 추정됨</a>
+                                                        <a href="#" onclick="showDetail('Printer','{{outer_index}}', '{{file}}'); return false;" style="text-decoration: none; color: inherit;"><font color="red">{{ file }}</font>이 출력된 것으로 추정됨</a>
                                                     </li>
                                                 {% endfor %}
                                             {% else %}
@@ -356,9 +357,11 @@
         const typeFilteredFiles = analyzed_file_list.filter(item => item.type === type);
         console.log(typeFilteredFiles);
         // 필터링된 파일들 중에서 index와 filename이 일치하는 파일 찾기
-        var analyzed_file = typeFilteredFiles[outer_index - 1];
-        
-        console.log(analyzed_file);
+        if(type === 'USB' || type === 'Printer') {
+            var analyzed_file = analyzed_file_list.find(item => item.filename === file_name);
+        }else {
+            var analyzed_file = typeFilteredFiles[outer_index - 1];
+        }
         if (analyzed_file) {
             var content = JSON.stringify(analyzed_file['data'], null, 2);
             var logfile_json;
