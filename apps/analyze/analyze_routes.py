@@ -175,18 +175,30 @@ def redirect_analyze_case_final(data) :
 
     printer_json = PrinterData_final.query.filter_by(case_id=str(case_id)).first().printer_data
     for printer_time in printer_json:
-        # printer_time['df']가 리스트이므로 첫 번째 항목의 'data' 사용
         if printer_time['df'] and isinstance(printer_time['df'], list):
-            printer_df = pd.DataFrame(printer_time['df'][0]['data'])
-            for filename in printer_time['Accessed_File_List']:
-                if filename:  # filename이 None이 아닌 경우에만 처리
-                    timelist_df = printer_df[printer_df['main_data'].str.contains(filename, na=False)]
-                    printer_file_row = {
-                        'type': 'Printer',
-                        'filename': filename,
-                        'data': timelist_df.to_dict(orient='records')
-                    }
-                    analyzed_file_list.append(printer_file_row)
+            # 모든 df 데이터를 하나의 DataFrame으로 통합
+            all_data = []
+            for df_item in printer_time['df']:
+                if 'data' in df_item:
+                    all_data.extend(df_item['data'])
+            
+            if all_data:  # 데이터가 있는 경우에만 처리
+                printer_df = pd.DataFrame(all_data)
+                
+                for filename in printer_time['Accessed_File_List']:
+                    if filename:  # filename이 None이 아닌 경우에만 처리
+                        # na=False로 NaN 값 처리, 문자열이 아닌 경우 처리
+                        mask = printer_df['main_data'].astype(str).str.contains(filename, na=False)
+                        timelist_df = printer_df[mask]
+                        
+                        printer_file_row = {
+                            'type': 'Printer',
+                            'time_start': printer_time.get('Start'),  # 시작 시간 추가
+                            'time_end': printer_time.get('End'),      # 종료 시간 추가
+                            'filename': filename,
+                            'data': timelist_df.to_dict(orient='records')
+                        }
+                        analyzed_file_list.append(printer_file_row)
 
     analyzed_file_db = Analyzed_file_list(case_id=case_id, data=analyzed_file_list)
     db.session.add(analyzed_file_db)
