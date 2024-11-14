@@ -193,7 +193,8 @@ def file_connect_node(data) :
             '.show' : url_for('static', filename='graph_img/hanshow.svg', _external=True),
             '.docx' : url_for('static', filename='graph_img/docx.svg', _external=True),
             '.pdf' : url_for('static', filename='graph_img/pdf.svg', _external=True),
-            'mega_drive' : url_for('static', filename='graph_img/mega_drive.svg', _external=True)
+            'mega_drive' : url_for('static', filename='graph_img/mega_drive.svg', _external=True),
+            '.zip' : url_for('static', filename='graph_img/zip.svg', _external=True)
         }
         nodes = []
         edges = []
