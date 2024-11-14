@@ -39,7 +39,6 @@
                             <th>행위 대상</th>
                             <th>시간대</th>
                             <th>설명</th>
-                            <th>세부사항 및 커넥션</th>
                             <th>타임라인</th>
                         </tr>
                         {% for i in usb_results %}
@@ -72,11 +71,6 @@
                                             </li>
                                         </ul>
                                     {% endif %}
-                                </td>
-                                <td>
-                                    <button class="btn btn-primary btn-connection" row-index="{{loop.index}}">
-                                        보기
-                                    </button>
                                 </td>
                                 <td>
                                     <button class="btn btn-primary btn-sm" onclick="showTimeline({{loop.index}}, 'usb')">
@@ -127,11 +121,6 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <button class="btn btn-primary btn-connection" row-index="{{loop.index}}">
-                                        보기
-                                    </button>
-                                </td>
-                                <td>
                                     <button class="btn btn-primary btn-sm" onclick="showTimeline({{loop.index}}, 'printer')">
                                         타임라인 보기
                                     </button>
@@ -166,11 +155,6 @@
                                             {% endfor %}
                                             </ul>
                                         {% endif %}
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-primary btn-connection" row-index="{{loop.index}}">
-                                            보기
-                                        </button>
                                     </td>
                                     <td>
                                         <button class="btn btn-primary btn-sm" onclick="showTimeline({{loop.index}}, 'mail')">
@@ -211,11 +195,6 @@
                                         {% endif %}
                                     </td>
                                     <td>
-                                        <button class="btn btn-primary btn-connection" row-index="{{loop.index}}">
-                                            보기
-                                        </button>
-                                    </td>
-                                    <td>
                                         <button class="btn btn-primary btn-sm" onclick="showTimeline({{loop.index}}, 'drive')">
                                             타임라인 보기
                                         </button>
@@ -252,11 +231,6 @@
                                             {% endfor %}
                                             </ul>
                                         {% endif %}
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-primary btn-connection" row-index="{{loop.index}}">
-                                            보기
-                                        </button>
                                     </td>
                                     <td>
                                         <button class="btn btn-primary btn-sm" onclick="showTimeline({{loop.index}}, 'blog')">
