@@ -20,7 +20,7 @@ from datetime import datetime
 def create_dict_from_file_paths(file_path):
     # 파일명 추출
     file_name = os.path.basename(file_path)
-    # 확장자를 제외한 파일명
+    # 확장자를 ��외한 파일명
     file_name_without_ext = os.path.splitext(file_name)[0]
     # 딕셔너리 형태로 반환
     return {file_name_without_ext: file_path}
@@ -224,8 +224,18 @@ def redirect_analyze_case_final(data) :
     with open(drive_output, 'r', encoding='utf-8') as file:
         drive_results = json.load(file)
 
-    ''' Drive 추가 안됨 '''
-    
+    # Drive 데이터 처리
+    for drive_event in drive_results:
+        drive_file_row = {
+            'type': 'Drive',
+            'time_start': drive_event['timerange'].split(' ~ ')[0],  # timerange에서 시작 시간 추출
+            'time_end': drive_event['timerange'].split(' ~ ')[1],    # timerange에서 종료 시간 추출
+            'filename': drive_event['filename'],
+            'browser': drive_event['browser'],
+            'data': drive_event['connection']  # connection 데이터를 그대로 사용
+        }
+        analyzed_file_list.append(drive_file_row)
+
     blog_output = (os.path.join(os.getcwd(), "uploads", session['username'], case_number, "output_blog.json"))
     with open(blog_output, 'r', encoding='utf-8') as file:
         blog_results = json.load(file)
