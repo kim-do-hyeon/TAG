@@ -2,7 +2,7 @@ import sqlite3
 from datetime import datetime, timedelta
 import json
 import pandas as pd
-import re
+import re, os
 from operator import itemgetter
 
 # 기준 파일과 출력 파일 이름 설정
@@ -10,6 +10,17 @@ criteria_files = {
     "criteria_mail.json": ("mail_grouped_data_with_related_tag_data.json", "output_mail.json"),
     "criteria_drive.json": ("drive_grouped_data_with_related_tag_data.json", "output_drive.json"),
     "criteria_blog.json": ("blog_grouped_data_with_related_tag_data.json", "output_blog.json")
+}
+
+learning_output_data = []
+
+fields_by_table = {
+    "UsnJrnl": ["File_Name", "Timestamp_Date/Time_-_UTC_(yyyy-mm-dd)", "Reason", "File_Attributes"],
+    "LNK_Files": ["Target_File_Created_Date/Time_-_UTC_(yyyy-mm-dd)", "Target_File_Last_Accessed_Date/Time_-_UTC_(yyyy-mm-dd)", "Created_Date/Time_-_UTC_(yyyy-mm-dd)", "Target_File_Last_Modified_Date/Time_-_UTC_(yyyy-mm-dd)", "Last_Modified_Date/Time_-_UTC_(yyyy-mm-dd)", "Accessed_Date/Time_-_UTC_(yyyy-mm-dd)", "Linked_Path"],
+    "Edge/Internet_Explorer_10_11_Main_History": ["Access_Count", "Accessed_Date/Time_-_UTC_(yyyy-mm-dd)", "URL"],
+    "MRU_Recent_Files_&_Folders": ["File/Folder_Link", "File/Folder_Name", "_bagmrupath", "Registry_Key_Modified_Date/Time_-_UTC_(yyyy-mm-dd)"],
+    "Jump_Lists": ["Target_File_Created_Date/Time_-_UTC_(yyyy-mm-dd)", "Last_Access_Date/Time_-_UTC_(yyyy-mm-dd)", "Access_Count", "Data", "Target_MAC_Address", "Target_File_Last_Accessed_Date/Time_-_UTC_(yyyy-mm-dd)", "Target_File_Last_Modified_Date/Time_-_UTC_(yyyy-mm-dd)", "Target_File_Size_(Bytes)", "Linked_Path"],
+    "Locally_Accessed_Files_and_Folders": ["Path", "Access_Count", "Accessed_Date/Time_-_Local_Time_(yyyy-mm-dd)", "Accessed_Date/Time_-_UTC_(yyyy-mm-dd)"]
 }
 
 # DB 연결
@@ -32,6 +43,8 @@ file_name_pattern = re.compile(r'[^\\/]+\.(pdf|pptx|zip|hwp)$', re.IGNORECASE)
 
 # 기준 파일별로 전체 코드를 반복 실행
 for criteria_file, (output_file, custom_output_file) in criteria_files.items():
+    # 기준 파일에서 문자열(예: "mail", "drive", "blog") 추출
+    criteria_type = criteria_file.split("_")[1].split(".")[0]    
     # Step 1: 점수 기준 파일 로드
     with open(criteria_file, "r", encoding="utf-8") as f:
         scoring_criteria = json.load(f)
@@ -302,6 +315,9 @@ for criteria_file, (output_file, custom_output_file) in criteria_files.items():
         # closest_tag_data의 테이블 이름에서 접두어 추출
         if closest_tag_data:
             tag_table_prefix = extract_prefix_from_table(closest_tag_data["Table"])
+            tag_value = closest_tag_data["Data"].get("_TAG_", "").lower()
+            if criteria_type not in tag_value:
+                group["Group_Score"] = 0            
 
             # 2. 가장 가까운 이전의 캐시 데이터 찾기 (테이블 접두어가 같은 경우만 선택)
             closest_cache_data = None
@@ -380,14 +396,63 @@ for criteria_file, (output_file, custom_output_file) in criteria_files.items():
                 ],
                 "timeline": f"{min_timestamp} ~ {max_timestamp}"
             }
-            custom_output_data.append(custom_output_entry)
 
-            print(f"Event Date : {first_timestamp}")
-            print(f"Accessed File : [{group['File_Name']}]")
-            print("=" * 50)
-            print(f"File {group['File_Name']} Behavior")
-            print(f"Event : {min_timestamp} ~ {max_timestamp}")
-            print(df.to_string(index=False),"\n")        
+            connection = [
+                {
+                    "timestamp": timestamp,
+                    "type": type_,
+                    "main_data": main_data,
+                    "hit_id": entry["Data"].get("hit_id")  # Group_Data의 각 entry에서 hit_id 추출
+                }
+                for timestamp, type_, main_data, entry in zip(
+                    df["timestamp"],
+                    df["type"],
+                    df["main_data"],
+                    group["Group_Data"]  # Group_Data 리스트에서 각 entry에 접근
+                )
+            ]            
+
+            group_data_summary = [
+                {
+                    "Table": entry.get("Table"),
+                    "Timestamp": entry.get("Timestamp"),
+                    "Time_Column": entry.get("Time_Column")
+                }
+                for entry in group["Group_Data"]
+            ]
+
+            # event_data의 details 구성
+            event_data = [
+                {
+                    "artifact_name": entry["Table"],
+                    "time_stamp": entry["Timestamp"],
+                    "details": {
+                        field: group["Group_Data"][i]["Data"].get(field)
+                        for field in fields_by_table.get(entry["Table"], [])  # 테이블별 필드 가져오기
+                    }
+                }
+                for i, entry in enumerate(group_data_summary)
+            ]
+            
+            # 출력 결과 예시
+            learning_output_entry = {
+                "incident_type": "웹 파일 업로드",
+                "file_name": group["File_Name"],
+                "group_score": group["Group_Score"],
+                "service_type": criteria_type,
+                "url_patterns": [{item["type"]: item["main_data"]} for item in connection],
+                "artifacts": event_data
+            }
+            custom_output_data.append(custom_output_entry)
+            # JSON 결과에 추가
+            learning_output_data.append(learning_output_entry)
+
+            # print(f"Event Date : {first_timestamp}")
+            # print(f"Accessed File : [{group['File_Name']}]")
+            # print("=" * 50)
+            # print(f"File {group['File_Name']} Behavior")
+            # print(f"Event : {min_timestamp} ~ {max_timestamp}")
+            # print(df.to_string(index=False),"\n")        
         else:
             # closest_tag_data가 없는 경우
             result_with_tag_data.append({
@@ -402,10 +467,15 @@ for criteria_file, (output_file, custom_output_file) in criteria_files.items():
     # JSON 파일로 결과 저장
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump(result_with_tag_data, f, indent=4, ensure_ascii=False, default=str)
-    
+
+    output_learning_file = os.path.join(os.getcwd(), "learning_output_data.json")
+    with open(output_learning_file, "w", encoding="utf-8") as f:
+        json.dump(learning_output_data, f, indent=4, ensure_ascii=False, default=str)
+
     # 새로 정의된 조건의 JSON 파일 생성
     with open(custom_output_file, "w", encoding="utf-8") as f:
         json.dump(custom_output_data, f, indent=4, ensure_ascii=False, default=str)
 
     print(f"최종 그룹 데이터가 {output_file} 파일에 저장되었습니다.")
     print(f"추가 데이터가 {custom_output_file} 파일에 저장되었습니다.")
+    print(f"Learning output data가 {output_learning_file} 파일에 저장되었습니다.")
