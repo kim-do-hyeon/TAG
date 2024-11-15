@@ -270,6 +270,7 @@ def redirect_analyze_case_final_result(id):
     analyzed_file_list = Analyzed_file_list.query.filter_by(case_id=id).first().data
     case_number = Upload_Case.query.filter_by(id = id).first().case_number
     mail_output = (os.path.join(os.getcwd(), "uploads", session['username'], case_number, "output_mail.json"))
+    
     with open(mail_output, 'r', encoding='utf-8') as file:
         mail_results = json.load(file)
     
@@ -280,6 +281,18 @@ def redirect_analyze_case_final_result(id):
     blog_output = (os.path.join(os.getcwd(), "uploads", session['username'], case_number, "output_blog.json"))
     with open(blog_output, 'r', encoding='utf-8') as file:
         blog_results = json.load(file)
+        
+    ''' 임시 제거 함수 '''
+    def exclude_prioriry_0(results) :
+        tmp = []
+        for result in results :
+            if (result['priority'] != 0) :
+                tmp.append(result)
+        return tmp
+    mail_results = exclude_prioriry_0(mail_results)
+    drive_results = exclude_prioriry_0(drive_results)
+    blog_results = exclude_prioriry_0(blog_results)
+    ''' 없애도 됨 '''
     
     printer_timeline_data = []
     has_valid_timeline = False

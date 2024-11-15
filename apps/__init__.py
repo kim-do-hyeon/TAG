@@ -52,4 +52,10 @@ def create_app(config):
     register_extensions(app)
     register_blueprints(app)
     configure_database(app)
+    
+    # 사용자 정의 필터 등록
+    @app.template_filter('abs')
+    def abs_filter(value):
+        return abs(value)
+    
     return app

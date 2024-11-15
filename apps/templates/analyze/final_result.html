@@ -39,13 +39,15 @@
                             <th>행위 대상</th>
                             <th>시간대</th>
                             <th>설명</th>
-                            <th>타임라인</th>
+                            <th>의심도</th>
+                            <th>행위 흐름 그래프</th>
+                            <!-- <th>타임라인</th> -->
                         </tr>
                         {% for i in usb_results %}
                             {% set outer_index = loop.index %}
                             <tr>
                                 <td>
-                                    {{loop.index}}
+                                    {{ loop.index }}
                                 </td>
                                 <td>
                                     <p>기술 유출</p>
@@ -72,18 +74,27 @@
                                         </ul>
                                     {% endif %}
                                 </td>
+                                
                                 <td>
+                                    Null
+                                </td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm" onclick="showDetail('USB','{{outer_index}}', '{{file}}'); return false;">
+                                        커넥션 보기
+                                    </button>
+                                </td>
+                                <!--<td>
                                     <button class="btn btn-primary btn-sm" onclick="showTimeline({{loop.index}}, 'usb')">
                                         타임라인 보기
                                     </button>
-                                </td>
+                                </td> -->
                             </tr>
                         {% endfor %}
                         {% for i in printer_results %}
                             {% set outer_index = loop.index %}
                             <tr>
                                 <td>
-                                    {{loop.index}}
+                                    {{ loop.index }}
                                 </td>
                                 <td>
                                     <p>기술 유출</p>
@@ -121,18 +132,27 @@
                                     {% endif %}
                                 </td>
                                 <td>
+                                    None
+                                </td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm" onclick="showDetail('Printer','{{outer_index}}', '{{file}}'); return false;">
+                                        커넥션 보기
+                                    </button>
+                                </td>
+                                <!-- <td>
                                     <button class="btn btn-primary btn-sm" onclick="showTimeline({{loop.index}}, 'printer')">
                                         타임라인 보기
                                     </button>
-                                </td>
+                                </td> -->
                             </tr>
                         {% endfor %}
                         {% for i in mail_results %}
                             {% set outer_index = loop.index %}
                             {% if i['priority'] > 0 %}
+                                {% set priority_percentage = ((i['priority'] / 14) * 100) | round(2) %}
                                 <tr>
                                     <td>
-                                        {{loop.index}}
+                                        {{ loop.index }}
                                     </td>
                                     <td>
                                         <p>기술 유출</p>
@@ -157,10 +177,38 @@
                                         {% endif %}
                                     </td>
                                     <td>
+                                        <span style="font-weight: bold; color: 
+                                            {% if priority_percentage >= 75 %}
+                                                red
+                                            {% elif priority_percentage >= 50 %}
+                                                darkorange
+                                            {% elif priority_percentage >= 25 %}
+                                                goldenrod
+                                            {% else %}
+                                                gray
+                                            {% endif %}
+                                            ;">
+                                            {% if priority_percentage >= 75 %}
+                                                Critical!
+                                            {% elif priority_percentage >= 50 %}
+                                                High
+                                            {% elif priority_percentage >= 25 %}
+                                                Medium
+                                            {% else %}
+                                                Low
+                                            {% endif %}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" onclick="showDetail('Mail','{{outer_index}}', '{{i.filename}}');">
+                                            커넥션 보기
+                                        </button>
+                                    </td>
+                                    <!-- <td>
                                         <button class="btn btn-primary btn-sm" onclick="showTimeline({{loop.index}}, 'mail')">
                                             타임라인 보기
                                         </button>
-                                    </td>
+                                    </td> -->
                                 </tr>
                             {% endif %}
                         {% endfor %}
@@ -168,9 +216,10 @@
                         {% for i in drive_results %}
                             {% set outer_index = loop.index %}
                             {% if i['priority'] > 0 %}
+                                {% set priority_percentage = ((i['priority'] / 14) * 100) | round(2) %}
                                 <tr>
                                     <td>
-                                        {{loop.index}}
+                                        {{ loop.index }}
                                     </td>
                                     <td>
                                         <p>기술 유출</p>
@@ -195,10 +244,38 @@
                                         {% endif %}
                                     </td>
                                     <td>
+                                        <span style="font-weight: bold; color: 
+                                            {% if priority_percentage >= 75 %}
+                                                red
+                                            {% elif priority_percentage >= 50 %}
+                                                darkorange
+                                            {% elif priority_percentage >= 25 %}
+                                                goldenrod
+                                            {% else %}
+                                                gray
+                                            {% endif %}
+                                            ;">
+                                            {% if priority_percentage >= 75 %}
+                                                Critical!
+                                            {% elif priority_percentage >= 50 %}
+                                                High
+                                            {% elif priority_percentage >= 25 %}
+                                                Medium
+                                            {% else %}
+                                                Low
+                                            {% endif %}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" onclick="showDetail('Drive','{{outer_index}}', '{{i.filename}}');">
+                                            커넥션 보기
+                                        </button>
+                                    </td>
+                                    <!-- <td>
                                         <button class="btn btn-primary btn-sm" onclick="showTimeline({{loop.index}}, 'drive')">
                                             타임라인 보기
                                         </button>
-                                    </td>
+                                    </td> -->
                                 </tr>
                             {% endif %}
                         {% endfor %}
@@ -206,9 +283,10 @@
                         {% for i in blog_results %}
                             {% set outer_index = loop.index %}
                             {% if i['priority'] > 0 %}
+                                {% set priority_percentage = ((i['priority'] / 14) * 100) | round(2) %}
                                 <tr>
                                     <td>
-                                        {{loop.index}}
+                                        {{ loop.index }}
                                     </td>
                                     <td>
                                         <p>기술 유출</p>
@@ -233,10 +311,38 @@
                                         {% endif %}
                                     </td>
                                     <td>
+                                        <span style="font-weight: bold; color: 
+                                            {% if priority_percentage >= 75 %}
+                                                red
+                                            {% elif priority_percentage >= 50 %}
+                                                darkorange
+                                            {% elif priority_percentage >= 25 %}
+                                                goldenrod
+                                            {% else %}
+                                                gray
+                                            {% endif %}
+                                            ;">
+                                            {% if priority_percentage >= 75 %}
+                                                Critical!
+                                            {% elif priority_percentage >= 50 %}
+                                                High
+                                            {% elif priority_percentage >= 25 %}
+                                                Medium
+                                            {% else %}
+                                                Low
+                                            {% endif %}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" onclick="showDetail('Blog','{{outer_index}}', '{{i.filename}}'); return false;">
+                                            커넥션 보기
+                                        </button>
+                                    </td>
+                                    <!-- <td>
                                         <button class="btn btn-primary btn-sm" onclick="showTimeline({{loop.index}}, 'blog')">
                                             타임라인 보기
                                         </button>
-                                    </td>
+                                    </td> -->
                                 </tr>
                             {% endif %}
                         {% endfor %}
@@ -308,6 +414,9 @@
     };
 
     const analyzed_file_list = {{ analyzed_file_list | tojson | safe }};
+    const blog_result = {{ blog_results | tojson | safe }};
+    const mail_result = {{ mail_results | tojson | safe }};
+    const drive_result = {{ drive_results | tojson | safe }};
 
     const eventColors = {};  // 한 번만 선언
 
@@ -336,6 +445,11 @@
             var analyzed_file = analyzed_file_list.find(item => item.filename === file_name);
         }else {
             var analyzed_file = typeFilteredFiles[outer_index - 1];
+            var priority;
+            if (type === 'Blog') { priority = blog_result[outer_index - 1].priority; }
+            else if (type === 'Mail') { priority = mail_result[outer_index - 1].priority; }
+            else if (type === 'Drive') { priority = drive_result[outer_index - 1].priority; }
+            console.log(priority);
         }
         if (analyzed_file) {
             var content = JSON.stringify(analyzed_file['data'], null, 2);
@@ -384,8 +498,8 @@
             .then(secondData => {
                 // 두 번째 응답 데이터를 처리
                 var secondLogfileJson = JSON.stringify(secondData, null, 2);
-                console.log(secondData.edges);
-                console.log(secondData.nodes);
+                //console.log(secondData.edges);
+                //console.log(secondData.nodes);
 
                 jQuery('#detailModal').on('shown.bs.modal', function () {
                     var nodes = new vis.DataSet(secondData.nodes);
