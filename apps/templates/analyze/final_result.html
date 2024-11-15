@@ -270,11 +270,12 @@
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="DetailModalLabel">타임라인 정보</h5>
+                <h5 class="modal-title" id="DetailModalLabel">행위 흐름 그래프</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" style="overflow-y: auto;">
                 <div id="modalDetail"></div>
+                <div id="modalDetail-filename"></div>
                 <div id="network_graph"></div>
             </div>
             <div class="modal-footer">
@@ -446,7 +447,7 @@
                     };
                     var network = new vis.Network(container, data, options);
                 });
-
+                document.getElementById('modalDetail').innerHTML = `<p>${analyzed_file['filename']}<p>`
                 // 모달 표시
                 jQuery('#detailModal').modal('show');
                 

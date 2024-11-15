@@ -72,7 +72,7 @@ def file_connect_node(data) :
         time_data_list = list(all_data['data'])
         logfile_data_list = dict(data.get('logfile_data'))
         
-        pprint.pprint(time_data_list)
+        ##pprint.pprint(time_data_list)
         
         # 새로운 리스트를 만들어서 통합된 데이터를 저장
         consolidated_time_data_list = []
@@ -133,6 +133,8 @@ def file_connect_node(data) :
             if isinstance(value, bool) :
                 continue
             for logfile_data in value :
+                # if (logfile_data['File_Operation'] == 'Move') :
+                #     continue
                 row = {
                     'timestamp' : pd.to_datetime(logfile_data['Event_Date/Time_-_UTC_(yyyy-mm-dd)']),
                     'operation' : logfile_data['File_Operation'],
@@ -178,7 +180,7 @@ def file_connect_node(data) :
             
             consolidated_dict.append(current)  # Use the first item of the group
             i = j
-        pprint.pprint(consolidated_dict)
+        #pprint.pprint(consolidated_dict)
         
         
         img_dict = {
@@ -186,7 +188,7 @@ def file_connect_node(data) :
             'printer' : url_for('static', filename='graph_img/printer.svg', _external=True),
             'firefox' : url_for('static', filename='graph_img/firefox_logo.svg', _external=True),
             'chrome' : url_for('static', filename='graph_img/chrome-logo.svg', _external=True),
-            'gmail' : url_for('static', filename='graph_img/gmail-icon.svg', _external=True),
+            'mail' : url_for('static', filename='graph_img/gmail-icon.svg', _external=True),
             'google_drive' : url_for('static', filename='graph_img/google_drive_icon.svg', _external=True),
             '.ppt' : url_for('static', filename='graph_img/powerpoint.svg', _external=True),
             '.hwp' : url_for('static', filename='graph_img/hwp.svg', _external=True),
@@ -194,7 +196,9 @@ def file_connect_node(data) :
             '.docx' : url_for('static', filename='graph_img/docx.svg', _external=True),
             '.pdf' : url_for('static', filename='graph_img/pdf.svg', _external=True),
             'mega_drive' : url_for('static', filename='graph_img/mega_drive.svg', _external=True),
-            '.zip' : url_for('static', filename='graph_img/zip.svg', _external=True)
+            '.zip' : url_for('static', filename='graph_img/zip.svg', _external=True),
+            'dropbox' : url_for('static', filename='graph_img/dropbox_icon.svg', _external=True),
+            'one_drive' : url_for('static', filename='graph_img/onedrive.svg', _external=True)
         }
         nodes = []
         edges = []
@@ -214,12 +218,13 @@ def file_connect_node(data) :
             elif row['operation'] == 'Rename' :
                 node = {
                     'id' : idx,
-                    'label' : f'Rename\n{row["filename"]} -> {row["after_filename"]}',
+                    'label' : f'Rename\n{row["filename"]} -> {row["after_filename"]}'
+                    
                 }
             elif row['operation'] == 'Move' :
                 node = {
                     'id' : idx,
-                    'label' : f'Move Detected!\n{row["filename"]}',
+                    'label' : f'Move Detected!',
                 }
             else :
                 node = {
