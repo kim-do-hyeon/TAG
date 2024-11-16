@@ -1,506 +1,573 @@
-# log_tagger.py
-import re
 import json
 import datetime
-import openai
+import re
+import pandas as pd
+from sqlalchemy import create_engine
+from sqlalchemy.exc import NoSuchTableError
+from sqlalchemy.exc import OperationalError
+import sys
 import urllib.parse
+from sqlalchemy import text
 
 class LogTagger:
-    def __init__(self, data):
-        self.data = data
+    def __init__(self, db_url):
+        self.engine = create_engine(db_url)
         self.patterns = {
-            "google_login_pattern": re.compile(r'로그인\s-\sGoogle\s계정'),
-            "gmail_inbox_pattern": re.compile(r'Inbox\s\(\d+\)\s-\s.*@gmail\.com'),
-            "gmail_sentmail_pattern": re.compile(r'(Sent\sMail)\s-\s.*@gmail\.com'),
-            "gmail_subject_pattern": re.compile(r'.*\s-\s.*@gmail\.com'),
-            "search_pattern": re.compile(r'(.*?\s-\s검색)'),
-            "pdf_pattern": re.compile(r'.*?\.pdf'),
-            "usb_device_pattern": re.compile(r'.*?\(Standard disk drives\)'),
-            "remove_pattern": re.compile(r'Recycle\sBin'),
-            "tistory_pattern": re.compile(r'https?://[\w-]+\.tistory\.com/[\w-]+'),
-            "web_pdf_download_pattern": re.compile(r'.*?\.pdf'),
-            "web_exe_download_pattern": re.compile(r'.*?\.exe'),
-            "web_hwp_download_pattern": re.compile(r'.*?\.hwp'),
-            "web_doc_download_pattern": re.compile(r'.*?\.doc'),
-            "web_docs_download_pattern": re.compile(r'.*?\.docs'),
-            "gmail_drive_sharing_pattern": re.compile(r'https:\/\/mail\.google\.com\/drivesharing.*?shareService=mail'),
-            "google_drive_upload_pattern": re.compile(r'https:\/\/drive\.google\.com.*?upload\?'),
-            "new_mail_create_pattern": re.compile(r'https:\/\/mail\.google\.com\/.*?inbox\?compose=new'),
-            "google_redirection_pattern": re.compile(r'https:\/\/www\.google\.com\/url\?q='),
-            "file_web_access": re.compile(r'file:\/\/\/[A-Za-z]:\/(?:[^\/\n]+\/)*[^\/\n]+?\.[a-zA-Z0-9]+')
-            
+            "Edge_Chromium_Web_Visits": {
+                "Title": [
+                    ("Web_Search", re.compile(r'(.*?\s-\s.*검색)'))             
+                    # 기타 Title 패턴 추가 가능
+                ],
+                "URL": [
+                    #Proton Mail 
+                    ("Proton_Mail_Home_Page", re.compile(r'https:\/\/proton\.me\/mail')),
+                    ("Proton_Mail_Login", re.compile(r'https:\/\/account\.proton.*')),
+                    ("Proton_Mail_Login_Session", re.compile(r'https:\/\/mail\.proton\.me\/login#')),
+                    ("Proton_Mail_Login_Session_Expired", re.compile(r'https:\/\/account\.proton\.me\/authorize\?app=proton-mail&state=.*reason=session-expired')),
+                    ("Proton_Mail_Trash", re.compile(r'https:\/\/mail\.proton\.me.*trash')),
+                    ("Proton_Mail_Archive", re.compile(r'https:\/\/mail\.proton\.me.*archive')),
+                    ("Proton_Mail_All_Sent", re.compile(r'https:\/\/mail\.proton\.me.*all-sent')),
+                    ("Proton_Mail_All_Drafts", re.compile(r'https:\/\/mail\.proton\.me.*all-drafts')),
+                    ("Proton_Mail_Inbox", re.compile(r'https:\/\/mail\.proton\.me.*inbox')),
+                    #Google
+                    ("Google_Login_Service_Endpoint", re.compile(r'https:\/\/accounts\.google\.com\/ServiceLogin\?')),
+                    ("Google_Login_Interactive_Endpoint", re.compile(r'https:\/\/accounts\.google\.com\/InteractiveLogin\?')),
+                    ("Google_Redirection", re.compile(r'https:\/\/www\.google\.com\/url\?q=')),
+                    #Gmail
+                    ("Google_Mail_Inbox", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*ogbl\/\?pli=1$')),
+                    ("Google_Mail_Inbox", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#inbox$')),
+                    ("Google_Mail_Sent", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#sent$')),
+                    ("Google_Mail_Drafts", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#drafts$')),
+                    ("Google_Mail_trash", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#trash$')),
+                    ("Google_Mail_Starred", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#starred$')),
+                    ("Google_Mail_Open_Mail", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/[a-zA-Z]+$')),
+                    ("Google_Mail_Mail_Write", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\?compose=.*$')),
+                    ("Google_Mail_Drive_Sharing", re.compile(r'https:\/\/mail\.google\.com\/drivesharing.*?shareService=mail')),
+                    ("Google_Mail_Create_New_mail", re.compile(r'https:\/\/mail\.google\.com\/.*\?compose=new')),
+                    #Google Drive
+                    ("Google_Drive_Main", re.compile(r'https:\/\/drive\.google\.com\/drive\/home')),
+                    ("Google_Drive_My_Drive", re.compile(r'https:\/\/drive\.google\.com\/drive\/my-drive')),
+                    ("Google_Drive_Folder", re.compile(r'https:\/\/drive\.google\.com\/drive\/folders')),
+                    #Mega
+                    ("Mega_Drive_Login", re.compile(r'https:\/\/mega\.nz\/login')),
+                    ("Mega_Drive_Main", re.compile(r'https:\/\/mega\.nz\/fm')), #폴더를 들어가도 똑같음
+                    #Dropbox
+                    ("Dropbox_Drive_Drive", re.compile(r'^https:\/\/www\.dropbox\.com\/home$')),
+                    ("Dropbox_Drive_Client_Login", re.compile(r'https:\/\/www\.dropbox\.com\/desktop\/oauth2\?code=.*&state=.*')),
+                    #One Drive
+                    ("One_Drive_Login", re.compile(r'https:\/\/onedrive\.live\.com\/login\/')),
+                    ("One_Drive_Folder", re.compile(r'https:\/\/onedrive\.live\.com\/\?id=.*&cid=.*')),
+                    ("One_Drive_Main", re.compile(r'https:\/\/onedrive\.live\.com\/\?id=root&cid=.*')),
+                    #Outlook Mail
+                    ("Outlook_Mail_Login", re.compile(r'https:\/\/login\.live\.com\/ppsecure\/post\.srf\?cobrandid=.*&uaid=.*&pid=.*&opid=.*&route=.*')),
+                    ("Outlook_Mail_Sent", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/sentitems\?')),
+                    ("Outlook_Mail_Drafts", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/drafts\?')),
+                    ("Outlook_Mail_Trash", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/deleteditems\?')),
+                    #Naver
+                    ("Naver_Login", re.compile(r'https:\/\/nid\.naver\.com\/nidlogin\.login')),
+                    #Naver Mail
+                    ("Naver_Mail_Write_Session", re.compile(r'https:\/\/mail\.naver\.com\/write')),
+                    ("Naver_Mail_Write", re.compile(r'https:\/\/mail\.naver\.com\/.*\/new')),
+                    ("Naver_Mail_Write_Done", re.compile(r'https:\/\/mail\.naver\.com\/.*\/new\/done')),
+                    ("Naver_Mail_Self_Sent", re.compile(r'https:\/\/mail\.naver\.com\/.*\/new?\type=toMe')),
+                    ("Naver_Mail_All_Mail", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/-1')),
+                    ("Naver_Mail_Inbox", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/0')),
+                    ("Naver_Mail_Sent", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/1')),
+                    ("Naver_Mail_Receipt_Confirmation", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/2')),
+                    ("Naver_Mail_Drafts", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/3')),
+                    ("Naver_Mail_Trash", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/4')),
+                    ("Naver_Mail_Self_Sent_Mailbox", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/6')),
+                    #Naver Mybox
+                    ("Naver_Mybox_Main", re.compile(r'https:\/\/mybox\.naver\.com\/#\/my')),
+                    ("Naver_Mybox_Main", re.compile(r'^https:\/\/mybox\.naver\.com\/#\/$')),
+                    ("Naver_Mybox_Recent_Update", re.compile(r'https:\/\/mybox\.naver\.com\/#\/recent\/update')),
+                    ("Naver_Mybox_Recent_Access", re.compile(r'https:\/\/mybox\.naver\.com\/#\/recent\/access')),
+                    ("Naver_Mybox_Protect", re.compile(r'https:\/\/mybox\.naver\.com\/#\/protect')),
+                    ("Naver_Mybox_Shared", re.compile(r'https:\/\/mybox\.naver\.com\/#\/share\/shared')),
+                    ("Naver_Mybox_Sharing", re.compile(r'https:\/\/mybox\.naver\.com\/#\/share\/sharing')),
+                    #Naver Blog
+                    ("Naver_Blog_Main", re.compile(r'https:\/\/blog\.naver\.com\/')),
+                    ("Naver_Blog_Write", re.compile(r'https:\/\/blog\.naver\.com\/.*\?Redirect=Write')),
+                    ("Naver_Blog_Write", re.compile(r'https:\/\/blog\.naver\.com\/.*\/postwrite')),
+                    ("Naver_Blog_Issuance", re.compile(r'https:\/\/blog\.naver\.com\/PostView\.naver\?blogId=.*&Redirect=View&logNo=.*&categoryNo=.*&isAfterWrite=true&isMrblogPost=.*&isHappyBeanLeverage=.*&contentLength=.*')),
+                    #Kakao Mail
+                    ("Kakao_Mail_Login", re.compile(r'https:\/\/logins\.daum\.net\/accounts\/kakaossotokenlogin\.do\?redirect=true&ssotoken=.*&url=')),
+                    ("Kakao_Mail_Inbox", re.compile(r'^https:\/\/mail\.kakao\.com\/top\/INBOX$')),
+                    ("Kakao_Mail_Sent", re.compile(r'^https:\/\/mail\.kakao\.com\/top\/SENT$')),
+                    ("Kakao_Mail_Trash", re.compile(r'^https:\/\/mail\.kakao\.com\/top\/TRASH$')),
+                    ("Kakao_Mail_Write", re.compile(r'https:\/\/mail\.kakao\.com\/top\/.*\?composer')),
+                    #Daum
+                    ("Daum_Mail_Login", re.compile(r'https:\/\/accounts\.kakao\.com\/weblogin\/sso_login\.html\?only=daum&continue=https%3A%2F%2Fmail\.daum\.net&type=ksso')),
+                    ("Daum_Mail_Inbox", re.compile(r'^https:\/\/mail\.daum\.net\/top\/INBOX$')),
+                    ("Daum_Mail_Write", re.compile(r'https:\/\/mail\.daum\.net\/top\/.*\?composer')),
+                    ("Daum_Mail_Sent", re.compile(r'^https:\/\/mail\.daum\.net\/top\/SENT$')),
+                    ("Daum_Mail_Draft", re.compile(r'^https:\/\/mail\.daum\.net\/top\/DRAFT$')),
+                    ("Daum_Mail_Trash", re.compile(r'^https:\/\/mail\.daum\.net\/top\/TRASH$')),
+                    #Nate
+                    ("Nate_Mail_Write", re.compile(r'https:\/\/mail.*\.nate\.com\/#write\/\?act=new')),
+                    ("Nate_Mail_Sent_Complete", re.compile(r'https:\/\/mail3\.nate\.com\/#write\/\?act=new')),
+                    ("Nate_Mail_Inbox", re.compile(r'https:\/\/mail3\.nate\.com\/#list\/\?pop3id=M&page=.*&mboxid=10')),
+                    ("Nate_Mail_Sent", re.compile(r'https:\/\/mail3\.nate\.com\/#list\/\?pop3id=M&page=.*&mboxid=30')),
+                    ("Nate_Mail_Draft", re.compile(r'https:\/\/mail3\.nate\.com\/#list\/\?pop3id=M&page=.*&mboxid=40')),
+                    ("Nate_Mail_Trash", re.compile(r'https:\/\/mail3\.nate\.com\/#list\/\?pop3id=M&page=1&mboxid=50')),
+                    #Tistory
+                    ("Tistory_Blog_Login", re.compile(r'https:\/\/www\.tistory\.com\/auth\/kakao\/redirect\?code=.*')),
+                    ("Tistory_Blog_Manage", re.compile(r'https:\/\/.*\.tistory\.com\/manage\/.*')),
+                    ("Tistory_Blog_Post", re.compile(r'https:\/\/.*\.tistory\.com\/manage\/newpost.*')),
+                    ("Tistory_Blog_Post", re.compile(r'^https:\/\/.*\.tistory\.com\/manage\/post$')),
+                    #Velog
+                    ("Velog_Blog_Login", re.compile(r'https:\/\/velog\.io\/email-login\?code=.*')),
+                    ("Velog_Blog_New_Post", re.compile(r'^https:\/\/velog\.io\/write$')),
+                    ("Velog_Blog_Post", re.compile(r'https:\/\/velog\.io\/write\?id=.*')),
+                    #ETC
+                    ("File_Web_Access", re.compile(r'file:\/\/\/[A-Za-z]:\/(?:[^\/\n]+\/)*[^\/\n]+?\.[a-zA-Z0-9]+')),
+                    ("Short_URL_Service", re.compile(r'\b(https?://)?(bit\.ly|tinyurl\.com|goo\.gl|t\.co|is\.gd|ow\.ly)/[a-zA-Z0-9]+\b')),
+                    ("VPN_Service", re.compile(r'\b(vpn|secure|proxy|anon|connect)\.[a-zA-Z0-9.-]+\b')),
+                    ("Use_Proxy_Server_PORT", re.compile(r':\b(8080|3128|8888|8000|8081|8118)\b')),
+                    ("NAS_Quick_Connect_Server", re.compile(r'https:\/\/quickconnect\.to\/[a-zA-Z0-9]+(?:\/[^\s]*)?')),
+                    ("NAS_C2_Synology_Server", re.compile(r'https:\/\/c2\.synology\.com\/[^\s]*')),
+                    ("IP_Address_Server", re.compile(r'https:\/\/(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\/[^\s]*'))
+                    # 기타 URL 패턴 추가 가능
+                ],
+                "Title": [
+                    ("Mega_Drive_File_Upload", re.compile(r'MEGA ↑ (100|[1-9]?[0-9])%'))
+                ]
+            },
+            "Chrome_Web_Visits": {
+                "Title": [
+                    ("Web_Search", re.compile(r'(.*?\s-\s.*검색)'))             
+                    # 기타 Title 패턴 추가 가능
+                ],
+                "URL": [
+                    #Proton Mail 
+                    ("Proton_Mail_Home_Page", re.compile(r'https:\/\/proton\.me\/mail')),
+                    ("Proton_Mail_Login", re.compile(r'https:\/\/account\.proton.*')),
+                    ("Proton_Mail_Login_Session", re.compile(r'https:\/\/mail\.proton\.me\/login#')),
+                    ("Proton_Mail_Login_Session_Expired", re.compile(r'https:\/\/account\.proton\.me\/authorize\?app=proton-mail&state=.*reason=session-expired')),
+                    ("Proton_Mail_Trash", re.compile(r'https:\/\/mail\.proton\.me.*trash')),
+                    ("Proton_Mail_Archive", re.compile(r'https:\/\/mail\.proton\.me.*archive')),
+                    ("Proton_Mail_All_Sent", re.compile(r'https:\/\/mail\.proton\.me.*all-sent')),
+                    ("Proton_Mail_All_Drafts", re.compile(r'https:\/\/mail\.proton\.me.*all-drafts')),
+                    ("Proton_Mail_Inbox", re.compile(r'https:\/\/mail\.proton\.me.*inbox')),
+                    #Google
+                    ("Google_Login_Service_Endpoint", re.compile(r'https:\/\/accounts\.google\.com\/ServiceLogin\?')),
+                    ("Google_Login_Interactive_Endpoint", re.compile(r'https:\/\/accounts\.google\.com\/InteractiveLogin\?')),
+                    ("Google_Redirection", re.compile(r'https:\/\/www\.google\.com\/url\?q=')),
+                    #Gmail
+                    ("Google_Mail_Inbox", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*ogbl\/\?pli=1$')),
+                    ("Google_Mail_Inbox", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#inbox$')),
+                    ("Google_Mail_Sent", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#sent$')),
+                    ("Google_Mail_Drafts", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#drafts$')),
+                    ("Google_Mail_trash", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#trash$')),
+                    ("Google_Mail_Starred", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#starred$')),
+                    ("Google_Mail_Open_Mail", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/[a-zA-Z]+$')),
+                    ("Google_Mail_Mail_Write", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\?compose=.*$')),
+                    ("Google_Mail_Drive_Sharing", re.compile(r'https:\/\/mail\.google\.com\/drivesharing.*?shareService=mail')),
+                    ("Google_Mail_Create_New_mail", re.compile(r'https:\/\/mail\.google\.com\/.*\?compose=new')),
+                    #Google Drive
+                    ("Google_Drive_Main", re.compile(r'https:\/\/drive\.google\.com\/drive\/home')),
+                    ("Google_Drive_My_Drive", re.compile(r'https:\/\/drive\.google\.com\/drive\/my-drive')),
+                    ("Google_Drive_Folder", re.compile(r'https:\/\/drive\.google\.com\/drive\/folders')),
+                    #Mega
+                    ("Mega_Drive_Login", re.compile(r'https:\/\/mega\.nz\/login')),
+                    ("Mega_Drive_Main", re.compile(r'https:\/\/mega\.nz\/fm')), #폴더를 들어가도 똑같음
+                    #Dropbox
+                    ("Dropbox_Drive_Drive", re.compile(r'^https:\/\/www\.dropbox\.com\/home$')),
+                    ("Dropbox_Drive_Client_Login", re.compile(r'https:\/\/www\.dropbox\.com\/desktop\/oauth2\?code=.*&state=.*')),
+                    #One Drive
+                    ("One_Drive_Login", re.compile(r'https:\/\/onedrive\.live\.com\/login\/')),
+                    ("One_Drive_Folder", re.compile(r'https:\/\/onedrive\.live\.com\/\?id=.*&cid=.*')),
+                    ("One_Drive_Main", re.compile(r'https:\/\/onedrive\.live\.com\/\?id=root&cid=.*')),
+                    #Outlook Mail
+                    ("Outlook_Mail_Login", re.compile(r'https:\/\/login\.live\.com\/ppsecure\/post\.srf\?cobrandid=.*&uaid=.*&pid=.*&opid=.*&route=.*')),
+                    ("Outlook_Mail_Sent", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/sentitems\?')),
+                    ("Outlook_Mail_Drafts", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/drafts\?')),
+                    ("Outlook_Mail_Trash", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/deleteditems\?')),
+                    #Naver
+                    ("Naver_Login", re.compile(r'https:\/\/nid\.naver\.com\/nidlogin\.login')),
+                    #Naver Mail
+                    ("Naver_Mail_Write_Session", re.compile(r'https:\/\/mail\.naver\.com\/write')),
+                    ("Naver_Mail_Write", re.compile(r'https:\/\/mail\.naver\.com\/.*\/new')),
+                    ("Naver_Mail_Write_Done", re.compile(r'https:\/\/mail\.naver\.com\/.*\/new\/done')),
+                    ("Naver_Mail_Self_Sent", re.compile(r'https:\/\/mail\.naver\.com\/.*\/new?\type=toMe')),
+                    ("Naver_Mail_All_Mail", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/-1')),
+                    ("Naver_Mail_Inbox", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/0')),
+                    ("Naver_Mail_Sent", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/1')),
+                    ("Naver_Mail_Receipt_Confirmation", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/2')),
+                    ("Naver_Mail_Drafts", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/3')),
+                    ("Naver_Mail_Trash", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/4')),
+                    ("Naver_Mail_Self_Sent_Mailbox", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/6')),
+                    #Naver Mybox
+                    ("Naver_Mybox_Main", re.compile(r'https:\/\/mybox\.naver\.com\/#\/my')),
+                    ("Naver_Mybox_Main", re.compile(r'^https:\/\/mybox\.naver\.com\/#\/$')),
+                    ("Naver_Mybox_Recent_Update", re.compile(r'https:\/\/mybox\.naver\.com\/#\/recent\/update')),
+                    ("Naver_Mybox_Recent_Access", re.compile(r'https:\/\/mybox\.naver\.com\/#\/recent\/access')),
+                    ("Naver_Mybox_Protect", re.compile(r'https:\/\/mybox\.naver\.com\/#\/protect')),
+                    ("Naver_Mybox_Shared", re.compile(r'https:\/\/mybox\.naver\.com\/#\/share\/shared')),
+                    ("Naver_Mybox_Sharing", re.compile(r'https:\/\/mybox\.naver\.com\/#\/share\/sharing')),
+                    #Naver Blog
+                    ("Naver_Blog_Main", re.compile(r'https:\/\/blog\.naver\.com\/')),
+                    ("Naver_Blog_Write", re.compile(r'https:\/\/blog\.naver\.com\/.*\?Redirect=Write')),
+                    ("Naver_Blog_Write", re.compile(r'https:\/\/blog\.naver\.com\/.*\/postwrite')),
+                    ("Naver_Blog_Issuance", re.compile(r'https:\/\/blog\.naver\.com\/PostView\.naver\?blogId=.*&Redirect=View&logNo=.*&categoryNo=.*&isAfterWrite=true&isMrblogPost=.*&isHappyBeanLeverage=.*&contentLength=.*')),
+                    #Kakao Mail
+                    ("Kakao_Mail_Login", re.compile(r'https:\/\/logins\.daum\.net\/accounts\/kakaossotokenlogin\.do\?redirect=true&ssotoken=.*&url=')),
+                    ("Kakao_Mail_Inbox", re.compile(r'^https:\/\/mail\.kakao\.com\/top\/INBOX$')),
+                    ("Kakao_Mail_Sent", re.compile(r'^https:\/\/mail\.kakao\.com\/top\/SENT$')),
+                    ("Kakao_Mail_Trash", re.compile(r'^https:\/\/mail\.kakao\.com\/top\/TRASH$')),
+                    ("Kakao_Mail_Write", re.compile(r'https:\/\/mail\.kakao\.com\/top\/.*\?composer')),
+                    #Daum
+                    ("Daum_Mail_Login", re.compile(r'https:\/\/accounts\.kakao\.com\/weblogin\/sso_login\.html\?only=daum&continue=https%3A%2F%2Fmail\.daum\.net&type=ksso')),
+                    ("Daum_Mail_Inbox", re.compile(r'^https:\/\/mail\.daum\.net\/top\/INBOX$')),
+                    ("Daum_Mail_Write", re.compile(r'https:\/\/mail\.daum\.net\/top\/.*\?composer')),
+                    ("Daum_Mail_Sent", re.compile(r'^https:\/\/mail\.daum\.net\/top\/SENT$')),
+                    ("Daum_Mail_Draft", re.compile(r'^https:\/\/mail\.daum\.net\/top\/DRAFT$')),
+                    ("Daum_Mail_Trash", re.compile(r'^https:\/\/mail\.daum\.net\/top\/TRASH$')),
+                    #Nate
+                    ("Nate_Mail_Write", re.compile(r'https:\/\/mail.*\.nate\.com\/#write\/\?act=new')),
+                    ("Nate_Mail_Sent_Complete", re.compile(r'https:\/\/mail3\.nate\.com\/#write\/\?act=new')),
+                    ("Nate_Mail_Inbox", re.compile(r'https:\/\/mail3\.nate\.com\/#list\/\?pop3id=M&page=.*&mboxid=10')),
+                    ("Nate_Mail_Sent", re.compile(r'https:\/\/mail3\.nate\.com\/#list\/\?pop3id=M&page=.*&mboxid=30')),
+                    ("Nate_Mail_Draft", re.compile(r'https:\/\/mail3\.nate\.com\/#list\/\?pop3id=M&page=.*&mboxid=40')),
+                    ("Nate_Mail_Trash", re.compile(r'https:\/\/mail3\.nate\.com\/#list\/\?pop3id=M&page=1&mboxid=50')),
+                    #Tistory
+                    ("Tistory_Blog_Login", re.compile(r'https:\/\/www\.tistory\.com\/auth\/kakao\/redirect\?code=.*')),
+                    ("Tistory_Blog_Manage", re.compile(r'https:\/\/.*\.tistory\.com\/manage\/.*')),
+                    ("Tistory_Blog_Post", re.compile(r'https:\/\/.*\.tistory\.com\/manage\/newpost.*')),
+                    ("Tistory_Blog_Post", re.compile(r'^https:\/\/.*\.tistory\.com\/manage\/post$')),
+                    #Velog
+                    ("Velog_Blog_Login", re.compile(r'https:\/\/velog\.io\/email-login\?code=.*')),
+                    ("Velog_Blog_New_Post", re.compile(r'^https:\/\/velog\.io\/write$')),
+                    ("Velog_Blog_Post", re.compile(r'https:\/\/velog\.io\/write\?id=.*')),
+                    #ETC
+                    ("File_Web_Access", re.compile(r'file:\/\/\/[A-Za-z]:\/(?:[^\/\n]+\/)*[^\/\n]+?\.[a-zA-Z0-9]+')),
+                    ("Short_URL_Service", re.compile(r'\b(https?://)?(bit\.ly|tinyurl\.com|goo\.gl|t\.co|is\.gd|ow\.ly)/[a-zA-Z0-9]+\b')),
+                    ("VPN_Service", re.compile(r'\b(vpn|secure|proxy|anon|connect)\.[a-zA-Z0-9.-]+\b')),
+                    ("Use_Proxy_Server_PORT", re.compile(r':\b(8080|3128|8888|8000|8081|8118)\b')),
+                    ("NAS_Quick_Connect_Server", re.compile(r'https:\/\/quickconnect\.to\/[a-zA-Z0-9]+(?:\/[^\s]*)?')),
+                    ("NAS_C2_Synology_Server", re.compile(r'https:\/\/c2\.synology\.com\/[^\s]*')),
+                    ("IP_Address_Server", re.compile(r'https:\/\/(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\/[^\s]*'))
+                    # 기타 URL 패턴 추가 가능
+                ],
+                "Title": [
+                    ("Mega_Drive_File_Upload", re.compile(r'MEGA ↑ (100|[1-9]?[0-9])%'))
+                ]
+            },
+            "Firefox_Web_Visits": {
+                "Title": [
+                    ("Web_Search", re.compile(r'(.*?\s-\s.*검색)'))             
+                    # 기타 Title 패턴 추가 가능
+                ],
+                "URL": [
+                    #Proton Mail 
+                    ("Proton_Mail_Home_Page", re.compile(r'https:\/\/proton\.me\/mail')),
+                    ("Proton_Mail_Login", re.compile(r'https:\/\/account\.proton.*')),
+                    ("Proton_Mail_Login_Session", re.compile(r'https:\/\/mail\.proton\.me\/login#')),
+                    ("Proton_Mail_Login_Session_Expired", re.compile(r'https:\/\/account\.proton\.me\/authorize\?app=proton-mail&state=.*reason=session-expired')),
+                    ("Proton_Mail_Trash", re.compile(r'https:\/\/mail\.proton\.me.*trash')),
+                    ("Proton_Mail_Archive", re.compile(r'https:\/\/mail\.proton\.me.*archive')),
+                    ("Proton_Mail_All_Sent", re.compile(r'https:\/\/mail\.proton\.me.*all-sent')),
+                    ("Proton_Mail_All_Drafts", re.compile(r'https:\/\/mail\.proton\.me.*all-drafts')),
+                    ("Proton_Mail_Inbox", re.compile(r'https:\/\/mail\.proton\.me.*inbox')),
+                    #Google
+                    ("Google_Login_Service_Endpoint", re.compile(r'https:\/\/accounts\.google\.com\/ServiceLogin\?')),
+                    ("Google_Login_Interactive_Endpoint", re.compile(r'https:\/\/accounts\.google\.com\/InteractiveLogin\?')),
+                    ("Google_Redirection", re.compile(r'https:\/\/www\.google\.com\/url\?q=')),
+                    #Gmail
+                    ("Google_Mail_Inbox", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*ogbl\/\?pli=1$')),
+                    ("Google_Mail_Inbox", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#inbox$')),
+                    ("Google_Mail_Sent", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#sent$')),
+                    ("Google_Mail_Drafts", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#drafts$')),
+                    ("Google_Mail_trash", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#trash$')),
+                    ("Google_Mail_Starred", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/#starred$')),
+                    ("Google_Mail_Open_Mail", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\/[a-zA-Z]+$')),
+                    ("Google_Mail_Mail_Write", re.compile(r'^https:\/\/mail\.google\.com\/mail\/.*\?compose=.*$')),
+                    ("Google_Mail_Drive_Sharing", re.compile(r'https:\/\/mail\.google\.com\/drivesharing.*?shareService=mail')),
+                    ("Google_Mail_Create_New_mail", re.compile(r'https:\/\/mail\.google\.com\/.*\?compose=new')),
+                    #Google Drive
+                    ("Google_Drive_Main", re.compile(r'https:\/\/drive\.google\.com\/drive\/home')),
+                    ("Google_Drive_My_Drive", re.compile(r'https:\/\/drive\.google\.com\/drive\/my-drive')),
+                    ("Google_Drive_Folder", re.compile(r'https:\/\/drive\.google\.com\/drive\/folders')),
+                    #Mega
+                    ("Mega_Drive_Login", re.compile(r'https:\/\/mega\.nz\/login')),
+                    ("Mega_Drive_Main", re.compile(r'https:\/\/mega\.nz\/fm')), #폴더를 들어가도 똑같음
+                    #Dropbox
+                    ("Dropbox_Drive_Drive", re.compile(r'^https:\/\/www\.dropbox\.com\/home$')),
+                    ("Dropbox_Drive_Client_Login", re.compile(r'https:\/\/www\.dropbox\.com\/desktop\/oauth2\?code=.*&state=.*')),
+                    #One Drive
+                    ("One_Drive_Login", re.compile(r'https:\/\/onedrive\.live\.com\/login\/')),
+                    ("One_Drive_Folder", re.compile(r'https:\/\/onedrive\.live\.com\/\?id=.*&cid=.*')),
+                    ("One_Drive_Main", re.compile(r'https:\/\/onedrive\.live\.com\/\?id=root&cid=.*')),
+                    #Outlook Mail
+                    ("Outlook_Mail_Login", re.compile(r'https:\/\/login\.live\.com\/ppsecure\/post\.srf\?cobrandid=.*&uaid=.*&pid=.*&opid=.*&route=.*')),
+                    ("Outlook_Mail_Sent", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/sentitems\?')),
+                    ("Outlook_Mail_Drafts", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/drafts\?')),
+                    ("Outlook_Mail_Trash", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/deleteditems\?')),
+                    #Naver
+                    ("Naver_Login", re.compile(r'https:\/\/nid\.naver\.com\/nidlogin\.login')),
+                    #Naver Mail
+                    ("Naver_Mail_Write_Session", re.compile(r'https:\/\/mail\.naver\.com\/write')),
+                    ("Naver_Mail_Write", re.compile(r'https:\/\/mail\.naver\.com\/.*\/new')),
+                    ("Naver_Mail_Write_Done", re.compile(r'https:\/\/mail\.naver\.com\/.*\/new\/done')),
+                    ("Naver_Mail_Self_Sent", re.compile(r'https:\/\/mail\.naver\.com\/.*\/new?\type=toMe')),
+                    ("Naver_Mail_All_Mail", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/-1')),
+                    ("Naver_Mail_Inbox", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/0')),
+                    ("Naver_Mail_Sent", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/1')),
+                    ("Naver_Mail_Receipt_Confirmation", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/2')),
+                    ("Naver_Mail_Drafts", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/3')),
+                    ("Naver_Mail_Trash", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/4')),
+                    ("Naver_Mail_Self_Sent_Mailbox", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/6')),
+                    #Naver Mybox
+                    ("Naver_Mybox_Main", re.compile(r'https:\/\/mybox\.naver\.com\/#\/my')),
+                    ("Naver_Mybox_Main", re.compile(r'^https:\/\/mybox\.naver\.com\/#\/$')),
+                    ("Naver_Mybox_Recent_Update", re.compile(r'https:\/\/mybox\.naver\.com\/#\/recent\/update')),
+                    ("Naver_Mybox_Recent_Access", re.compile(r'https:\/\/mybox\.naver\.com\/#\/recent\/access')),
+                    ("Naver_Mybox_Protect", re.compile(r'https:\/\/mybox\.naver\.com\/#\/protect')),
+                    ("Naver_Mybox_Shared", re.compile(r'https:\/\/mybox\.naver\.com\/#\/share\/shared')),
+                    ("Naver_Mybox_Sharing", re.compile(r'https:\/\/mybox\.naver\.com\/#\/share\/sharing')),
+                    #Naver Blog
+                    ("Naver_Blog_Main", re.compile(r'https:\/\/blog\.naver\.com\/')),
+                    ("Naver_Blog_Write", re.compile(r'https:\/\/blog\.naver\.com\/.*\?Redirect=Write')),
+                    ("Naver_Blog_Write", re.compile(r'https:\/\/blog\.naver\.com\/.*\/postwrite')),
+                    ("Naver_Blog_Issuance", re.compile(r'https:\/\/blog\.naver\.com\/PostView\.naver\?blogId=.*&Redirect=View&logNo=.*&categoryNo=.*&isAfterWrite=true&isMrblogPost=.*&isHappyBeanLeverage=.*&contentLength=.*')),
+                    #Kakao Mail
+                    ("Kakao_Mail_Login", re.compile(r'https:\/\/logins\.daum\.net\/accounts\/kakaossotokenlogin\.do\?redirect=true&ssotoken=.*&url=')),
+                    ("Kakao_Mail_Inbox", re.compile(r'^https:\/\/mail\.kakao\.com\/top\/INBOX$')),
+                    ("Kakao_Mail_Sent", re.compile(r'^https:\/\/mail\.kakao\.com\/top\/SENT$')),
+                    ("Kakao_Mail_Trash", re.compile(r'^https:\/\/mail\.kakao\.com\/top\/TRASH$')),
+                    ("Kakao_Mail_Write", re.compile(r'https:\/\/mail\.kakao\.com\/top\/.*\?composer')),
+                    #Daum
+                    ("Daum_Mail_Login", re.compile(r'https:\/\/accounts\.kakao\.com\/weblogin\/sso_login\.html\?only=daum&continue=https%3A%2F%2Fmail\.daum\.net&type=ksso')),
+                    ("Daum_Mail_Inbox", re.compile(r'^https:\/\/mail\.daum\.net\/top\/INBOX$')),
+                    ("Daum_Mail_Write", re.compile(r'https:\/\/mail\.daum\.net\/top\/.*\?composer')),
+                    ("Daum_Mail_Sent", re.compile(r'^https:\/\/mail\.daum\.net\/top\/SENT$')),
+                    ("Daum_Mail_Draft", re.compile(r'^https:\/\/mail\.daum\.net\/top\/DRAFT$')),
+                    ("Daum_Mail_Trash", re.compile(r'^https:\/\/mail\.daum\.net\/top\/TRASH$')),
+                    #Nate
+                    ("Nate_Mail_Write", re.compile(r'https:\/\/mail.*\.nate\.com\/#write\/\?act=new')),
+                    ("Nate_Mail_Sent_Complete", re.compile(r'https:\/\/mail3\.nate\.com\/#write\/\?act=new')),
+                    ("Nate_Mail_Inbox", re.compile(r'https:\/\/mail3\.nate\.com\/#list\/\?pop3id=M&page=.*&mboxid=10')),
+                    ("Nate_Mail_Sent", re.compile(r'https:\/\/mail3\.nate\.com\/#list\/\?pop3id=M&page=.*&mboxid=30')),
+                    ("Nate_Mail_Draft", re.compile(r'https:\/\/mail3\.nate\.com\/#list\/\?pop3id=M&page=.*&mboxid=40')),
+                    ("Nate_Mail_Trash", re.compile(r'https:\/\/mail3\.nate\.com\/#list\/\?pop3id=M&page=1&mboxid=50')),
+                    #Tistory
+                    ("Tistory_Blog_Login", re.compile(r'https:\/\/www\.tistory\.com\/auth\/kakao\/redirect\?code=.*')),
+                    ("Tistory_Blog_Manage", re.compile(r'https:\/\/.*\.tistory\.com\/manage\/.*')),
+                    ("Tistory_Blog_Post", re.compile(r'https:\/\/.*\.tistory\.com\/manage\/newpost.*')),
+                    ("Tistory_Blog_Post", re.compile(r'^https:\/\/.*\.tistory\.com\/manage\/post$')),
+                    #Velog
+                    ("Velog_Blog_Login", re.compile(r'https:\/\/velog\.io\/email-login\?code=.*')),
+                    ("Velog_Blog_New_Post", re.compile(r'^https:\/\/velog\.io\/write$')),
+                    ("Velog_Blog_Post", re.compile(r'https:\/\/velog\.io\/write\?id=.*')),
+                    #ETC
+                    ("File_Web_Access", re.compile(r'file:\/\/\/[A-Za-z]:\/(?:[^\/\n]+\/)*[^\/\n]+?\.[a-zA-Z0-9]+')),
+                    ("Short_URL_Service", re.compile(r'\b(https?://)?(bit\.ly|tinyurl\.com|goo\.gl|t\.co|is\.gd|ow\.ly)/[a-zA-Z0-9]+\b')),
+                    ("VPN_Service", re.compile(r'\b(vpn|secure|proxy|anon|connect)\.[a-zA-Z0-9.-]+\b')),
+                    ("Use_Proxy_Server_PORT", re.compile(r':\b(8080|3128|8888|8000|8081|8118)\b')),
+                    ("NAS_Quick_Connect_Server", re.compile(r'https:\/\/quickconnect\.to\/[a-zA-Z0-9]+(?:\/[^\s]*)?')),
+                    ("NAS_C2_Synology_Server", re.compile(r'https:\/\/c2\.synology\.com\/[^\s]*')),
+                    ("IP_Address_Server", re.compile(r'https:\/\/(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\/[^\s]*'))
+                    # 기타 URL 패턴 추가 가능
+                ],
+                "Title": [
+                    ("Mega_Drive_File_Upload", re.compile(r'MEGA ↑ (100|[1-9]?[0-9])%'))
+                ]
+            },
+            "USB_Devices": {
+                "Manufacturer": [
+                    ("User_USB", re.compile(r'.*?\(Standard disk drives\)'))
+                    # USB 장치 제조사와 관련된 추가 패턴 가능
+                ]
+            },
+            "Recycle_Bin": {
+                "artifact_name": [
+                    ("File_Remove", re.compile(r'Recycle\sBin'))
+                    # 기타 Recycle Bin 관련 패턴 추가 가능
+                ]
+            },
+            "Edge_Chromium_Downloads": {
+                "File_Name": [
+                    ("Web_PDF_Download", re.compile(r'.*?\.pdf')),
+                    ("Web_EXE_Download", re.compile(r'.*?\.exe')),
+                    ("Web_HWP_Download", re.compile(r'.*?\.hwp')),
+                    ("Web_DOC_Download", re.compile(r'.*?\.doc')),
+                    ("Web_DOCS_Download", re.compile(r'.*?\.docs'))
+                    # 다운로드된 파일 형식에 대한 추가 패턴 가능
+                ]
+            },
+            "Chrome_Downloads": {
+                "File_Name": [
+                    ("Web_PDF_Download", re.compile(r'.*?\.pdf')),
+                    ("Web_EXE_Download", re.compile(r'.*?\.exe')),
+                    ("Web_HWP_Download", re.compile(r'.*?\.hwp')),
+                    ("Web_DOC_Download", re.compile(r'.*?\.doc')),
+                    ("Web_DOCS_Download", re.compile(r'.*?\.docs'))
+                    # 다운로드된 파일 형식에 대한 추가 패턴 가능
+                ]
+            },
+            "Chrome_Cache_Records": {
+                "URL": [
+                    ("Google_Drive_Upload", re.compile(r'https:\/\/drive\.google\.com.*upload')),
+                    ("Naver_Mybox_File_Get_Folder", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service.*\/file\/get\?resourceKey=.*')),
+                    ("Naver_Mybox_File_Get_Root", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service.*\/file\/get\?resourceKey=root')),
+                    ("Naver_Blog_File_Upload", re.compile(r'https:\/\/editor-static\.pstatic\.net\/e\/basic\.desktop\/.*\/se-file-upload-layer-view\.js\?')), #직접 업로드만
+                    ("Naver_Blog_Image_Upload", re.compile(r'https:\/\/blogfiles\.pstatic\.net\/')), #블로그에 포함된 여러 이미지파일들의 중복 가능성 있어서 메일 작성 후 시간대로 묶어야할듯
+                    ("Tistory_Blog_File_Upload", re.compile(r'.*https:\/\/tistory\.com.*plugins\/fileUpload\/plugin\.min\.js')),
+                    ("Google_Mail_File_Upload", re.compile(r'https:\/\/ssl\.gstatic\.com\/ui\/v1\/icons\/common\/x_8px\.png')),
+                    ("Nate_Mail_File_Upload", re.compile(r'https:\/\/mailimg\.nate\.com\/newmail\/img\/jsfile\/mimetypes\/.*\.png')),
+                    ("Nate_Mail_Sent_Complete", re.compile(r'https:\/\/mail3\.nate\.com\/#write\/\?act=new')),
+                    ("Mega_Drive_Upload", re.compile(r'https:\/\/jp\.static\.mega\.co\.nz\/4\/images\/mega\/overlay-sprite\.png\?v=bf2e646f2f83e139')),
+                    ("Mega_Drive_Upload", re.compile(r'https:\/\/jp\.static\.mega\.co\.nz\/4\/imagery\/sprites-fm-mime-uni\.9f5adb6010bae3ce\.svg')),
+                    ("One_Drive_Upload", re.compile(r'https:\/\/res-1\.cdn\.office\.net\/files\/.*\.manifest\/76\.js')),
+                    ("Velog_Blog_File_Upload", re.compile(r'https:\/\/velog\.velcdn\.com\/.*\/post\/.*\/image\..*')),
+                    ("Dropbox_Drive_File_Upload", re.compile(r'https:\/\/previews\.dropbox\.com\/p\/.*_img\/.*'))                                        
+                    # 기타 캐시 기록 관련 URL 패턴 추가 가능
+                ]
+            },
+            "Edge_Chromium_Cache_Records": {
+                "URL": [
+                    ("Google_Drive_Upload", re.compile(r'https:\/\/drive\.google\.com.*upload')),
+                    ("Naver_Mybox_File_Get_Folder", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service.*\/file\/get\?resourceKey=.*')),
+                    ("Naver_Mybox_File_Get_Root", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service.*\/file\/get\?resourceKey=root')),
+                    ("Naver_Blog_File_Upload", re.compile(r'https:\/\/editor-static\.pstatic\.net\/e\/basic\.desktop\/.*\/se-file-upload-layer-view\.js\?')), #직접 업로드만
+                    ("Naver_Blog_Image_Upload", re.compile(r'https:\/\/blogfiles\.pstatic\.net\/')), #블로그에 포함된 여러 이미지파일들의 중복 가능성 있어서 메일 작성 후 시간대로 묶어야할듯
+                    ("Tistory_Blog_File_Upload", re.compile(r'.*https:\/\/tistory\.com.*plugins\/fileUpload\/plugin\.min\.js')),
+                    ("Google_Mail_File_Upload", re.compile(r'https:\/\/ssl\.gstatic\.com\/ui\/v1\/icons\/common\/x_8px\.png')),
+                    ("Nate_Mail_File_Upload", re.compile(r'https:\/\/mailimg\.nate\.com\/newmail\/img\/jsfile\/mimetypes\/.*\.png')),
+                    ("Nate_Mail_Sent_Complete", re.compile(r'https:\/\/mail3\.nate\.com\/#write\/\?act=new')),
+                    ("Mega_Drive_Upload", re.compile(r'https:\/\/jp\.static\.mega\.co\.nz\/4\/images\/mega\/overlay-sprite\.png\?v=bf2e646f2f83e139')),
+                    ("Mega_Drive_Upload", re.compile(r'https:\/\/jp\.static\.mega\.co\.nz\/4\/imagery\/sprites-fm-mime-uni\.9f5adb6010bae3ce\.svg')),
+                    ("One_Drive_Upload", re.compile(r'https:\/\/res-1\.cdn\.office\.net\/files\/.*\.manifest\/76\.js')),
+                    ("Velog_Blog_File_Upload", re.compile(r'https:\/\/velog\.velcdn\.com\/.*\/post\/.*\/image\..*')),
+                    ("Dropbox_Drive_File_Upload", re.compile(r'https:\/\/previews\.dropbox\.com\/p\/.*_img\/.*'))                                        
+                    # 기타 캐시 기록 관련 URL 패턴 추가 가능
+                ]
+            },
+            "Firefox_Cache_Records": {
+                "URL": [
+                    ("Google_Drive_Upload", re.compile(r'https:\/\/drive\.google\.com.*upload')),
+                    ("Naver_Mybox_File_Get_Folder", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service.*\/file\/get\?resourceKey=.*')),
+                    ("Naver_Mybox_File_Get_Root", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service.*\/file\/get\?resourceKey=root')),
+                    ("Naver_Blog_File_Upload", re.compile(r'https:\/\/editor-static\.pstatic\.net\/e\/basic\.desktop\/.*\/se-file-upload-layer-view\.js\?')), #직접 업로드만
+                    ("Naver_Blog_Image_Upload", re.compile(r'https:\/\/blogfiles\.pstatic\.net\/')), #블로그에 포함된 여러 이미지파일들의 중복 가능성 있어서 메일 작성 후 시간대로 묶어야할듯
+                    ("Tistory_Blog_File_Upload", re.compile(r'.*https:\/\/tistory\.com.*plugins\/fileUpload\/plugin\.min\.js')),
+                    ("Google_Mail_File_Upload", re.compile(r'https:\/\/ssl\.gstatic\.com\/ui\/v1\/icons\/common\/x_8px\.png')),
+                    ("Nate_Mail_File_Upload", re.compile(r'https:\/\/mailimg\.nate\.com\/newmail\/img\/jsfile\/mimetypes\/.*\.png')),
+                    ("Nate_Mail_Sent_Complete", re.compile(r'https:\/\/mail3\.nate\.com\/#write\/\?act=new')),
+                    ("Mega_Drive_Upload", re.compile(r'https:\/\/jp\.static\.mega\.co\.nz\/4\/images\/mega\/overlay-sprite\.png\?v=bf2e646f2f83e139')),
+                    ("Mega_Drive_Upload", re.compile(r'https:\/\/jp\.static\.mega\.co\.nz\/4\/imagery\/sprites-fm-mime-uni\.9f5adb6010bae3ce\.svg')),
+                    ("One_Drive_Upload", re.compile(r'https:\/\/res-1\.cdn\.office\.net\/files\/.*\.manifest\/76\.js')),
+                    ("Velog_Blog_File_Upload", re.compile(r'https:\/\/velog\.velcdn\.com\/.*\/post\/.*\/image\..*')),
+                    ("Dropbox_Drive_File_Upload", re.compile(r'https:\/\/previews\.dropbox\.com\/p\/.*_img\/.*'))                                        
+                    # 기타 캐시 기록 관련 URL 패턴 추가 가능
+                ]
+            },
+            "Edge_Chromium_Last_Session": {
+                "Title": [
+                    ("Google_Login", re.compile(r'로그인\s-\sGoogle\s계정')),
+                    ("Google_Mail_Inbox", re.compile(r'Inbox\s\(\d+\)\s-\s.*@gmail\.com')),
+                    ("Google_Mail_Sent", re.compile(r'(Sent\sMail)\s-\s.*@gmail\.com')),
+                    ("Google_Mail_Subject", re.compile(r'.*\s-\s.*@gmail\.com')),
+                    ("Web_Search", re.compile(r'(.*?\s-\s.*검색)'))
+                ],
+                "Redirect_URL": [
+                    ("Google_Redirection", re.compile(r'https:\/\/www\.google\.com\/url\?q='))
+                ]
+            },
+            "Edge_Chromium_Current_Session": {
+                "Title": [
+                    ("Google_Login", re.compile(r'로그인\s-\sGoogle\s계정')),
+                    ("Google_Mail_Inbox", re.compile(r'Inbox\s\(\d+\)\s-\s.*@gmail\.com')),
+                    ("Google_Mail_Sent", re.compile(r'(Sent\sMail)\s-\s.*@gmail\.com')),
+                    ("Google_Mail_Subject", re.compile(r'.*\s-\s.*@gmail\.com')),
+                    ("Web_Search", re.compile(r'(.*?\s-\s.*검색)'))
+                ],
+                "Redirect_URL": [
+                    ("Google_Redirection", re.compile(r'https:\/\/www\.google\.com\/url\?q='))
+                ]
+            },
+            "MRU_Recent_Files_&_Folders": {
+                "File/Folder_Name": [
+                    ("MRU_File_PDF", re.compile(r'.*?\.pdf')),
+                    ("MRU_Recent_Folder", re.compile(r''))
+                ]
+            },
+            "MRU_Opened/Saved_Files": {
+                "File_Name": [
+                    ("MRU_File_PDF", re.compile(r'.*?\.pdf'))
+                ]
+            },
+            "MRU_Folder_Access": {
+                "Application_Name": [
+                    ("MRU_Folder_Access_Chrome", re.compile(r'chrome\.exe'))
+                ]
+            }
         }
 
-    def tag_edge_chromium_web_visits(self, log):
-        title_value = log.get("Title")
-        url_value = log.get("URL")
-        if not title_value or not url_value:
-            return
-        if self.patterns["google_login_pattern"].search(title_value):
-            log['_Tag_'] = 'Google_Login'
-        elif self.patterns["gmail_inbox_pattern"].search(title_value):
-            log['_Tag_'] = 'Gmail_Inbox'
-        elif self.patterns["gmail_sentmail_pattern"].search(title_value):
-            log['_Tag_'] = 'Gmail_Sent'
-        elif self.patterns["gmail_subject_pattern"].search(title_value):
-            log['_Tag_'] = 'Gmail_Subject'
-        elif self.patterns["search_pattern"].search(title_value):
-            log['_Tag_'] = 'Web_Search'
-        elif self.patterns["pdf_pattern"].search(title_value):
-            log['_Tag_'] = 'Web_PDF'
-        if self.patterns["gmail_drive_sharing_pattern"].search(url_value):
-            log['_Tag_'] = 'Gmail_Drive_Sharing'
-        elif self.patterns["new_mail_create_pattern"].search(url_value):
-            log['_Tag_'] = 'Gmail_Create_New_mail'
-        if self.patterns["google_redirection_pattern"].search(url_value):
-            log['_Tag_'] = 'Google_Redirection'
-        if self.patterns["file_web_access"].search(url_value):
-            log['_Tag_'] = 'File_Web_Access'
+    def tag_log(self, df, column_name, column_patterns):
+        for tag, pattern in column_patterns:
+            df.loc[df[column_name].str.contains(pattern, na=False), '_TAG_'] = tag
 
-    def tag_Edge_Chromium_Cache_Records(self, log):
-        url_value = log.get("URL")
-        if url_value is None:
-            return
-        if self.patterns["google_drive_upload_pattern"].search(url_value):
-            log['_Tag_'] = 'Google_Drive_Upload'
+    def process_table(self, table_name):
+        try:
+            # 단일 connection 컨텍스트에서 모든 작업 수행
+            with self.engine.connect() as conn:
+                # 데이터 조회
+                query = text(f"SELECT * FROM `{table_name}`")
+                print(query)
+                try :
+                    result = conn.execute(query)
+                    df = pd.DataFrame(result.fetchall(), columns=result.keys())
+                    
+                    if df.empty:
+                        print(f"'{table_name}' 테이블이 비어 있습니다. 넘어갑니다.")
+                        return
 
-    def tag_usb_device(self, log):
-        manufacturer_value = log.get("Manufacturer")
-        if manufacturer_value is None:
-            return
-        if self.patterns["usb_device_pattern"].search(manufacturer_value):
-            log['_Tag_'] = 'User_USB'
+                    if '_TAG_' not in df.columns:
+                        df['_TAG_'] = None
 
-    def tag_recycle_bin(self, log):
-        artifact_name_value = log.get("artifact_name")
-        if artifact_name_value is None:
-            return
-        if self.patterns["remove_pattern"].search(artifact_name_value):
-            log['_Tag_'] = 'File_Remove'
+                    # 태그 처리
+                    if table_name in self.patterns:
+                        for column_name, column_patterns in self.patterns[table_name].items():
+                            if column_name in df.columns:
+                                self.tag_log(df, column_name, column_patterns)
 
-    def tag_edge_chromium_current_Last_session(self, log):
-        title_value = log.get("Title")
-        URL_value = log.get("URL")
-        redirect_url_value = log.get("Redirect_URL")
-        if not title_value or not URL_value:  # 두 값 중 하나라도 None이면 처리하지 않음
-            return
-        if self.patterns["google_login_pattern"].search(title_value):
-            log['_Tag_'] = 'Google_Login'
-        elif self.patterns["gmail_inbox_pattern"].search(title_value):
-            log['_Tag_'] = 'Gmail_Inbox'
-        elif self.patterns["gmail_sentmail_pattern"].search(title_value):
-            log['_Tag_'] = 'Gmail_Sent'
-        elif self.patterns["gmail_subject_pattern"].search(title_value):
-            log['_Tag_'] = 'Gmail_Subject'
-        elif self.patterns["search_pattern"].search(title_value):
-            log['_Tag_'] = 'Web_Search'
-        elif self.patterns["pdf_pattern"].search(title_value):
-            log['_Tag_'] = 'Web_PDF'
-        if self.patterns["tistory_pattern"].search(URL_value):
-            log['_Tag_'] = 'Tistory_Blog'
-        if self.patterns["google_redirection_pattern"].search(redirect_url_value):
-            log['_Tag_'] = 'Google_Redirection'
-
-    def tag_edge_chromium_downloads(self, log):
-        file_name_value = log.get("File_Name")
-        if file_name_value is None:
-            return
-        if self.patterns["web_pdf_download_pattern"].search(file_name_value):
-            log['_Tag_'] = 'Web_PDF_Download'
-        elif self.patterns["web_exe_download_pattern"].search(file_name_value):
-            log['_Tag_'] = 'Web_EXE_Download'
-        elif self.patterns["web_hwp_download_pattern"].search(file_name_value):
-            log['_Tag_'] = 'Web_HWP_Download'
-        elif self.patterns["web_doc_download_pattern"].search(file_name_value):
-            log['_Tag_'] = 'Web_DOC_Download'
-        elif self.patterns["web_docs_download_pattern"].search(file_name_value):
-            log['_Tag_'] = 'Web_DOCS_Download'
+                        # 결과 저장
+                        # 기존 테이블 삭제
+                        conn.execute(text(f"DROP TABLE IF EXISTS `{table_name}`"))
+                        conn.commit()  # 변경사항 커밋
+                        
+                        # 새로운 데이터 저장
+                        df.to_sql(table_name, self.engine, if_exists='replace', index=False)
+                        print(f"{table_name} 테이블에 태그가 추가되었습니다.")
+                    else:
+                        print(f"{table_name} 테이블에 대한 패턴이 정의되지 않았습니다.")
+                except :
+                    pass
+                
+        except Exception as e:
+            print(f"Error processing table {table_name}: {str(e)}")
+            raise  # 에러를 상위로 전파하여 디버깅 용이하게
 
     def apply_tags(self):
-        for top_level_key, top_level_value in self.data.items():
-            if top_level_key == "Edge_Chromium_Web_Visits":
-                for log in top_level_value:
-                    self.tag_edge_chromium_web_visits(log)
-            elif top_level_key == "USB_Devices":
-                for log in top_level_value:
-                    self.tag_usb_device(log)
-            elif top_level_key == "Recycle_Bin":
-                for log in top_level_value:
-                    self.tag_recycle_bin(log)
-            elif top_level_key == "Edge_Chromium_Current_Session":
-                for log in top_level_value:
-                    self.tag_edge_chromium_current_Last_session(log)
-            elif top_level_key == "Edge_Chromium_Last_Session":
-                for log in top_level_value:
-                    self.tag_edge_chromium_current_Last_session(log)
-            elif top_level_key == "Edge_Chromium_Downloads":
-                for log in top_level_value:
-                    self.tag_edge_chromium_downloads(log)
-            elif top_level_key == "Edge_Chromium_Cache_Records":
-                for log in top_level_value:
-                    self.tag_Edge_Chromium_Cache_Records(log)
+        for table_name in self.patterns:
+            self.process_table(table_name)
 
-    def save_data(self, output_path):
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(self.data, f, indent=4, ensure_ascii=False)
-        print(f"태그가 추가된 데이터가 {output_path}에 저장되었습니다.")
-        return output_path
+class LogTaggerManager:
+    def __init__(self, db_url):
+        self.tagger_classes = {
+            "1": ("기본 태깅", LogTagger)
+        }
+        self.db_url = db_url
 
-# LogTagger_1 클래스 - 그룹화된 이메일과 PDF 다운로드 처리
-class LogTagger_1:
-    def __init__(self, data):
-        if isinstance(data, (dict, list)):
-            self.data = data
-        else:
-            raise TypeError("데이터 형식이 잘못되었습니다. 리스트 또는 딕셔너리가 필요합니다.")
+    def run_tagger(self):
+        """ 선택한 태거 클래스의 태깅 작업을 수행 """
+        tagger_info = self.tagger_classes.get("1")
+        if tagger_info is None:
+            print("유효하지 않은 선택입니다. 다시 시도하세요.")
+            return
 
-    def parse_datetime(self, dt_str):
-        if dt_str is None:
-            return None
-        return datetime.datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S.%f")
-
-    def find_gmail_subjects(self):
-        """ 모든 'Gmail_Subject' 태그를 가진 딕셔너리 리스트 반환 """
-        gmail_logs = []
-        for log in self.data.get("Edge_Chromium_Web_Visits", []):
-            if isinstance(log, dict):
-                if log.get('_Tag_') == 'Gmail_Subject' and log.get('Date_Visited_Date/Time_-_UTC_(yyyy-mm-dd)') is not None:
-                    gmail_logs.append(log)
-        return gmail_logs
-
-    def find_web_pdf_downloads(self):
-        """ 모든 'Web_PDF_Download' 태그를 가진 딕셔너리 리스트 반환 """
-        pdf_logs = []
-        for log in self.data.get("Edge_Chromium_Downloads", []):
-            if isinstance(log, dict):
-                if log.get('_Tag_') == 'Web_PDF_Download' and log.get('Start_Time_Date/Time_-_UTC_(yyyy-mm-dd)') is not None:
-                    pdf_logs.append(log)
-        return pdf_logs
-
-    def group_email_to_pdf_downloads(self):
-        """ 시간순으로 Gmail_Subject와 Web_PDF_Download를 순차적으로 그룹화하는 함수 """
-        # 'Edge_Chromium_Web_Visits' 또는 다른 키에서 로그 데이터를 추출해야 함
-        logs = []
-        for key in ['Edge_Chromium_Web_Visits', 'Edge_Chromium_Downloads']:  # 여러 키가 있을 경우 포함
-            if key in self.data:
-                logs.extend(self.data[key])
-        
-        # 로그 데이터를 시간순으로 정렬
-        logs = sorted(logs, key=lambda x: self.parse_datetime(x.get('Date_Visited_Date/Time_-_UTC_(yyyy-mm-dd)', x.get('Start_Time_Date/Time_-_UTC_(yyyy-mm-dd)'))))
-
-        grouped_downloads = []
-        current_gmail_log = None
-
-        for log in logs:
-            if log.get('_Tag_') == 'Gmail_Subject':
-                current_gmail_log = log
-            elif log.get('_Tag_') == 'Web_PDF_Download' and current_gmail_log:
-                grouped_downloads.append({
-                    'gmail_log': current_gmail_log,
-                    'pdf_log': log
-                })
-                current_gmail_log = None
-
-        return grouped_downloads
-    def apply_tags(self):
-        # 이 부분에서 결과가 한 번만 출력되도록 조정
-        grouped_logs = self.group_email_to_pdf_downloads()
-        if grouped_logs:
-            print("Gmail_Subject 이후의 Web_PDF_Download 그룹화 결과:")
-            return (json.dumps(grouped_logs, indent=4, ensure_ascii=False))
-            # with open('Gmail_Subject_to_Web_PDF_Download_Group.json', 'w', encoding='utf-8') as f:
-            #     json.dump(grouped_logs, f, indent=4)
-        else:
-            print("그룹화된 기록이 없습니다.")
-            return json.dumps([], indent=4, ensure_ascii=False)
-            # with open('Gmail_Subject_to_Web_PDF_Download_Group.json', 'w', encoding='utf-8') as f:
-                # json.dump([], f, indent=4)
-
-#검색기록 키워드 추출
-class LogTagger_1_1:
-    def __init__(self, data):
-        if isinstance(data, (dict, list)):
-            self.data = data
-        else:
-            raise TypeError("데이터 형식이 잘못되었습니다. 리스트 또는 딕셔너리가 필요합니다.")
-
-    def parse_datetime(self, dt_str):
-        if dt_str is None:
-            return None
-        return datetime.datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S.%f")
-
-    def find_gmail_new_mail(self):
-        """ 모든 'Gmail_Create_New_mail' 태그를 가진 딕셔너리 리스트 반환 """
-        gmail_logs = []
-        for log in self.data.get("Edge_Chromium_Web_Visits", []):
-            if isinstance(log, dict):
-                if log.get('_Tag_') == 'Gmail_Create_New_mail' and log.get('Date_Visited_Date/Time_-_UTC_(yyyy-mm-dd)') is not None:
-                    gmail_logs.append(log)
-        return gmail_logs
-
-    def find_gmail_drive_sharing(self):
-        """ 모든 'Gmail_Drive_Sharing' 태그를 가진 딕셔너리 리스트 반환 """
-        pdf_logs = []
-        for log in self.data.get("Edge_Chromium_Web_Visits", []):
-            if isinstance(log, dict):
-                if log.get('_Tag_') == 'Gmail_Drive_Sharing' and log.get('Date_Visited_Date/Time_-_UTC_(yyyy-mm-dd)') is not None:
-                    pdf_logs.append(log)
-        return pdf_logs
-
-    def group_gmail_to_drive_sharing(self):
-        """ Gmail_Create_New_mail과 Gmail_Drive_Sharing을 시간순으로 그룹화 """
-        logs = []
-        for key in ['Edge_Chromium_Web_Visits']:  # 여러 키가 있을 경우 추가 가능
-            if key in self.data:
-                logs.extend(self.data[key])
-        
-        # 로그 데이터를 시간순으로 정렬
-        logs = sorted(logs, key=lambda x: self.parse_datetime(x.get('Date_Visited_Date/Time_-_UTC_(yyyy-mm-dd)', x.get('Start_Time_Date/Time_-_UTC_(yyyy-mm-dd)'))))
-
-        grouped_logs = []
-        current_gmail_log = None
-
-        for log in logs:
-            if log.get('_Tag_') == 'Gmail_Create_New_mail':
-                current_gmail_log = log
-            elif log.get('_Tag_') == 'Gmail_Drive_Sharing' and current_gmail_log:
-                grouped_logs.append({
-                    'gmail_log': current_gmail_log,
-                    'drive_sharing_log': log
-                })
-                current_gmail_log = None
-
-        return grouped_logs
-
-    def apply_tags(self):
-        """ 그룹화된 결과를 적용하여 출력 """
-        grouped_logs = self.group_gmail_to_drive_sharing()
-        if grouped_logs:
-            print("Gmail_Create_New_mail 이후의 Gmail_Drive_Sharing 그룹화 결과:")
-            return (json.dumps(grouped_logs, indent=4, ensure_ascii=False))
-            # with open('Gmail_Subject_to_Google_Drive_Sharing_Group.json', 'w', encoding='utf-8') as f:
-            #     json.dump(grouped_logs, f, indent=4)
-        else:
-            print("그룹화된 기록이 없습니다.")
-            # with open('Gmail_Subject_to_Google_Drive_Sharing_Group.json', 'w', encoding='utf-8') as f:
-                # json.dump([], f, indent=4)
-            return json.dumps([], indent=4, ensure_ascii=False)
-
-class LogTagger_1_2:
-    def __init__(self, data):
-        if isinstance(data, (dict, list)):
-            self.data = data
-        else:
-            raise TypeError("데이터 형식이 잘못되었습니다. 리스트 또는 딕셔너리가 필요합니다.")
-
-    def parse_datetime(self, dt_str):
-        """문자열 형식의 날짜/시간을 datetime 객체로 변환"""
-        if dt_str is None:
-            return None
-        return datetime.datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S.%f")
-
-    def find_gmail_subjects(self):
-        """모든 'Gmail_Subject' 태그를 가진 딕셔너리 리스트 반환"""
-        gmail_logs = []
-        for log in self.data.get("Edge_Chromium_Web_Visits", []):
-            if isinstance(log, dict):
-                if log.get('_Tag_') == 'Gmail_Subject' and log.get('Date_Visited_Date/Time_-_UTC_(yyyy-mm-dd)') is not None:
-                    gmail_logs.append(log)
-        return gmail_logs
-
-    def find_google_redirection(self):
-        """모든 'Google_Redirection' 태그를 가진 딕셔너리 리스트 반환"""
-        redirection_logs = []
-        for log in self.data.get("Edge_Chromium_Last_Session", []):
-            if isinstance(log, dict):
-                if log.get('_Tag_') == 'Google_Redirection' and log.get('Last_Visited_Date/Time_-_UTC_(yyyy-mm-dd)') is not None:
-                    redirection_logs.append(log)
-        return redirection_logs
-
-    def group_gmail_to_redirection(self):
-        """시간순으로 Gmail_Subject와 Google_Redirection을 순차적으로 그룹화하는 함수"""
-        logs = []
-        for key in ['Edge_Chromium_Web_Visits', 'Edge_Chromium_Last_Session']:
-            if key in self.data:
-                logs.extend(self.data[key])
-
-        # 로그 데이터를 시간순으로 정렬
-        logs = sorted(logs, key=lambda x: self.parse_datetime(
-            x.get('Date_Visited_Date/Time_-_UTC_(yyyy-mm-dd)', x.get('Last_Visited_Date/Time_-_UTC_(yyyy-mm-dd)'))))
-
-        grouped_logs = []
-        current_gmail_log = None
-
-        for log in logs:
-            if log.get('_Tag_') == 'Gmail_Subject':
-                current_gmail_log = log
-            elif log.get('_Tag_') == 'Google_Redirection' and current_gmail_log:
-                grouped_logs.append({
-                    'gmail_log': current_gmail_log,
-                    'redirection_log': log
-                })
-                current_gmail_log = None
-
-        return grouped_logs
-
-    def apply_tags(self):
-        """그룹화된 결과를 적용하여 출력"""
-        grouped_logs = self.group_gmail_to_redirection()
-        if grouped_logs:
-            print("Gmail_Subject 이후의 Google_Redirection 그룹화 결과:")
-            return (json.dumps(grouped_logs, indent=4, ensure_ascii=False))
-            # with open('Gmail_Subject_to_Google_Redirection_Group.json', 'w', encoding='utf-8') as f:
-            #     json.dump(grouped_logs, f, indent=4)
-        else:
-            print("그룹화된 기록이 없습니다.")
-            # with open('Gmail_Subject_to_Google_Redirection_Group.json', 'w', encoding='utf-8') as f:
-            #     json.dump([], f, indent=4)
-            return json.dumps([], indent=4, ensure_ascii=False)
-
-class LogTagger_1_3:
-    def __init__(self, data):
-        if isinstance(data, (dict, list)):
-            self.data = data
-        else:
-            raise TypeError("데이터 형식이 잘못되었습니다. 리스트 또는 딕셔너리가 필요합니다.")
-
-    def parse_datetime(self, dt_str):
-        if dt_str is None:
-            return None
-        return datetime.datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S.%f")
-
-    def find_file_web_access(self):
-        """ 모든 'File_Web_Access' 태그를 가진 딕셔너리 리스트 반환 """
-        file_web_access_logs = []
-        for log in self.data.get("Edge_Chromium_Web_Visits", []):
-            if isinstance(log, dict):
-                if log.get('_Tag_') == 'File_Web_Access' and log.get('Date_Visited_Date/Time_-_UTC_(yyyy-mm-dd)') is not None:
-                    file_web_access_logs.append(log)
-        return file_web_access_logs
-
-    def find_pdf_file_web_access(self):
-        """ 모든 '.pdf'로 끝나는 'File_Web_Access' 로그 파싱 """
-        pdf_logs = []
-        file_web_access_logs = self.find_file_web_access()
-        
-        for log in file_web_access_logs:
-            url_value = log.get('URL', '')  # URL 값을 가져옴
-            if url_value.endswith('.pdf'):
-                pdf_logs.append(log)    
-        return pdf_logs
-
-    def extract_pdf_filename(self, url):
-        """URL에서 .pdf 파일명을 추출"""
-        return url.split("/")[-1] if url.endswith('.pdf') else None
-
-    def find_matching_pdf_document(self):
-        """시간순으로 File_Web_Access와 PDF_Document 로그를 그룹화하는 함수"""
-        logs = []
-        # Edge_Chromium_Web_Visits에서 File_Web_Access 로그 추가
-        logs.extend(self.find_pdf_file_web_access())
-
-        # 로그 데이터를 시간순으로 정렬
-        logs = sorted(logs, key=lambda x: self.parse_datetime(x.get("Date_Visited_Date/Time_-_UTC_(yyyy-mm-dd)")))
-        grouped_logs = []
-        
-        for pdf_log in logs:
-            # URL 인코딩된 파일명을 추출하고 디코딩
-            encoded_pdf_filename = self.extract_pdf_filename(pdf_log.get('URL', ''))
-            pdf_filename = urllib.parse.unquote(encoded_pdf_filename)  # URL 디코딩
-
-            visit_datetime_str = pdf_log.get("Date_Visited_Date/Time_-_UTC_(yyyy-mm-dd)")
-            visit_datetime = self.parse_datetime(visit_datetime_str)
-
-            # PDF_Document에서 Filename이 일치하는 로그를 찾음
-            for document in self.data.get("PDF_Documents", []):
-                if document.get('Filename') == pdf_filename:
-                    fs_last_accessed_str = document.get("File_System_Last_Accessed_Date/Time_-_UTC_(yyyy-mm-dd)")
-                    fs_last_accessed_datetime = self.parse_datetime(fs_last_accessed_str)
-
-                    # File_System_Last_Accessed_Date가 웹 방문 날짜보다 이전인 경우
-                    if fs_last_accessed_datetime and visit_datetime and visit_datetime > fs_last_accessed_datetime:
-                        grouped_logs.append({
-                            'pdf_document_access_log': document,
-                            'pdf_web_access_log': pdf_log
-                        })
-                    break  # 첫 번째 일치하는 로그를 찾으면 반복 중단
-
-        return grouped_logs
-
-
-    def apply_tags(self):
-        """ 그룹화된 결과를 적용하여 출력 """
-        matching_documents = self.find_matching_pdf_document()
-        if matching_documents:
-            print("File_Web_Access 로그와 일치하는 PDF_Document 그룹화 결과:")
-            return (json.dumps(matching_documents, indent=4, ensure_ascii=False))
-            # with open('File_Web_Access_to_PDF_Docuemnt_Group.json', 'w', encoding='utf-8') as f:
-            #     json.dump(matching_documents, f, indent=4)
-        else:
-            print("그룹화된 기록이 없습니다.")
-            # with open('File_Web_Access_to_PDF_Docuemnt_Group.json', 'w', encoding='utf-8') as f:
-                # json.dump([], f, indent=4)
-            return json.dumps([], indent=4, ensure_ascii=False)
-
-
-
-class LogTagger_2:
-    def __init__(self, data):
-        if isinstance(data, (dict, list)):
-            self.data = data
-        else:
-            raise TypeError("데이터 형식이 잘못되었습니다. 리스트 또는 딕셔너리가 필요합니다.")
-
-    def parse_datetime(self, dt_str):
-        """문자열 형식의 날짜/시간을 datetime 객체로 변환"""
-        if dt_str is None:
-            return None
-        return datetime.datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S.%f")
-
-    def find_web_search_keywords(self):
-        """ 'Web_Search' 태그를 가진 로그에서 검색 키워드를 추출하고 시간순으로 정렬 """
-        web_search_keyword_log = []
-        for log in self.data.get("Edge_Chromium_Web_Visits", []):
-            if isinstance(log, dict):
-                title_value = log.get('Title')  # 타이틀 값을 가져옴
-                if log.get('_Tag_') == 'Web_Search' and log.get('Date_Visited_Date/Time_-_UTC_(yyyy-mm-dd)') is not None:
-                    # " - 검색" 앞의 문자열 추출
-                    keyword = title_value.split(" - 검색")[0] if " - 검색" in title_value else None
-                    if keyword:
-                        log['Search_Keyword'] = keyword  # 추출한 키워드를 새로운 키로 추가
-                    web_search_keyword_log.append(log)
-
-        # 시간순으로 정렬 (Date_Visited_Date/Time_-_UTC_(yyyy-mm-dd)을 기준으로)
-        web_search_keyword_log.sort(key=lambda x: self.parse_datetime(x['Date_Visited_Date/Time_-_UTC_(yyyy-mm-dd)']))
-
-        # 시간순으로 나열된 키워드 출력
-        for log in web_search_keyword_log:
-            keyword = log.get('Search_Keyword', 'No Keyword')
-            date_visited = log.get('Date_Visited_Date/Time_-_UTC_(yyyy-mm-dd)', 'No Date')
-            print(f"{keyword}")
-
-        return web_search_keyword_log, keyword
-    
-    def find_gmail_subject_keywords(self):
-        """ 'Web_Search' 태그를 가진 로그에서 검색 키워드를 추출하고 시간순으로 정렬 """
-        gmail_subject_keyword_log = []
-        for log in self.data.get("Edge_Chromium_Web_Visits", []):
-            if isinstance(log, dict):
-                title_value = log.get('Title')  # 타이틀 값을 가져옴
-                if log.get('_Tag_') == 'Gmail_Subject' and log.get('Date_Visited_Date/Time_-_UTC_(yyyy-mm-dd)') is not None:
-                    match = re.match(r"(.+?)\s-\s[\w.-]+@[\w.-]+", title_value)
-                    if match:
-                        keyword = match.group(1)  # 이메일 앞부분의 텍스트만 추출
-                        log['Search_Keyword'] = keyword  # 추출한 키워드를 새로운 키로 추가
-                        gmail_subject_keyword_log.append(log)
-
-        # 시간순으로 정렬 (Date_Visited_Date/Time_-_UTC_(yyyy-mm-dd)을 기준으로)
-        gmail_subject_keyword_log.sort(key=lambda x: self.parse_datetime(x['Date_Visited_Date/Time_-_UTC_(yyyy-mm-dd)']))
-
-        # 시간순으로 나열된 키워드 출력
-        for log in gmail_subject_keyword_log:
-            keyword = log.get('Search_Keyword', 'No Keyword')
-            date_visited = log.get('Date_Visited_Date/Time_-_UTC_(yyyy-mm-dd)', 'No Date')
-            print(f"{keyword}")
-
-        return gmail_subject_keyword_log, keyword
+        _, tagger_class = tagger_info
+        tagger_instance = tagger_class(self.db_url)
+        tagger_instance.apply_tags()
+        print(f'DB path : {self.db_url} 에 적용되었습니다.')

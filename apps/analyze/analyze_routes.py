@@ -1,26 +1,26 @@
 import sqlite3, os, json
 import pandas as pd
 from flask import request, render_template, session, redirect, url_for, flash, Request, jsonify, render_template_string
-from apps.authentication.models import Upload_Case, Normalization, GraphData, PromptQuries, UsbData, FilteringData, GroupParingResults, PrinterData_final, UsbData_final
+from apps.authentication.models import Analyzed_file_list, Upload_Case, Normalization, GraphData, PromptQuries, UsbData, FilteringData, GroupParingResults, PrinterData_final, UsbData_final, Mail_final
 from apps import db
 from apps.case.case_analyze import case_analyze_view
 from apps.analyze.analyze_usb import usb_connection
 from apps.analyze.analyze_filtering import analyze_case_filtering, analyze_case_filtering_to_minutes
-from apps.analyze.analyze_tagging import all_table_parsing, all_tag_process
+from apps.analyze.analyze_tagging import all_tag_process
 from apps.analyze.analyze_util import *
-from apps.analyze.analyze_tag_group_graph import *
-from apps.analyze.analyze_tag_ranking import *
 from apps.analyze.USB.case_normalization_time_group import *
 from apps.analyze.USB.make_usb_analysis_db import usb_behavior
 from apps.analyze.Printer.printer_process import printer_behavior
+from apps.analyze.Upload.upload_parser import mail_behavior
 import threading
 
 from flask import current_app
+from datetime import datetime
 
 def create_dict_from_file_paths(file_path):
     # 파일명 추출
     file_name = os.path.basename(file_path)
-    # 확장자를 제외한 파일명
+    # 확장자를 ��외한 파일명
     file_name_without_ext = os.path.splitext(file_name)[0]
     # 딕셔너리 형태로 반환
     return {file_name_without_ext: file_path}
@@ -102,6 +102,15 @@ def redirect_case_analyze_filtering_history_view(id) :
     body_html, scripts_html, tables = extract_body_and_scripts(filtering_data)
     return render_template('analyze/filtering.html', body_html=body_html, scripts_html=scripts_html,  tables=tables)
 
+def convert_datetime_to_string(obj):
+    if isinstance(obj, datetime):
+        return obj.isoformat()
+    elif isinstance(obj, dict):
+        return {key: convert_datetime_to_string(value) for key, value in obj.items()}
+    elif isinstance(obj, list):
+        return [convert_datetime_to_string(item) for item in obj]
+    return obj
+
 def redirect_analyze_case_final(data) :
     user = session.get('username')
     case_id = data['case_id']
@@ -109,25 +118,31 @@ def redirect_analyze_case_final(data) :
     case_folder = os.path.join(os.getcwd(), "uploads", user, case_number)
     db_path = os.path.join(case_folder, "normalization.db")
 
+    ''' Tagging Process '''
+    TAG_Process = all_tag_process(data)
+
+    ''' Upload Behavior Process '''
+    if TAG_Process:
+        Upload_results = mail_behavior(db_path)
+
     ''' USB Behavior Process'''
     time_db_path = os.path.join(case_folder, "time_normalization.db")
-    if time_parsing(db_path, time_db_path) :
-        print("Success Time Parsing")
+    if os.path.isfile(time_db_path) == False :
+        if time_parsing(db_path, time_db_path) :
+            print("Success Time Parsing")
 
-        usb_results = usb_behavior(db_path, time_db_path)
-        # Convert any DataFrame objects to dictionaries/lists before storing
-        for result in usb_results:
-            if 'df' in result:
-                result['filtered_df'] = result['filtered_df'].to_dict('records')  # Convert DataFrame to list of dictionaries
-                
-        usb_data_db = UsbData_final(case_id = case_id, usb_data = usb_results)
-        db.session.add(usb_data_db)
-        db.session.commit()
-        # USB Debug
-        # for i in usb_results :
-        #     print(i['Connection'], i['Start'], i['End'], i['Accessed_File_List'])
-    else :
-        print("Failed Time Parsing")
+    usb_results = usb_behavior(db_path, time_db_path)
+    for result in usb_results:
+        if 'df' in result:
+            result['filtered_df'] = result['filtered_df'].to_dict('records')  # Convert DataFrame to list of dictionaries
+            
+    usb_data_db = UsbData_final(case_id = case_id, usb_data = usb_results)
+    db.session.add(usb_data_db)
+    db.session.commit()
+    # USB Debug
+    # for i in usb_results :
+    #     print(i['Connection'], i['Start'], i['End'], i['Accessed_File_List'])
+
 
     ''' Printer Behavior Process'''
     printer_results = printer_behavior(db_path)
@@ -140,164 +155,292 @@ def redirect_analyze_case_final(data) :
     db.session.add(printer_data_db)
     db.session.commit()
 
+
+    ''' USB Filelist process '''
+    analyzed_file_list = []
+    usb_json = UsbData_final.query.filter_by(case_id = str(case_id)).first().usb_data
+    for group_usb_time in usb_json :
+        usb_df = pd.DataFrame(group_usb_time['filtered_df'])
+        for filename in group_usb_time['Accessed_File_List'] :
+            timelist_df = usb_df[usb_df['main_data'].str.contains(filename)]
+            usb_file_row = {
+                'type' : 'USB',
+                'time_start' : group_usb_time['Start'],
+                'time_end' : group_usb_time['End'],
+                'usb_name' : group_usb_time['Connection'],
+                'filename' : filename,
+                'data' : timelist_df.to_dict(orient='records')
+            }
+            analyzed_file_list.append(usb_file_row)
+
+    printer_json = PrinterData_final.query.filter_by(case_id=str(case_id)).first().printer_data
+    for printer_time in printer_json:
+        if printer_time['df'] and isinstance(printer_time['df'], list):
+            # 모든 df 데이터를 하나의 DataFrame으로 통합
+            all_data = []
+            for df_item in printer_time['df']:
+                if 'data' in df_item:
+                    all_data.extend(df_item['data'])
+            
+            if all_data:  # 데이터가 있는 경우에만 처리
+                printer_df = pd.DataFrame(all_data)
+                
+                for filename in printer_time['Accessed_File_List']:
+                    if filename:  # filename이 None이 아닌 경우에만 처리
+                        # na=False로 NaN 값 처리, 문자열이 아닌 경우 처리
+                        mask = printer_df['main_data'].astype(str).str.contains(filename, na=False)
+                        timelist_df = printer_df[mask]
+                        
+                        printer_file_row = {
+                            'type': 'Printer',
+                            'time_start': printer_time.get('Start'),  # 시작 시간 추가
+                            'time_end': printer_time.get('End'),      # 종료 시간 추가
+                            'filename': filename,
+                            'data': timelist_df.to_dict(orient='records')
+                        }
+                        analyzed_file_list.append(printer_file_row)
+
+    ''' Upload Behavior Process Complete '''
+    case_number = Upload_Case.query.filter_by(id = case_id).first().case_number
+    mail_output = (os.path.join(os.getcwd(), "uploads", session['username'], case_number, "output_mail.json"))
+    with open(mail_output, 'r', encoding='utf-8') as file:
+        mail_results = json.load(file)
+    
+    # Mail 데이터 처리
+    for mail_event in mail_results:
+        mail_file_row = {
+            'type': 'Mail',
+            'time_start': mail_event['timerange'].split(' ~ ')[0],  # timerange에서 시작 시간 추출
+            'time_end': mail_event['timerange'].split(' ~ ')[1],    # timerange에서 종료 시간 추출
+            'filename': mail_event['filename'],
+            'browser': mail_event['browser'],
+            'priority': mail_event['priority'],  # 메일의 경우 priority 정보도 포함
+            'data': mail_event['connection']     # connection 데이터를 그대로 사용
+        }
+        analyzed_file_list.append(mail_file_row)
+
+
+    drive_output = (os.path.join(os.getcwd(), "uploads", session['username'], case_number, "output_drive.json"))
+    with open(drive_output, 'r', encoding='utf-8') as file:
+        drive_results = json.load(file)
+
+    # Drive 데이터 처리
+    for drive_event in drive_results:
+        drive_file_row = {
+            'type': 'Drive',
+            'time_start': drive_event['timerange'].split(' ~ ')[0],  # timerange에서 시작 시간 추출
+            'time_end': drive_event['timerange'].split(' ~ ')[1],    # timerange에서 종료 시간 추출
+            'filename': drive_event['filename'],
+            'browser': drive_event['browser'],
+            'data': drive_event['connection']  # connection 데이터를 그대로 사용
+        }
+        analyzed_file_list.append(drive_file_row)
+
+    blog_output = (os.path.join(os.getcwd(), "uploads", session['username'], case_number, "output_blog.json"))
+    with open(blog_output, 'r', encoding='utf-8') as file:
+        blog_results = json.load(file)
+
+    # Blog 데이터 처리
+    for blog_event in blog_results:
+        blog_file_row = {
+            'type': 'Blog',
+            'time_start': blog_event['timerange'].split(' ~ ')[0],  # timerange에서 시작 시간 추출
+            'time_end': blog_event['timerange'].split(' ~ ')[1],    # timerange에서 종료 시간 추출
+            'filename': blog_event['filename'],
+            'browser': blog_event['browser'],
+            'data': blog_event['connection']  # connection 데이터를 그대로 사용
+        }
+        analyzed_file_list.append(blog_file_row)
+
+    
+
+    analyzed_file_db = Analyzed_file_list(case_id=case_id, data=analyzed_file_list)
+    db.session.add(analyzed_file_db)
+    db.session.commit()
+    
     # Print Debug
-    # for i in printer_results :
-        # print(i['Print_Event_Date'], i['Accessed_File_List'], i['df'])
+    for i in printer_results :
+        print(i['Print_Event_Date'], i['Accessed_File_List'], i['df'])
 
     return jsonify({'success': True})
 
-def redirect_analyze_case_final_result(id) :
-    usb_results = UsbData_final.query.filter_by(case_id = id).first().usb_data
-    printer_results = PrinterData_final.query.filter_by(case_id = id).first().printer_data
-    return render_template('analyze/final_result.html',
-                            usb_results = usb_results,
-                            printer_results = printer_results)
-
-
-
-def redirect_analyze_case_group(data) :
-    output_path = all_table_parsing(data)
-    with open(output_path, 'r', encoding='utf-8') as f:
-        json_data = json.load(f)
-    tag_process = all_tag_process(data, json_data, output_path)
-    return jsonify({'success': True})
-
-def redirect_case_analyze_group_result(id) :
-    group_data = GroupParingResults.query.filter_by(case_id = id).first()
-    gmail_subject_to_web_pdf_download = json.loads(group_data.result1)
-    gmail_subject_to_google_drive_sharing = json.loads(group_data.result2)
-    gmail_subject_to_google_redirection = json.loads(group_data.result3)
-    file_web_access_to_pdf_document = json.loads(group_data.result4)
-    result_dict = {}
-    result_dict['gmail_subject_to_web_pdf_download'] = gmail_subject_to_web_pdf_download
-    result_dict['gmail_subject_to_google_drive_sharing'] = gmail_subject_to_google_drive_sharing
-    result_dict['gmail_subject_to_google_redirection'] = gmail_subject_to_google_redirection
-    result_dict['file_web_access_to_pdf_document'] = file_web_access_to_pdf_document
-
-    html_files = make_analyze_tag_group_graph(result_dict, str(id))
-    graph_datas = {"gmail_subject_to_web_pdf_download" : [],
-                   "gmail_subject_to_google_drive_sharing" : [],
-                   "gmail_subject_to_google_redirection" : [],
-                   "file_web_access_to_pdf_document" : []
-                    }
-    for group_name, code in html_files : 
-        with open(code, 'r') as file:
-            html_content = file.read()
-        soup = BeautifulSoup(html_content, 'html.parser')
-        body_content = soup.body
-        scripts = soup.find_all('script')
-        body_html = str(body_content)
-        scripts_html = ''.join([str(script) for script in scripts])
-        graph_datas[group_name].append([body_html, scripts_html])
-
-    for i in range(len(result_dict['gmail_subject_to_web_pdf_download'])) :
-        result_dict['gmail_subject_to_web_pdf_download'][i]['body'] = graph_datas['gmail_subject_to_web_pdf_download'][i][0]
-        result_dict['gmail_subject_to_web_pdf_download'][i]['script'] = graph_datas['gmail_subject_to_web_pdf_download'][i][1]
+def redirect_analyze_case_final_result(id):
+    usb_results = UsbData_final.query.filter_by(case_id=id).first().usb_data
+    printer_results = PrinterData_final.query.filter_by(case_id=id).first().printer_data
+    analyzed_file_list = Analyzed_file_list.query.filter_by(case_id=id).first().data
+    case_number = Upload_Case.query.filter_by(id = id).first().case_number
+    mail_output = (os.path.join(os.getcwd(), "uploads", session['username'], case_number, "output_mail.json"))
     
+    with open(mail_output, 'r', encoding='utf-8') as file:
+        mail_results = json.load(file)
+    
+    drive_output = (os.path.join(os.getcwd(), "uploads", session['username'], case_number, "output_drive.json"))
+    with open(drive_output, 'r', encoding='utf-8') as file:
+        drive_results = json.load(file)
 
-    for i in range(len(result_dict['gmail_subject_to_google_drive_sharing'])) :
-        result_dict['gmail_subject_to_google_drive_sharing'][i]['body'] = graph_datas['gmail_subject_to_google_drive_sharing'][i][0]
-        result_dict['gmail_subject_to_google_drive_sharing'][i]['script'] = graph_datas['gmail_subject_to_google_drive_sharing'][i][1]
-    
-    for i in range(len(result_dict['gmail_subject_to_google_redirection'])) :
-        result_dict['gmail_subject_to_google_redirection'][i]['body'] = graph_datas['gmail_subject_to_google_redirection'][i][0]
-        result_dict['gmail_subject_to_google_redirection'][i]['script'] = graph_datas['gmail_subject_to_google_redirection'][i][1]
-    
-    for i in range(len(result_dict['file_web_access_to_pdf_document'])) :
-        result_dict['file_web_access_to_pdf_document'][i]['body'] = graph_datas['file_web_access_to_pdf_document'][i][0]
-        result_dict['file_web_access_to_pdf_document'][i]['script'] = graph_datas['file_web_access_to_pdf_document'][i][1]
-    
-    ranking_run('파일이 Gmail Drive를 통해 외부로 유출될 가능성이 있습니다.', case_id=id)
-
-    def classify_priority_dynamic(priority, total_priorities):
-        # Calculate thresholds for High, Medium, Low groups based on total priorities
-        high_threshold = int(total_priorities * 0.33)
-        medium_threshold = int(total_priorities * 0.66)
+    blog_output = (os.path.join(os.getcwd(), "uploads", session['username'], case_number, "output_blog.json"))
+    with open(blog_output, 'r', encoding='utf-8') as file:
+        blog_results = json.load(file)
         
-        if priority <= high_threshold:
-            return 'High'
-        elif high_threshold < priority <= medium_threshold:
-            return 'Medium'
-        else:
-            return 'Low'
-
-    user = session.get('username')
-    case_number = Upload_Case.query.filter_by(id=id).first().case_number
-    priority_data_path = os.path.join(os.getcwd(), "uploads", user, case_number, "tag_priority_data.json")
-    with open(priority_data_path, 'r', encoding='utf-8') as file:
-        priority_data = json.load(file)
-    # Collect all priorities for dynamic classification
-    all_priorities = [value['priority'] for value in priority_data.values()]
-    total_priorities = len(all_priorities)
-
-    # Transforming the data into a structured format with dynamic classification
-    structured_data_dynamic = []
-    for key, value in priority_data.items():
-        priority = value['priority']
-        group = classify_priority_dynamic(priority, total_priorities)
-        structured_data_dynamic.append({
-            'name': key,
-            'priority': priority,
-            'group': group,
-            'description': value['description']
-        })
-    sorted_structured_data_dynamic = sorted(structured_data_dynamic, key=lambda x: x['group'])
-
-    group_tag_count_dict = {}
-
-    for category, items in result_dict.items():
-        for item in items:
-            for key, value in item.items():
-                if isinstance(value, dict) and '_Tag_' in value:
-                    tag = value['_Tag_']
-                    if tag in group_tag_count_dict:
-                        group_tag_count_dict[tag] += 1
-                    else:
-                        group_tag_count_dict[tag] = 1
-
-    all_tag_data_path = os.path.join(os.getcwd(), "uploads", user, case_number, "tagged_data_add_upload.json")
-    with open(all_tag_data_path, 'r', encoding='utf-8') as file:
-        all_tag_data = json.load(file)
-    tagged_items_dict = {}
+    ''' 임시 제거 함수 '''
+    def exclude_prioriry_0(results) :
+        tmp = []
+        for result in results :
+            if (result['priority'] != 0) :
+                tmp.append(result)
+        return tmp
+    mail_results = exclude_prioriry_0(mail_results)
+    drive_results = exclude_prioriry_0(drive_results)
+    blog_results = exclude_prioriry_0(blog_results)
+    ''' 없애도 됨 '''
     
-    # 태그별 개수를 저장할 딕셔너리
-    all_tag_count = {}
+    printer_timeline_data = []
+    has_valid_timeline = False
+    
+    for result in printer_results:
+        event_data = []
+        # Check if there are actual printed files
+        # if result['Accessed_File_List']:
+        has_valid_timeline = True
+        event_data.append({
+            'datetime': result['Print_Event_Date'],
+            'name': 'Print Event',
+            'type': 'Print',
+            'Content': f"Printed files: {', '.join(result['Accessed_File_List'])}",
+        })
+        
+        # Add file activities from df
+        if 'df' in result and result['df'] and len(result['df']) > 0:
+            for activity in result['df'][0]['data']:
+                event_data.append({
+                    'datetime': activity['timestamp'],
+                    'name': f"File {activity['type']}",
+                    'type': activity['type'],
+                    'Content': activity['main_data'] if activity['main_data'] else 'No additional data'
+                })
+            
+        # Sort activities by datetime
+        event_data.sort(key=lambda x: x['datetime'])
+        printer_timeline_data.append(event_data)
 
-    # 태그가 포함된 아이템을 추출
-    for category, items in all_tag_data.items():
-        for item in items:
-            # 태그가 포함된 아이템만 따로 저장
-            for key, value in item.items():
-                if isinstance(value, dict) and '_Tag_' in value:
-                    tag = value['_Tag_']
-                    # 태그가 있는 아이템을 따로 저장
-                    if tag not in tagged_items_dict:
-                        tagged_items_dict[tag] = []
-                    tagged_items_dict[tag].append({key: value})
+    # USB 타임라인 데이터 처리 추가
+    usb_timeline_data = []
+    has_usb_timeline = False
+    
+    for connection in usb_results:
+        has_usb_timeline = True
+        event_data = []
+        
+        # USB 연결/해제 이벤트 추가
+        event_data.append({
+            'datetime': connection['Start'],
+            'name': f"USB Connected - {connection['Connection']}",
+            'type': 'usb_connect',
+            'Content': f"USB device connected: {connection['Connection']}"
+        })
+        
+        event_data.append({
+            'datetime': connection['End'],
+            'name': f"USB Disconnected - {connection['Connection']}",
+            'type': 'usb_disconnect',
+            'Content': f"USB device disconnected: {connection['Connection']}"
+        })
+        
+        # 파일 접근 이벤트 추가
+        for activity in connection['filtered_df']:
+            event_data.append({
+                'datetime': activity['timestamp'],
+                'name': f"File {activity['type']}",
+                'type': activity['type'],
+                'Content': activity['main_data']
+            })
+        
+        # 시간순 정렬
+        event_data.sort(key=lambda x: x['datetime'])
+        usb_timeline_data.append(event_data)
 
-                    # 태그 개수 카운팅
-                    if tag in all_tag_count:
-                        all_tag_count[tag] += 1
-                    else:
-                        all_tag_count[tag] = 1
+    # 메일 타임라인 데이터 처리 추가
+    mail_timeline_data = []
+    has_mail_timeline = False
+    
+    for mail_event in mail_results:
+        has_mail_timeline = True
+        event_data = []
+        
+        # 각 메일 이벤트의 connection 데이터를 타임라인에 추가
+        for activity in mail_event['connection']:
+            event_data.append({
+                'datetime': activity['timestamp'],
+                'name': f"Mail Activity - {activity['type']}",
+                'type': 'mail',
+                'Content': f"File: {mail_event['filename']}, Action: {activity['type']}, URL: {activity['main_data']}"
+            })
+        
+        # 시간순 정렬
+        event_data.sort(key=lambda x: x['datetime'])
+        mail_timeline_data.append(event_data)
 
-                # '_Tag_'가 최상위에 있을 경우 처리
-                elif key == '_Tag_':
-                    tag = value
-                    # 태그가 있는 최상위 아이템을 따로 저장
-                    if tag not in tagged_items_dict:
-                        tagged_items_dict[tag] = []
-                    tagged_items_dict[tag].append(item)
+    # 드라이브 타임라인 데이터 처리 추가
+    drive_timeline_data = []
+    has_drive_timeline = False
+    
+    for drive_event in drive_results:
+        has_drive_timeline = True
+        event_data = []
+        
+        # 각 드라이브 이벤트의 connection 데이터를 타임라인에 추가
+        for activity in drive_event['connection']:
+            event_data.append({
+                'datetime': activity['timestamp'],
+                'name': f"Drive Activity - {activity['type']}",
+                'type': 'drive',
+                'Content': f"File: {drive_event['filename']}, Action: {activity['type']}, URL: {activity['main_data']}"
+            })
+        
+        # 시간순 정렬
+        event_data.sort(key=lambda x: x['datetime'])
+        drive_timeline_data.append(event_data)
 
-                    # 태그 개수 카운팅
-                    if tag in all_tag_count:
-                        all_tag_count[tag] += 1
-                    else:
-                        all_tag_count[tag] = 1
-    print(tagged_items_dict)
-    return render_template('analyze/group_result.html', 
-                           result_dict = result_dict,
-                           sorted_structured_data_dynamic = sorted_structured_data_dynamic,
-                           group_tag_count_dict = group_tag_count_dict,
-                           all_tag_count = all_tag_count,
-                           all_tag_data = tagged_items_dict)
+    # 블로그 타임라인 데이터 처리 추가
+    blog_timeline_data = []
+    has_blog_timeline = False
+    
+    for blog_event in blog_results:
+        has_blog_timeline = True
+        event_data = []
+        
+        # 각 블로그 이벤트의 connection 데이터를 타임라인에 추가
+        for activity in blog_event['connection']:
+            event_data.append({
+                'datetime': activity['timestamp'],
+                'name': f"Blog Activity - {activity['type']}",
+                'type': 'blog',
+                'Content': f"File: {blog_event['filename']}, Action: {activity['type']}, URL: {activity['main_data']}"
+            })
+        
+        # 시간순 정렬
+        event_data.sort(key=lambda x: x['datetime'])
+        blog_timeline_data.append(event_data)
+
+    return render_template('analyze/final_result.html',
+                         usb_results=usb_results,
+                         printer_results=printer_results,
+                         printer_timeline_data=printer_timeline_data,
+                         has_valid_timeline=has_valid_timeline,
+                         analyzed_file_list=analyzed_file_list,
+                         mail_results=mail_results,
+                         mail_timeline_data=mail_timeline_data,
+                         has_mail_timeline=has_mail_timeline,
+                         drive_timeline_data=drive_timeline_data,
+                         has_drive_timeline=has_drive_timeline,
+                         blog_timeline_data=blog_timeline_data,
+                         has_blog_timeline=has_blog_timeline,
+                         usb_timeline_data=usb_timeline_data,
+                         has_usb_timeline=has_usb_timeline,
+                         case_id=id,
+                         drive_results=drive_results,
+                         blog_results=blog_results)
+    
+def redirect_analyze_case_final_connection_result(id, row_index):
+    
+    return render_template('analyze/final_connection_result.html')

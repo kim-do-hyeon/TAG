@@ -113,7 +113,18 @@ class UsbData_final(db.Model, UserMixin) :
     case_id = db.Column(db.Text)
     usb_data = db.Column(db.JSON)
 
+class Analyzed_file_list(db.Model, UserMixin) :
+    __tablename__ = "Analyzed_file_list"
+    id = db.Column(db.Integer, primary_key = True)
+    case_id = db.Column(db.Text)
+    data = db.Column(db.JSON)
 
+class Mail_final(db.Model, UserMixin) :
+    __tablename__ = "Mail_final"
+    id = db.Column(db.Integer, primary_key = True)
+    case_id = db.Column(db.Text)
+    mail_data = db.Column(db.JSON)
+    
 
 
 @login_manager.user_loader
