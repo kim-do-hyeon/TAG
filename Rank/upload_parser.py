@@ -4,6 +4,7 @@ import json
 import pandas as pd
 import re, os
 from operator import itemgetter
+from collections import Counter
 
 # 기준 파일과 출력 파일 이름 설정
 criteria_files = {
@@ -15,12 +16,12 @@ criteria_files = {
 learning_output_data = []
 
 fields_by_table = {
-    "UsnJrnl": ["File_Name", "Timestamp_Date/Time_-_UTC_(yyyy-mm-dd)", "Reason", "File_Attributes"],
-    "LNK_Files": ["Target_File_Created_Date/Time_-_UTC_(yyyy-mm-dd)", "Target_File_Last_Accessed_Date/Time_-_UTC_(yyyy-mm-dd)", "Created_Date/Time_-_UTC_(yyyy-mm-dd)", "Target_File_Last_Modified_Date/Time_-_UTC_(yyyy-mm-dd)", "Last_Modified_Date/Time_-_UTC_(yyyy-mm-dd)", "Accessed_Date/Time_-_UTC_(yyyy-mm-dd)", "Linked_Path"],
-    "Edge/Internet_Explorer_10_11_Main_History": ["Access_Count", "Accessed_Date/Time_-_UTC_(yyyy-mm-dd)", "URL"],
-    "MRU_Recent_Files_&_Folders": ["File/Folder_Link", "File/Folder_Name", "_bagmrupath", "Registry_Key_Modified_Date/Time_-_UTC_(yyyy-mm-dd)"],
-    "Jump_Lists": ["Target_File_Created_Date/Time_-_UTC_(yyyy-mm-dd)", "Last_Access_Date/Time_-_UTC_(yyyy-mm-dd)", "Access_Count", "Data", "Target_MAC_Address", "Target_File_Last_Accessed_Date/Time_-_UTC_(yyyy-mm-dd)", "Target_File_Last_Modified_Date/Time_-_UTC_(yyyy-mm-dd)", "Target_File_Size_(Bytes)", "Linked_Path"],
-    "Locally_Accessed_Files_and_Folders": ["Path", "Access_Count", "Accessed_Date/Time_-_Local_Time_(yyyy-mm-dd)", "Accessed_Date/Time_-_UTC_(yyyy-mm-dd)"]
+    "UsnJrnl": ["File_Name", "Reason", "File_Attributes"],
+    "LNK_Files": ["Linked_Path"],
+    "Edge/Internet_Explorer_10_11_Main_History": ["Access_Count", "URL"],
+    "MRU_Recent_Files_&_Folders": ["File/Folder_Link", "File/Folder_Name"],
+    "Jump_Lists": ["Access_Count", "Data", "Linked_Path"],
+    "Locally_Accessed_Files_and_Folders": ["Path"]
 }
 
 # DB 연결
@@ -40,6 +41,17 @@ tables_to_search = {
 # 특정 확장자를 가진 파일 이름을 가져오는 정규식
 file_extensions = (".pdf", ".pptx", ".zip", ".hwp")
 file_name_pattern = re.compile(r'[^\\/]+\.(pdf|pptx|zip|hwp)$', re.IGNORECASE)
+
+def generate_numbered_fields(field_name, values, max_length=15):
+    """
+    Generate a dictionary with numbered field names.
+    Example: field_name='usnjrnl_file_names', values=['A', 'B'], max_length=3
+    Result: {'usnjrnl_file_names_1': 'A', 'usnjrnl_file_names_2': 'B', 'usnjrnl_file_names_3': None}
+    """
+    return {
+        f"{field_name}_{i+1}": values[i] if i < len(values) else None
+        for i in range(max_length)
+    }
 
 # 기준 파일별로 전체 코드를 반복 실행
 for criteria_file, (output_file, custom_output_file) in criteria_files.items():
@@ -171,7 +183,7 @@ for criteria_file, (output_file, custom_output_file) in criteria_files.items():
                 # 기본 presence_score 계산
                 if table in scoring_criteria and "presence_score" in scoring_criteria[table]:
                     group_score += scoring_criteria[table]["presence_score"]
-                    table_criteria = scoring_criteria[table]
+                table_criteria = scoring_criteria[table]
                 if "conditions" in table_criteria:
                     for condition in table_criteria["conditions"]:
                         all_conditions_met = True
@@ -336,9 +348,21 @@ for criteria_file, (output_file, custom_output_file) in criteria_files.items():
                 table_name_value = closest_tag_data["Data"].get("artifact_name", "No artifact_name found")          
                 
                 # closest_cache_data의 URL에서 tag_prefix 포함 여부 확인
-                url_check = closest_cache_data.get("URL", "").lower()
-                if tag_prefix_lower in url_check or (tag_prefix_lower == "outlook" and "owa" and "live.com" in url_check):
+                url_check = closest_cache_data.get("URL", "").lower()           
+                if tag_prefix_lower in url_check:
                     pass  # 포함되어 있으면 점수를 유지
+                elif tag_prefix_lower == "outlook":
+                    if "outlook" in url_check:
+                        pass
+                    elif "owa" in url_check:
+                        pass
+                    elif "live.com" in url_check:
+                        pass
+                elif tag_prefix_lower == "onedrive":
+                    if "onedrive" in url_check:
+                        pass
+                    elif "live.com" in url_check:
+                        pass
                 elif "Firefox" in table_name_value:
                     pass  # Firefox의 경우 예외로 점수를 유지
                 else:
@@ -421,6 +445,13 @@ for criteria_file, (output_file, custom_output_file) in criteria_files.items():
                 for entry in group["Group_Data"]
             ]
 
+            group_table_data = [
+                entry.get("Table")
+                for entry in group["Group_Data"]
+            ]
+
+            counted_data = Counter(group_table_data)
+            json_data_conted = json.dumps(counted_data, indent=2)
             # event_data의 details 구성
             event_data = [
                 {
@@ -433,21 +464,99 @@ for criteria_file, (output_file, custom_output_file) in criteria_files.items():
                 }
                 for i, entry in enumerate(group_data_summary)
             ]
-            
-            # 출력 결과 예시
+
+
+
             learning_output_entry = {
                 "incident_type": "웹 파일 업로드",
                 "file_name": group["File_Name"],
-                "group_score": group["Group_Score"],
                 "service_type": criteria_type,
-                "url_patterns": [{item["type"]: item["main_data"]} for item in connection],
-                "artifacts": event_data
+                "Timestamp": first_timestamp,
+                **generate_numbered_fields(
+                    "usnjrnl_file_names",
+                    list({
+                        entry["Data"].get("File_Name", "")
+                        for entry in group["Group_Data"] if entry["Table"] == "UsnJrnl"
+                    })
+                ),
+                **generate_numbered_fields(
+                    "usnjrnl_reasons",
+                    list({
+                        entry["Data"].get("Reason", "")
+                        for entry in group["Group_Data"] if entry["Table"] == "UsnJrnl"
+                    })
+                ),
+                **generate_numbered_fields(
+                    "usnjrnl_attributes",
+                    list({
+                        entry["Data"].get("File_Attributes", "")
+                        for entry in group["Group_Data"] if entry["Table"] == "UsnJrnl"
+                    })
+                ),
+                **generate_numbered_fields(
+                    "lnk_files_linked_paths",
+                    list({
+                        entry["Data"].get("Linked_Path", "")
+                        for entry in group["Group_Data"] if entry["Table"] == "LNK_Files"
+                    })
+                ),
+                **generate_numbered_fields(
+                    "edge_internet_explorer_urls",
+                    list({
+                        entry["Data"].get("URL", "")
+                        for entry in group["Group_Data"] if entry["Table"] == "Edge/Internet_Explorer_10_11_Main_History"
+                    })
+                ),
+                **generate_numbered_fields(
+                    "mru_recent_files_folder_names",
+                    list({
+                        entry["Data"].get("File/Folder_Name", "")
+                        for entry in group["Group_Data"] if entry["Table"] == "MRU_Recent_Files_&_Folders"
+                    })
+                ),
+                **generate_numbered_fields(
+                    "locally_accessed_files_paths",
+                    list({
+                        entry["Data"].get("Path", "")
+                        for entry in group["Group_Data"] if entry["Table"] == "Locally_Accessed_Files_and_Folders"
+                    })
+                ),
+                **generate_numbered_fields(
+                    "jumplist_access_counts",
+                    list({
+                        int(entry["Data"].get("Access_Count", 0))
+                        for entry in group["Group_Data"] if entry["Table"] == "Jump_Lists"
+                    })
+                ),
+                **generate_numbered_fields(
+                    "jumplist_data_entries",
+                    list({
+                        entry["Data"].get("Data", "")
+                        for entry in group["Group_Data"] if entry["Table"] == "Jump_Lists"
+                    })
+                )
             }
-            custom_output_data.append(custom_output_entry)
-            # JSON 결과에 추가
+
+
+            # # artifacts 데이터 생성
+            # artifacts = []
+            # for detail in event_data:
+            #     artifact_data = [detail["artifact_name"], detail["time_stamp"]]
+            #     artifact_data.extend([f"{key}: {value}" for key, value in detail["details"].items()])
+            #     artifacts.append(artifact_data)
+
+            # # artifacts를 learning_output_entry에 추가
+            # learning_output_entry["artifacts"] = artifacts
+
+            # learning_output_data에 결과 추가
             learning_output_data.append(learning_output_entry)
 
-            # print(f"Event Date : {first_timestamp}")
+
+            # print("=" * 80)
+            # print(group["File_Name"] + " ---- " + str(group["Group_Score"]) + "\n")
+            # print(json_data_conted + "\n")
+
+
             # print(f"Accessed File : [{group['File_Name']}]")
             # print("=" * 50)
             # print(f"File {group['File_Name']} Behavior")
@@ -468,7 +577,7 @@ for criteria_file, (output_file, custom_output_file) in criteria_files.items():
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump(result_with_tag_data, f, indent=4, ensure_ascii=False, default=str)
 
-    output_learning_file = os.path.join(os.getcwd(), "learning_output_data.json")
+    output_learning_file = os.path.join(os.getcwd(), r"C:\Users\addy0\OneDrive\바탕 화면\TAG-1\Learning\learning_output_data.json")
     with open(output_learning_file, "w", encoding="utf-8") as f:
         json.dump(learning_output_data, f, indent=4, ensure_ascii=False, default=str)
 
