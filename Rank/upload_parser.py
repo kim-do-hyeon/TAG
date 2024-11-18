@@ -25,7 +25,7 @@ fields_by_table = {
 }
 
 # DB 연결
-conn = sqlite3.connect(r"C:\Users\addy0\OneDrive\바탕 화면\DB 모음\2024-10-27 - 복사본.db")
+conn = sqlite3.connect(r"C:\Users\addy0\OneDrive\바탕 화면\DB 모음\2024-10-29 - 복사본.db")
 cursor = conn.cursor()
 
 # 검색할 테이블과 컬럼 설정
@@ -41,7 +41,6 @@ tables_to_search = {
 # 특정 확장자를 가진 파일 이름을 가져오는 정규식
 file_extensions = (".pdf", ".pptx", ".zip", ".hwp")
 file_name_pattern = re.compile(r'[^\\/]+\.(pdf|pptx|zip|hwp)$', re.IGNORECASE)
-
 def generate_numbered_fields(field_name, values, max_length=15):
     """
     Generate a dictionary with numbered field names.
