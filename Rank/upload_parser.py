@@ -41,7 +41,7 @@ tables_to_search = {
 # 특정 확장자를 가진 파일 이름을 가져오는 정규식
 file_extensions = (".pdf", ".pptx", ".zip", ".hwp")
 file_name_pattern = re.compile(r'[^\\/]+\.(pdf|pptx|zip|hwp)$', re.IGNORECASE)
-def generate_numbered_fields(field_name, values, max_length=15):
+def generate_numbered_fields(field_name, values, max_length=10):
     """
     Generate a dictionary with numbered field names.
     Example: field_name='usnjrnl_file_names', values=['A', 'B'], max_length=3
@@ -464,13 +464,13 @@ for criteria_file, (output_file, custom_output_file) in criteria_files.items():
                 for i, entry in enumerate(group_data_summary)
             ]
 
-
-
             learning_output_entry = {
                 "incident_type": "웹 파일 업로드",
                 "file_name": group["File_Name"],
                 "service_type": criteria_type,
-                "Timestamp": first_timestamp,
+                "web_upload_tag": tag_value,
+                "web_tag_timestamp": closest_tag_data["Timestamp"],
+                "file_system_Timestamp": first_timestamp,
                 **generate_numbered_fields(
                     "usnjrnl_file_names",
                     list({
