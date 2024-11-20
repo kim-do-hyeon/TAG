@@ -115,7 +115,22 @@ def mail_behavior(db_path) :
                                 }
                                 search_results[file_name].append(entry)
                             except Exception as e:
-                                print(f"시간 변환 오류 발생: {e}")
+                                
+                                if "does not match format" in str(e) :
+                                    try:
+                                        timestamp = datetime.strptime(base_data[column_name], "%Y-%m-%d %H:%M:%S")
+                                        entry = {
+                                            "Table": table,
+                                            "Timestamp": timestamp,
+                                            "Data": base_data,
+                                            "Time_Column": column_name
+                                        }
+                                        search_results[file_name].append(entry)
+                                    except Exception as e :
+                                        print(f"시간 변환 오류 발생: {e}")
+                                else :
+                                    print(f"시간 변환 오류 발생 (테이블: {table}, 컬럼: {time_column}): {e}")
+
 
         # Step 4: 각 파일의 검색 결과를 시간순으로 정렬 및 그룹화
         for file_name, entries in search_results.items():
@@ -246,7 +261,22 @@ def mail_behavior(db_path) :
                                 }
                                 all_tagged_data.append(tagged_entry)
                             except ValueError as e:
-                                print(f"시간 변환 오류 발생 (테이블: {table}, 컬럼: {time_column}): {e}")
+                                if "does not match format" in str(e) :
+                                    try:
+                                        timestamp = datetime.strptime(base_data[time_column], "%Y-%m-%d %H:%M:%S")
+                                        tagged_entry = {
+                                            "Table": table,
+                                            "Timestamp": timestamp,
+                                            "Data": base_data,
+                                            "Time_Column": time_column
+                                        }
+                                        all_tagged_data.append(tagged_entry)
+                                    except Exception as e :
+                                        print(f"시간 변환 오류 발생 (테이블: {table}, 컬럼: {time_column}): {e}")
+                                else :
+                                    print(f"시간 변환 오류 발생 (테이블: {table}, 컬럼: {time_column}): {e}")
+                                        
+
             except Exception as e:
                 print(f"테이블 조회 오류 발생: {e}")
 
@@ -284,7 +314,20 @@ def mail_behavior(db_path) :
                             }
                             url_cache_data.append(entry)
                         except ValueError as e:
-                            print(f"시간 변환 오류 발생 (테이블: {table}, 컬럼: {time_column}): {e}")
+                            if "does not match format" in str(e) :
+                                try:
+                                    timestamp = datetime.strptime(base_data[time_column], "%Y-%m-%d %H:%M:%S")
+                                    entry = {
+                                        "Table": table,
+                                        "Timestamp": timestamp,
+                                        "URL": base_data["URL"],
+                                        "Time_Column": time_column,
+                                    }
+                                    url_cache_data.append(entry)
+                                except Exception as e :
+                                    print(f"시간 변환 오류 발생 (테이블: {table}, 컬럼: {time_column}): {e}")
+                            else :
+                                print(f"시간 변환 오류 발생 (테이블: {table}, 컬럼: {time_column}): {e}")
 
         # URL 캐시 데이터를 타임스탬프 기준으로 정렬
         url_cache_data_sorted = sorted(url_cache_data, key=lambda x: x["Timestamp"])
