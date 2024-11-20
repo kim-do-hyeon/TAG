@@ -25,7 +25,7 @@ fields_by_table = {
 }
 
 # DB 연결
-conn = sqlite3.connect(r"C:\Users\addy0\OneDrive\바탕 화면\DB 모음\2024-10-29 - 복사본.db")
+conn = sqlite3.connect(r"C:\Users\addy0\OneDrive\바탕 화면\DB 모음\2024-10-28 - 복사본.db")
 cursor = conn.cursor()
 
 # 검색할 테이블과 컬럼 설정
@@ -533,7 +533,8 @@ for criteria_file, (output_file, custom_output_file) in criteria_files.items():
                         entry["Data"].get("Data", "")
                         for entry in group["Group_Data"] if entry["Table"] == "Jump_Lists"
                     })
-                )
+                ),
+                "label": 0
             }
 
 
@@ -549,7 +550,7 @@ for criteria_file, (output_file, custom_output_file) in criteria_files.items():
 
             # learning_output_data에 결과 추가
             learning_output_data.append(learning_output_entry)
-
+            custom_output_data.append(custom_output_entry)
 
             # print("=" * 80)
             # print(group["File_Name"] + " ---- " + str(group["Group_Score"]) + "\n")
