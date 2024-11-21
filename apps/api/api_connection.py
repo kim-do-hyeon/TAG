@@ -1,6 +1,6 @@
 import pprint
 from flask import jsonify, session, url_for
-from apps.authentication.models import Normalization
+from apps.authentication.models import Normalization, Upload_Case
 from apps.analyze.USB.make_usb_analysis_db import extract_transaction_LogFile_Analysis
 import sqlite3
 import pandas as pd
@@ -18,11 +18,13 @@ def redirect_logfile(data) :
         filename = data.get('filename')
         db_path = Normalization.query.filter_by(normalization_definition=case_id).first().file
         
+        print(db_path)
+        
         db_conn = sqlite3.connect(db_path)
         
         result = extract_transaction_LogFile_Analysis(db_conn, filename)
         for key, value in result.items() :
-            tmp = value[['Event_Date/Time_-_UTC_(yyyy-mm-dd)', 'Original_File_Name', 'Current_File_Name', 'File_Operation']]
+            tmp = value[['Event_Date/Time_-_UTC_(yyyy-mm-dd)', 'Original_File_Name', 'Current_File_Name', 'File_Operation', 'hit_id']]
             tmp['File_Operation'] = tmp['File_Operation'].replace('Create', 'file_create')
             tmp.loc[:,'Event_Date/Time_-_UTC_(yyyy-mm-dd)'] = tmp['Event_Date/Time_-_UTC_(yyyy-mm-dd)'].astype(str)
             result[key] = tmp.to_dict(orient='records')
@@ -30,7 +32,7 @@ def redirect_logfile(data) :
         
         return jsonify(result)
     except Exception as e :
-        return jsonify({'success' : False, 'message' : e})
+        return jsonify({'success' : False, 'message' : '[*] LogFile table error : '+str(e)})
 
 
 def file_connect_node(data) :
@@ -95,7 +97,8 @@ def file_connect_node(data) :
                 consolidated_time_data_list.append({
                     'timestamp': current['timestamp'],
                     'type': 'create',
-                    'main_data': current['main_data']
+                    'main_data': current['main_data'],
+                    'hit_id' : current['hit_id']
                 })
             else:
                 consolidated_time_data_list.extend(time_data_list[i:j])
@@ -125,6 +128,7 @@ def file_connect_node(data) :
                 'timestamp' : pd.to_datetime(time_data['timestamp']),
                 'operation' : time_data['type'],
                 'filename' : time_data['main_data'],
+                'hit_id' : time_data['hit_id'],
                 'after_filename' : None,
                 'mft_num' : None
             }
@@ -138,7 +142,8 @@ def file_connect_node(data) :
                 row = {
                     'timestamp' : pd.to_datetime(logfile_data['Event_Date/Time_-_UTC_(yyyy-mm-dd)']),
                     'operation' : logfile_data['File_Operation'],
-                    'mft_num' : key
+                    'mft_num' : key,
+                    'hit_id' : logfile_data['hit_id']
                 }
                 if (row['operation'] == 'Rename') :
                     row['filename'] = logfile_data['Original_File_Name']
@@ -202,11 +207,14 @@ def file_connect_node(data) :
         }
         nodes = []
         edges = []
+        hit_ids = []
         node_x = 0
         node_y = 0
         for idx, row in enumerate(consolidated_dict) :
             #row['filename'] = shorten_string(row['filename'])
             node = {}
+            if 'hit_id' in row :
+                hit_ids.append({'id' : idx, 'hit_id' : row['hit_id']})
             if 'USB' in row['operation'] :
                 node = {
                     'id' : idx,
@@ -259,11 +267,53 @@ def file_connect_node(data) :
             'data' : new_df.to_dict(orient='records'),
             'nodes' : nodes,
             'edges' : edges,
+            'hit_ids' : hit_ids,
             'success' : True
         }
         #pprint.pprint(result)
         return jsonify(result)
     except Exception as e :
-        return jsonify({'success' : False, 'message' : e})
+        return jsonify({'success' : False, 'message' : '[*] connection error : ' + str(e)})
+    
+def find_data_by_hit_id(data) :
+    
+    case_id = data.get('case_id')
+    hit_id = data.get('hit_id')
+    
+    db_instance = Upload_Case.query.filter_by(id=case_id).first()  # Renamed to avoid confusion with db session
+    db_path = db_instance.file
+    source_conn = sqlite3.connect(db_path)
+    
+    # 데이터베이스의 모든 테이블 이름 가져오기
+    query = "SELECT name FROM sqlite_master WHERE type='table';"
+    tables = pd.read_sql_query(query, source_conn)
+    
+    if 'hit_fragment' in tables :
+        return jsonify({'success' : False, 'message' : 'It does not exist "hit_fragment" table'})
+    
+    try :
+
+        # 특정 컬럼을 찾고자 하는 컬럼 이름
+        target_column = 'hit_id'
+        fragment_column = 'fragment_definition_id'
+
+        # fragment_definition 테이블에서 id와 name 매핑 가져오기
+        fragment_query = "SELECT fragment_definition_id, name FROM fragment_definition;"
+        fragment_df = pd.read_sql_query(fragment_query, source_conn)
+        id_to_name = dict(zip(fragment_df['fragment_definition_id'], fragment_df['name']))
+
+        query = f"SELECT hit_id, value, fragment_definition_id FROM hit_fragment WHERE hit_id={hit_id}"
+        data_by_hit_id_df = pd.read_sql_query(query, source_conn)
+        
+        return_dict = {}
+        for index, row in data_by_hit_id_df.iterrows() :
+            column = id_to_name[row['fragment_definition_id']]
+            return_dict[column] = row['value']
+        
+        print(return_dict)
+        return jsonify({ 'success' : True, 'data' : return_dict})
+    except Exception as e :
+        print(e)
+        return jsonify({'success' : False, 'message' : str(e)})
     
     

@@ -208,7 +208,7 @@ def redirect_analyze_case_final(data) :
     
     # Mail 데이터 처리
     for mail_event in mail_results:
-        if drive_event['priority'] != 0 :
+        if mail_event['priority'] != 0 :
             mail_file_row = {
                 'type': 'Mail',
                 'time_start': mail_event['timerange'].split(' ~ ')[0],  # timerange에서 시작 시간 추출

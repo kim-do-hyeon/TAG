@@ -391,6 +391,25 @@
     </div>
 </div>
 
+<!-- 두 번째 모달 -->
+<div class="modal fade" id="secondModal" tabindex="-1" aria-labelledby="SecondModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="SecondModalLabel">추가 정보</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- 두 번째 모달의 내용 -->
+                <div id="modalSecond"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <!-- jQuery와 Bootstrap JS 추가 (head 또는 body 끝부분에) -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -474,6 +493,7 @@
                 return response.json();
             })
             .then(data => {
+                console.log(data);
                 // 응답 데이터를 JSON 형식으로 포맷
                 var logfile_json = JSON.stringify(data, null, 2);
 
@@ -496,6 +516,7 @@
                 return secondResponse.json();
             })
             .then(secondData => {
+                console.log(secondData);
                 // 두 번째 응답 데이터를 처리
                 var secondLogfileJson = JSON.stringify(secondData, null, 2);
                 //console.log(secondData.edges);
@@ -560,6 +581,59 @@
                         }
                     };
                     var network = new vis.Network(container, data, options);
+
+                    // 노드 클릭 이벤트 리스너 추가
+                    network.on("click", function (params) {
+                        if (params.nodes.length > 0) {
+                            var nodeId = params.nodes[0];
+                            var clickedNode = nodes.get(nodeId);
+                            console.log("Clicked node:", clickedNode);
+
+                            // secondData.nodes에서 직접 가져오기
+                            var nodeData = secondData.hit_ids.find(node => node.id === nodeId);
+                            console.log("Node data from secondData:", nodeData);
+                            // 여기서 원하는 동작을 수행
+                            // 예: alert 창 띄우기
+                            requestData_by_hit_id = {
+                                case_id : {{case_id}},
+                                hit_id : nodeData.hit_id
+                            };
+                            fetch(`/get_data_by_hit_id`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(requestData_by_hit_id)
+                            })
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('네트워크 응답이 올바르지 않습니다.');
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                //console.log(data);
+                                // 응답 데이터를 JSON 형식으로 포맷
+                                var node_data_json = JSON.stringify(data, null, 2);
+                                var node_data = data.data;
+                                console.log(node_data);
+
+                                // JSON 데이터를 테이블로 변환
+                                let tableHtml = '<table class="table table-bordered"><tr><th>Key</th><th>Value</th></tr>';
+                                for (const [key, value] of Object.entries(node_data)) {
+                                    tableHtml += `<tr><td>${key}</td><td>${value}</td></tr>`;
+                                }
+                                tableHtml += '</table>';
+
+
+
+                                document.getElementById('modalSecond').innerHTML = tableHtml;
+
+                                // 모달 표시
+                                $('#secondModal').modal('show');
+                            })
+                        }
+                    });
                 });
                 document.getElementById('modalDetail').innerHTML = `<p>${analyzed_file['filename']}<p>`
                 // 모달 표시
@@ -643,6 +717,12 @@
         // Modal close event
         jQuery('#detailModal').on('hidden.bs.modal', function () {
             document.getElementById('modalDetail').innerHTML = '';
+        });
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+        // Modal close event
+        jQuery('#secondModal').on('hidden.bs.modal', function () {
+            document.getElementById('modalSecond').innerHTML = '';
         });
     });
 </script>
