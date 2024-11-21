@@ -25,3 +25,8 @@ Version 1.3 Release Note
 8. Mail Timeline View
 
 ---
+
+Version 1.4 Release Note
+1. Detect Porn Logic
+2. Porn behavior View
+3. Update DB Model
