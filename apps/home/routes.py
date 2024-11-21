@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 from apps.home import blueprint
-from flask import request, render_template, session, redirect, url_for, flash, Request, jsonify, render_template_string
+from flask import request, render_template, session, redirect, url_for, flash, Request, jsonify, render_template_string, send_file
 import os
 from flask_login import login_required
 from jinja2 import TemplateNotFound
@@ -112,8 +112,11 @@ def case_analyze_final_result(id) :
 def case_analyze_final_connection_result(id) :
     return redirect_analyze_case_final_connection_result(id, 0)
 
-''' End Case analyze '''
+@blueprint.route('/case/analyze/porn/<int:id>')
+def case_analyze_porn_result(id) :
+    return redirect_analyze_case_porn_result(id)
 
+''' End Case analyze '''
 
 ''' URI & API '''
 @blueprint.route('/logfile_tracking', methods=['POST'])

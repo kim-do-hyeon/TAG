@@ -269,6 +269,7 @@
             button.addEventListener('click', function() {
                 var caseId = this.getAttribute('data-case-id');
                 var caseNumber = this.getAttribute('data-case-id');
+                var caseType = "{{ case.case_type }}"
                 fetch('/case/analyze/final', {
                     method: 'POST',
                     headers: {
@@ -280,7 +281,11 @@
                 .then(data => {
                     if (data.success) {
                         alert('정상적으로 처리되었습니다.');
-                        window.location.href = "/case/analyze/final/" + {{case.id}};
+                        if (caseType == "음란물"){
+                            window.location.href = "/case/analyze/porn/" + {{case.id}};
+                        }else {                        
+                            window.location.href = "/case/analyze/final/" + {{case.id}};
+                        }
                     } else {
                         alert('Failed to submit the Final Process.');
                     }

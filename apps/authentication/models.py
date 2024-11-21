@@ -35,6 +35,7 @@ class Upload_Case(db.Model, UserMixin):
     case_number = db.Column(db.Text)
     description = db.Column(db.Text)
     file = db.Column(db.Text)
+    case_type = db.Column(db.Text)
     normalization = db.Column(db.Text)
 
 class Normalization(db.Model, UserMixin) :
@@ -124,7 +125,14 @@ class Mail_final(db.Model, UserMixin) :
     id = db.Column(db.Integer, primary_key = True)
     case_id = db.Column(db.Text)
     mail_data = db.Column(db.JSON)
-    
+
+class Porn_Data(db.Model, UserMixin) :
+    __tablename__ = "Pron_Data"
+    id = db.Column(db.Integer, primary_key = True)
+    case_id = db.Column(db.Text)
+    file_original_name = db.Column(db.Text)
+    file_original_name_md5 = db.Column(db.Text)
+    results = db.Column(db.JSON)
 
 
 @login_manager.user_loader

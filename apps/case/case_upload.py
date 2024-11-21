@@ -15,7 +15,10 @@ def case_upload() :
     analyst = request.form.get('analyst')
     case_number = request.form.get('caseNumber')
     description = request.form.get('description')
+    case_type = request.form.get('caseType')
     file = request.files.get('caseFile')
+    if case_type == "음란물" :
+        addtitonal_file = request.files.get('caseAttachments')
 
     # Check if file is present and allowed
     if file and allowed_file(file.filename):
@@ -37,6 +40,11 @@ def case_upload() :
         filename = secure_filename(file.filename)
         file_path = os.path.join(case_folder, filename)
         file.save(file_path)
+        
+        if case_type == "음란물" : 
+            addititonal_file_name = secure_filename(addtitonal_file.filename)
+            addititonal_file_path = os.path.join(case_folder, addititonal_file_name)
+            addtitonal_file.save(addititonal_file_path)
 
         # Save the upload details to the database
         new_case = Upload_Case(
@@ -45,6 +53,7 @@ def case_upload() :
             case_number=case_number,
             description=description,
             file=file_path,
+            case_type = case_type,
             normalization = None
         )
         db.session.add(new_case)
