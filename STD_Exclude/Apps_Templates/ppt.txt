@@ -1,0 +1,10 @@
+PREVIEWTEMPLATE.POTX
+PREVIEWTEMPLATE2.POTX
+ClassicPhotoAlbum.potx
+ContemporaryPhotoAlbum.potx
+Pitchbook.potx
+QuizShow.potx
+Training.potx
+WidescreenPresentation.potx
+PROTTPLN.PPT
+PROTTPLV.PPT

@@ -1,0 +1,44 @@
+PROTTPLN.DOC
+PROTTPLV.DOC
+basicelegant.dotx
+basicsimple.dotx
+basicstylish.dotx
+bwcapitalized.dotx
+bwclassic.dotx
+bwnumbered.dotx
+casual.dotx
+centered.dotx
+Classic.dotx
+Default.dotx
+linesdistinctive.dotx
+linessimple.dotx
+linesstylish.dotx
+minimalist.dotx
+shaded.dotx
+word2013.dotx
+word2013bw.dotx
+word2023.dotx
+Built-In Building Blocks.dotx
+AdjacencyLetter.dotx
+AdjacencyReport.dotx
+AdjacencyResume.dotx
+ApothecaryLetter.dotx
+ApothecaryNewsletter.dotx
+ApothecaryResume.dotx
+Blog.dotx
+ChronologicalLetter.dotx
+ChronologicalResume.dotx
+EssentialLetter.dotx
+EssentialReport.dotx
+EssentialResume.dotx
+Office Word 2003 Look.dotx
+OriginLetter.Dotx
+OriginReport.Dotx
+OriginResume.Dotx
+RedAndBlackLetter.dotx
+RedAndBlackReport.dotx
+StudentReport.dotx
+TimelessLetter.dotx
+TimelessReport.dotx
+TimelessResume.dotx
+Word 2010 look.dotx
