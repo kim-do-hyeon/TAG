@@ -31,7 +31,7 @@ def porn_behavior(case_id, db_path) :
 
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
-        cursor.execute("SELECT hit_id, File_Name FROM Videos WHERE File_Name IS NOT NULL")
+        cursor.execute("SELECT hit_id, File_Name FROM Videos WHERE File_Name IS NOT NULL AND Skin_Tone_Percentage >= 10")
         all_data = cursor.fetchall()
         conn.close()
         
