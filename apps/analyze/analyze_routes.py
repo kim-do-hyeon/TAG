@@ -21,7 +21,7 @@ from datetime import datetime
 def create_dict_from_file_paths(file_path):
     # 파일명 추출
     file_name = os.path.basename(file_path)
-    # 확장자를 ��외한 파일명
+    # 확장자를 외한 파일명
     file_name_without_ext = os.path.splitext(file_name)[0]
     # 딕셔너리 형태로 반환
     return {file_name_without_ext: file_path}
@@ -251,7 +251,7 @@ def redirect_analyze_case_final(data) :
                 blog_file_row = {
                     'type': 'Blog',
                     'time_start': blog_event['timerange'].split(' ~ ')[0],  # timerange에서 시작 시간 추출
-                    'time_end': blog_event['timerange'].split(' ~ ')[1],    # timerange에서 종료 시간 추출
+                    'time_end': blog_event['timerange'].split(' ~ ')[1],    # timerange에��� 종료 시간 추출
                     'filename': blog_event['filename'],
                     'browser': blog_event['browser'],
                     'data': blog_event['connection']  # connection 데이터를 그대로 사용
@@ -462,24 +462,24 @@ def redirect_analyze_case_porn_result(id) :
     porn_datas = Porn_Data.query.filter_by(case_id = id).all()
     # 한국어 설명 추가
     class_descriptions = {
-        "FEMALE_GENITALIA_COVERED": "여성 생식기 가려짐",
-        "FACE_FEMALE": "여성 얼굴",
-        "BUTTOCKS_EXPOSED": "노출된 엉덩이",
-        "FEMALE_BREAST_EXPOSED": "노출된 여성 가슴",
-        "FEMALE_GENITALIA_EXPOSED": "노출된 여성 생식기",
-        "MALE_BREAST_EXPOSED": "노출된 남성 가슴",
-        "ANUS_EXPOSED": "노출된 항문",
-        "FEET_EXPOSED": "노출된 발",
-        "BELLY_COVERED": "가려진 배",
-        "FEET_COVERED": "가려진 발",
-        "ARMPITS_COVERED": "가려진 겨드랑이",
-        "ARMPITS_EXPOSED": "노출된 겨드랑이",
-        "FACE_MALE": "남성 얼굴",
-        "BELLY_EXPOSED": "노출된 배",
-        "MALE_GENITALIA_EXPOSED": "노출된 남성 생식기",
-        "ANUS_COVERED": "가려진 항문",
-        "FEMALE_BREAST_COVERED": "가려진 여성 가슴",
-        "BUTTOCKS_COVERED": "가려진 엉덩이",
+        "FEMALE_GENITALIA_COVERED": (0.9, "여성 생식기 가려짐"),
+        "FACE_FEMALE": (0.2, "여성 얼굴"),
+        "BUTTOCKS_EXPOSED": (0.9, "노출된 엉덩이"),
+        "FEMALE_BREAST_EXPOSED": (0.6, "노출된 여성 가슴"),
+        "FEMALE_GENITALIA_EXPOSED": (0.9, "노출된 여성 생식기"),
+        "MALE_BREAST_EXPOSED": (0.6, "노출된 남성 가슴"),
+        "ANUS_EXPOSED": (0.9, "노출된 항문"),
+        "FEET_EXPOSED": (0.2, "노출된 발"),
+        "BELLY_COVERED": (0.2, "가려진 배"),
+        "FEET_COVERED": (0.2, "가려진 발"),
+        "ARMPITS_COVERED": (0.2, "가려진 겨드랑이"),
+        "ARMPITS_EXPOSED": (0.2, "노출된 겨드랑이"),
+        "FACE_MALE": (0.2, "남성 얼굴"),
+        "BELLY_EXPOSED": (0.2, "노출된 배"),
+        "MALE_GENITALIA_EXPOSED": (0.9, "노출된 남성 생식기"),
+        "ANUS_COVERED": (0.9, "가려진 항문"),
+        "FEMALE_BREAST_COVERED": (0.6, "가려진 여성 가슴"),
+        "BUTTOCKS_COVERED": (0.9, "가려진 엉덩이"),
     }
     results = []
     total_risk_score = 0
@@ -526,49 +526,83 @@ def redirect_analyze_case_porn_result(id) :
     return render_template("analyze/porn_result.html", datas = results, class_descriptions = class_descriptions)
 
 def evaluate_priority(detections):
-    # 클래스와 우선순위 기준 설정
-    priority_mapping = {
-        "FEMALE_GENITALIA_EXPOSED": "상",
-        "MALE_GENITALIA_EXPOSED": "상",
-        "FEMALE_BREAST_EXPOSED": "중",
-        "BUTTOCKS_EXPOSED": "중",
-        "ARMPITS_EXPOSED": "하",
-        "FACE_FEMALE": "하",  # 얼굴은 상대적으로 낮은 우선순위
-        "BELLY_EXPOSED": "하",
-        # 추가적인 클래스는 필요에 따라 여기에 추가
-    }
-
     # 결과를 저장할 리스트
     prioritized_results = []
-
+    class_descriptions = {
+        "FEMALE_GENITALIA_COVERED": (0.9, "여성 생식기 가려짐"),
+        "FACE_FEMALE": (0.2, "여성 얼굴"),
+        "BUTTOCKS_EXPOSED": (0.9, "노출된 엉덩이"),
+        "FEMALE_BREAST_EXPOSED": (0.6, "노출된 여성 가슴"),
+        "FEMALE_GENITALIA_EXPOSED": (0.9, "노출된 여성 생식기"),
+        "MALE_BREAST_EXPOSED": (0.6, "노출된 남성 가슴"),
+        "ANUS_EXPOSED": (0.9, "노출된 항문"),
+        "FEET_EXPOSED": (0.2, "노출된 발"),
+        "BELLY_COVERED": (0.2, "가려진 배"),
+        "FEET_COVERED": (0.2, "가려진 발"),
+        "ARMPITS_COVERED": (0.2, "가려진 겨드랑이"),
+        "ARMPITS_EXPOSED": (0.2, "노출된 겨드랑이"),
+        "FACE_MALE": (0.2, "남성 얼굴"),
+        "BELLY_EXPOSED": (0.2, "노출된 배"),
+        "MALE_GENITALIA_EXPOSED": (0.9, "노출된 남성 생식기"),
+        "ANUS_COVERED": (0.9, "가려진 항문"),
+        "FEMALE_BREAST_COVERED": (0.6, "가려진 여성 가슴"),
+        "BUTTOCKS_COVERED": (0.9, "가려진 ���덩이"),
+    }
     for detection_group in detections:
         group_results = []
         for detection in detection_group:
             class_name = detection['class']
-            # 우선순위 결정
-            priority = priority_mapping.get(class_name, "하")  # 기본값은 "하"
-            detection['priority'] = priority  # 우선순위 추가
+            # 가중치 가져오기
+            weight = class_descriptions.get(class_name, (1, "기타"))[0]  # 기본값은 1
+            detection['weight'] = weight  # 가중치 추가
             group_results.append(detection)
         prioritized_results.append(group_results)
 
     return prioritized_results
-
 def calculate_risk_score(detections):
-    # 우선순위에 따른 가중치 설정
-    weight_mapping = {
-        "상": 3,
-        "중": 2,
-        "하": 1
-    }
-
     total_risk_score = 0
-
+    class_descriptions = {
+        "FEMALE_GENITALIA_COVERED": (0.9, "여성 생식기 가려짐"),
+        "FACE_FEMALE": (0.2, "여성 얼굴"),
+        "BUTTOCKS_EXPOSED": (0.9, "노출된 엉덩이"),
+        "FEMALE_BREAST_EXPOSED": (0.6, "노출된 여성 가슴"),
+        "FEMALE_GENITALIA_EXPOSED": (0.9, "노출된 여성 생식기"),
+        "MALE_BREAST_EXPOSED": (0.6, "노출된 남성 가슴"),
+        "ANUS_EXPOSED": (0.9, "노출된 항문"),
+        "FEET_EXPOSED": (0.2, "노출된 발"),
+        "BELLY_COVERED": (0.2, "가려진 배"),
+        "FEET_COVERED": (0.2, "가려진 발"),
+        "ARMPITS_COVERED": (0.2, "가려진 겨드랑이"),
+        "ARMPITS_EXPOSED": (0.2, "노출된 겨드랑이"),
+        "FACE_MALE": (0.2, "남성 얼굴"),
+        "BELLY_EXPOSED": (0.2, "노출된 배"),
+        "MALE_GENITALIA_EXPOSED": (0.9, "노출된 남성 생식기"),
+        "ANUS_COVERED": (0.9, "가려진 항문"),
+        "FEMALE_BREAST_COVERED": (0.6, "가려진 여성 가슴"),
+        "BUTTOCKS_COVERED": (0.9, "가려진 엉덩이"),
+    }
+    # Define sensitive areas
+    sensitive_areas = {
+        "FEMALE_GENITALIA_COVERED",
+        "FEMALE_GENITALIA_EXPOSED",
+        "MALE_GENITALIA_EXPOSED",
+        "ANUS_EXPOSED",
+        "FEMALE_BREAST_EXPOSED",
+        "MALE_BREAST_EXPOSED",
+    }
     for detection_group in detections:
         for detection in detection_group:
             score = detection['score']
-            priority = detection.get('priority', "하")  # 기본값은 "하"
-            weight = weight_mapping.get(priority, 1)  # 기본값은 1
-            risk_score = score * weight
+            class_name = detection['class']
+            # 가중치 가져오기
+            weight = class_descriptions.get(class_name, (1, "기타"))[0]  # 기본값은 1
+            
+            # Check if the class is a sensitive area
+            if class_name in sensitive_areas:
+                risk_score = score * 5  # Assign a high score for sensitive areas
+            else:
+                risk_score = score * weight
+            
             total_risk_score += risk_score
 
     return total_risk_score
