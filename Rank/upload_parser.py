@@ -25,7 +25,7 @@ fields_by_table = {
 }
 
 # DB 연결
-conn = sqlite3.connect(r"C:\Users\addy0\OneDrive\바탕 화면\DB 모음\2024-10-28 - 복사본.db")
+conn = sqlite3.connect(r"C:\Users\addy0\OneDrive\바탕 화면\DB 모음\file_upload.db")
 cursor = conn.cursor()
 
 # 검색할 테이블과 컬럼 설정
@@ -77,20 +77,30 @@ for criteria_file, (output_file, custom_output_file) in criteria_files.items():
         WHERE { " OR ".join([f'"{search_column}" LIKE "%{ext}"' for ext in file_extensions]) }
         """
         
-        cursor.execute(query)
-        rows = cursor.fetchall()
-        
-        # 각 행에서 파일 이름 추출
-        for row in rows:
-            full_path = row[0]
-            # 정규식으로 파일 이름만 추출
-            match = file_name_pattern.search(full_path)
-            if match:
-                file_name = match.group()
-                unique_files.add(file_name)
-                only_file_name = file_name.rsplit('.', 1)[0]
-                unique_file_names.add(only_file_name)
+        try:
+            # 쿼리 실행
+            cursor.execute(query)
+            rows = cursor.fetchall()
+            
+            # 각 행에서 파일 이름 추출
+            for row in rows:
+                full_path = row[0]
+                # 정규식으로 파일 이름만 추출
+                match = file_name_pattern.search(full_path)
+                if match:
+                    file_name = match.group()
+                    unique_files.add(file_name)
+                    only_file_name = file_name.rsplit('.', 1)[0]
+                    unique_file_names.add(only_file_name)
 
+        except sqlite3.OperationalError as e:
+            # 테이블이 없을 때 발생하는 에러를 처리
+            if "no such table" in str(e).lower():
+                print(f"테이블 '{table}'이(가) 존재하지 않습니다. 다음 테이블로 넘어갑니다.")
+                continue
+            else:
+                # 다른 에러는 다시 발생시킴
+                raise
     # 집합을 리스트로 변환하여 정렬
     unique_files = sorted(unique_files)
     unique_file_names = sorted(unique_file_names)
@@ -117,9 +127,18 @@ for criteria_file, (output_file, custom_output_file) in criteria_files.items():
             FROM "{table}"
             WHERE "{search_column}" LIKE ?
             """
-            cursor.execute(query, (like_pattern,))
-            column_names = [description[0] for description in cursor.description]
-            rows = cursor.fetchall()
+            try:
+                cursor.execute(query, (like_pattern,))
+                column_names = [description[0] for description in cursor.description]
+                rows = cursor.fetchall()
+            except sqlite3.OperationalError as e:
+                # 테이블이 없을 때 발생하는 에러를 처리
+                if "no such table" in str(e).lower():
+                    print(f"테이블 '{table}'이(가) 존재하지 않습니다. 다음 테이블로 넘어갑니다.")
+                    continue
+                else:
+                    # 다른 에러는 다시 발생시킴
+                    raise               
             
             for row in rows:
                 base_data = {col: val for col, val in zip(column_names, row)}
@@ -247,9 +266,18 @@ for criteria_file, (output_file, custom_output_file) in criteria_files.items():
         FROM "{table}"
         WHERE "_Tag_" IS NOT NULL
         """
-        cursor.execute(query)
-        column_names = [description[0] for description in cursor.description]
-        rows = cursor.fetchall()
+        try:
+            cursor.execute(query)
+            column_names = [description[0] for description in cursor.description]
+            rows = cursor.fetchall()
+        except sqlite3.OperationalError as e:
+            # 테이블이 없을 때 발생하는 에러를 처리
+            if "no such table" in str(e).lower():
+                print(f"테이블 '{table}'이(가) 존재하지 않습니다. 다음 테이블로 넘어갑니다.")
+                continue
+            else:
+                # 다른 에러는 다시 발생시킴
+                raise
 
         for row in rows:
             base_data = {col: val for col, val in zip(column_names, row)}
@@ -276,9 +304,19 @@ for criteria_file, (output_file, custom_output_file) in criteria_files.items():
         FROM "{table}"
         WHERE "URL" IS NOT NULL
         """
-        cursor.execute(query)
-        column_names = [description[0] for description in cursor.description]
-        rows = cursor.fetchall()
+        try:
+            cursor.execute(query)
+            column_names = [description[0] for description in cursor.description]
+            rows = cursor.fetchall()
+
+        except sqlite3.OperationalError as e:
+            # 테이블이 없을 때 발생하는 에러를 처리
+            if "no such table" in str(e).lower():
+                print(f"테이블 '{table}'이(가) 존재하지 않습니다. 다음 테이블로 넘어갑니다.")
+                continue
+            else:
+                # 다른 에러는 다시 발생시킴
+                raise
 
         for row in rows:
             base_data = {col: val for col, val in zip(column_names, row)}
@@ -471,71 +509,66 @@ for criteria_file, (output_file, custom_output_file) in criteria_files.items():
                 "web_upload_tag": tag_value,
                 "web_tag_timestamp": closest_tag_data["Timestamp"],
                 "file_system_Timestamp": first_timestamp,
-                **generate_numbered_fields(
-                    "usnjrnl_file_names",
-                    list({
-                        entry["Data"].get("File_Name", "")
-                        for entry in group["Group_Data"] if entry["Table"] == "UsnJrnl"
-                    })
+                "usnjrnl_reasons": ", ".join(
+                    entry["Data"].get("Reason", "").rstrip(",")
+                    for entry in group["Group_Data"] if entry["Table"] == "UsnJrnl"
                 ),
-                **generate_numbered_fields(
-                    "usnjrnl_reasons",
-                    list({
-                        entry["Data"].get("Reason", "")
-                        for entry in group["Group_Data"] if entry["Table"] == "UsnJrnl"
-                    })
-                ),
-                **generate_numbered_fields(
-                    "usnjrnl_attributes",
-                    list({
-                        entry["Data"].get("File_Attributes", "")
-                        for entry in group["Group_Data"] if entry["Table"] == "UsnJrnl"
-                    })
-                ),
-                **generate_numbered_fields(
-                    "lnk_files_linked_paths",
-                    list({
-                        entry["Data"].get("Linked_Path", "")
-                        for entry in group["Group_Data"] if entry["Table"] == "LNK_Files"
-                    })
-                ),
-                **generate_numbered_fields(
-                    "edge_internet_explorer_urls",
-                    list({
-                        entry["Data"].get("URL", "")
-                        for entry in group["Group_Data"] if entry["Table"] == "Edge/Internet_Explorer_10_11_Main_History"
-                    })
-                ),
-                **generate_numbered_fields(
-                    "mru_recent_files_folder_names",
-                    list({
-                        entry["Data"].get("File/Folder_Name", "")
-                        for entry in group["Group_Data"] if entry["Table"] == "MRU_Recent_Files_&_Folders"
-                    })
-                ),
-                **generate_numbered_fields(
-                    "locally_accessed_files_paths",
-                    list({
-                        entry["Data"].get("Path", "")
-                        for entry in group["Group_Data"] if entry["Table"] == "Locally_Accessed_Files_and_Folders"
-                    })
-                ),
-                **generate_numbered_fields(
-                    "jumplist_access_counts",
-                    list({
-                        int(entry["Data"].get("Access_Count", 0))
-                        for entry in group["Group_Data"] if entry["Table"] == "Jump_Lists"
-                    })
-                ),
-                **generate_numbered_fields(
-                    "jumplist_data_entries",
-                    list({
-                        entry["Data"].get("Data", "")
-                        for entry in group["Group_Data"] if entry["Table"] == "Jump_Lists"
-                    })
-                ),
-                "label": 0
+                "usnjrnl_attributes_count": sum(1 for entry in group["Group_Data"] if entry["Table"] == "UsnJrnl"),
+                "lnk_files_linked_paths_count": sum(1 for entry in group["Group_Data"] if entry["Table"] == "LNK_Files"),
+                "edge_internet_explorer_urls_count": sum(1 for entry in group["Group_Data"] if entry["Table"] == "Edge/Internet_Explorer_10_11_Main_History"),
+                "mru_recent_files_folder_names_count": sum(1 for entry in group["Group_Data"] if entry["Table"] == "MRU_Recent_Files_&_Folders"),
+                "locally_accessed_files_paths_count": sum(1 for entry in group["Group_Data"] if entry["Table"] == "Locally_Accessed_Files_and_Folders"),
+                "jumplist_data_entries_count": sum(1 for entry in group["Group_Data"] if entry["Table"] == "Jump_Lists"),
+                "jumplist_access_counts": [
+                    int(entry["Data"].get("Access_Count", 0))
+                    for entry in group["Group_Data"] if entry["Table"] == "Jump_Lists"
+                ]
+                # "label": 0
             }
+                # **generate_numbered_fields(
+                #     "usnjrnl_file_names",
+                #     [
+                #         entry["Data"].get("File_Name", "")
+                #         for entry in group["Group_Data"] if entry["Table"] == "UsnJrnl"
+                #     ]
+                # ),            
+                # **generate_numbered_fields(
+                #     "lnk_files_linked_paths",
+                #     [
+                #         entry["Data"].get("Linked_Path", "")
+                #         for entry in group["Group_Data"] if entry["Table"] == "LNK_Files"
+                #     ]
+                # ),
+                # **generate_numbered_fields(
+                #     "edge_internet_explorer_urls",
+                #     [
+                #         entry["Data"].get("URL", "")
+                #         for entry in group["Group_Data"] if entry["Table"] == "Edge/Internet_Explorer_10_11_Main_History"
+                #     ]
+                # ),
+                # **generate_numbered_fields(
+                #     "mru_recent_files_folder_names",
+                #     [
+                #         entry["Data"].get("File/Folder_Name", "")
+                #         for entry in group["Group_Data"] if entry["Table"] == "MRU_Recent_Files_&_Folders"
+                #     ]
+                # ),
+                # **generate_numbered_fields(
+                #     "locally_accessed_files_paths",
+                #     [
+                #         entry["Data"].get("Path", "")
+                #         for entry in group["Group_Data"] if entry["Table"] == "Locally_Accessed_Files_and_Folders"
+                #     ]
+                # ),
+                # **generate_numbered_fields(
+                #     "jumplist_data_entries",
+                #     [
+                #         entry["Data"].get("Data", "")
+                #         for entry in group["Group_Data"] if entry["Table"] == "Jump_Lists"
+                #     ]
+                # ),
+
+
 
 
             # # artifacts 데이터 생성
@@ -588,3 +621,6 @@ for criteria_file, (output_file, custom_output_file) in criteria_files.items():
     print(f"최종 그룹 데이터가 {output_file} 파일에 저장되었습니다.")
     print(f"추가 데이터가 {custom_output_file} 파일에 저장되었습니다.")
     print(f"Learning output data가 {output_learning_file} 파일에 저장되었습니다.")
+
+
+
