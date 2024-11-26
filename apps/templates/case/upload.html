@@ -54,6 +54,18 @@
                                     <hr>
                                 </div>
                                 <div class="form-group">
+                                    <label for="caseType">사건유형</label>
+                                    <select class="form-control" id="caseType" name="caseType" required onchange="toggleAdditionalFileUpload()">
+                                        <option value="" disabled selected>사건유형을 선택해주세요</option>
+                                        <option value="기술유출">기술유출</option>
+                                        <option value="음란물">음란물</option>
+                                        <option value="해킹">해킹</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <hr>
+                                </div>
+                                <div class="form-group">
                                     <label for="description">설명</label>
                                     <textarea class="form-control" id="description" name="description" rows="3" placeholder="설명을 입력하세요" required></textarea>
                                 </div>
@@ -61,8 +73,15 @@
                                     <hr>
                                 </div>
                                 <div class="form-group">
-                                    <label for="caseFile">파일 업로드</label>
-                                    <input type="file" class="form-control-file" id="caseFile" name="caseFile" required>
+                                    <label for="caseFile">케이스 파일 업로드</label>
+                                    <input type="file" class="form-control-file" id="caseFile" name="caseFile" accept=".mfdb" required>
+                                </div>
+                                <div class="form-group">
+                                    <hr>
+                                </div>
+                                <div id="additionalFileUpload" style="display: none;" class="form-group">
+                                    <label for="additionalCaseAttachment">Attachments 파일 업로드 (음란물 선택 시)</label>
+                                    <input type="file" class="form-control-file" id="caseAttachments" name="caseAttachments" accept=".attachments">
                                 </div>
                                 <div class="form-group">
                                     <hr>
@@ -77,6 +96,18 @@
             <!-- [ Main Content ] end -->
         </div>
     </section>
+    <script>
+        function toggleAdditionalFileUpload() {
+            var caseType = document.getElementById("caseType").value;
+            var additionalFileUpload = document.getElementById("additionalFileUpload");
+            
+            if (caseType === "음란물") {
+                additionalFileUpload.style.display = "block"; // Show additional file upload
+            } else {
+                additionalFileUpload.style.display = "none"; // Hide additional file upload
+            }
+        }
+    </script>
     <!-- [ Main Content ] end -->
 
 {% endblock content %}

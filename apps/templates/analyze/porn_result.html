@@ -1,0 +1,163 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Case Analyze {% endblock %}
+
+{% block content %}
+<div class="pcoded-main-container">
+    <div class="pcoded-content">
+        <!-- [ breadcrumb ] start -->
+        <div class="page-header">
+            <div class="page-block">
+                <div class="row align-items-center">
+                    <div class="col-md-12">
+                        <div class="page-header-title">
+                            <h5 class="m-b-10">음란물 조회 결과</h5>
+                        </div>
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
+                            <li class="breadcrumb-item"><a href="#">Case</a></li>
+                            <li class="breadcrumb-item"><a href="#">Analyze</a></li>
+                            <li class="breadcrumb-item"><a href="#">Porn</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- [ breadcrumb ] end -->
+        <!-- [ Main Content ] start -->
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table" id="resultsTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 150px;">File Name</th> <!-- 칼럼 너비 조정 -->
+                            <th>Porn Image</th>
+                            <th>Detection Result</th>
+                            <th>Priority</th>
+                            <th>Risk Level</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for data in datas %}
+                        <tr>
+                            <td>{{ data.file_original_name }}</td>
+                            <td>
+                                <img src="data:image/jpeg;base64,{{ data.porn_image }}" alt="Porn Image" style="width: 300px; height: auto;" data-toggle="modal" data-target="#imageModal" data-image="data:image/jpeg;base64,{{ data.porn_image }}" class="clickable-image" />
+                            </td>
+                            <td>
+                                <img src="data:image/jpeg;base64,{{ data.porn_detect_image }}" alt="Detection Result" style="width: 300px; height: auto;" 
+                                     data-toggle="modal" data-target="#imageModal" 
+                                     data-image="data:image/jpeg;base64,{{ data.porn_detect_image }}" 
+                                     data-results="{{ data.results }}" class="clickable-image" />
+                            </td>
+                            <td style="color: {% if data.priority == '상' %} red {% elif data.priority == '중' %} orange {% else %} green {% endif %}; font-weight: bold;">
+                                {{ data.priority }}
+                            </td>
+                            <td style="color: {% if data.risk_score >= 5 %} red {% elif data.risk_score >= 3 %} orange {% else %} green {% endif %}; font-weight: bold;">
+                                {% if data.results == [[], [], [], [], [], [], [], [], [], []] %}
+                                    0
+                                {% else %}
+                                    {{data.risk_score}}
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- [ Main Content ] end -->
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageModalLabel">Image Preview</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <img id="modalImage" src="" alt="Image Preview" style="width: 100%; height: auto;" />
+                <div id="modalResults" style="margin-top: 10px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    // Add event listener to set the modal image source and results
+    document.addEventListener('DOMContentLoaded', function() {
+        var modalImage = document.getElementById('modalImage');
+        var modalResults = document.getElementById('modalResults'); // 결과를 표시할 div
+        var clickableImages = document.querySelectorAll('.clickable-image');
+
+        clickableImages.forEach(function(image) {
+            image.addEventListener('click', function() {
+                var imageSrc = this.getAttribute('data-image');
+                modalImage.src = imageSrc; // Set the modal image source
+
+                // 결과를 설정하기 위해 data-results 속성 추가
+                var results = this.getAttribute('data-results');
+                var class_descriptions = {{class_descriptions | safe}}
+                console.log("Results data:", results); // Debugging line
+                if (results) {
+                    try {
+                        results = JSON.parse(results); // JSON 문자열을 객체로 변환
+                        modalResults.innerHTML = ''; // 이전 결과 초기화
+
+                        // 결과를 포맷팅하여 모달에 추가
+                        results.forEach(function(result, index) {
+                            if (result.length > 0) {
+                                var resultText = `Image ${index + 1}:<br>`;
+                                result.forEach(function(item) {
+                                    // 한국어 설명 추가
+                                    var description = class_descriptions[item.class] || item.class; // 한국어 설명 가져오기
+                                    resultText += `Class: ${description}, Score: ${item.score.toFixed(2)}<br>`;
+                                });
+                                modalResults.innerHTML += resultText + '<br>';
+                            } else {
+                                modalResults.innerHTML += `Image ${index + 1}: No results<br><br>`;
+                            }
+                        });
+                    } catch (e) {
+                        console.error("Error parsing results:", e);
+                        modalResults.innerHTML = 'Error parsing results.';
+                    }
+                }
+            });
+        });
+
+        // Sort by Risk Level on page load
+        function sortByRiskLevel() {
+            var table = document.getElementById('resultsTable');
+            var tbody = table.querySelector('tbody');
+            var rows = Array.from(tbody.querySelectorAll('tr'));
+
+            rows.sort(function(a, b) {
+                var riskScoreA = parseFloat(a.cells[4].innerText) || 0; // Risk Level column
+                var riskScoreB = parseFloat(b.cells[4].innerText) || 0;
+
+                // 높은 리스크 점수가 위로 오도록 정렬
+                return riskScoreB - riskScoreA;
+            });
+
+            // 정렬된 행을 tbody에 추가
+            rows.forEach(function(row) {
+                tbody.appendChild(row);
+            });
+        }
+
+        // Call the sort function on page load
+        sortByRiskLevel();
+    });
+</script>
+{% endblock javascripts %}

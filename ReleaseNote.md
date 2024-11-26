@@ -25,3 +25,14 @@ Version 1.3 Release Note
 8. Mail Timeline View
 
 ---
+
+Version 1.4 Release Note
+1. Detect Porn Logic
+2. Porn behavior View
+3. Update DB Model
+
+--- 
+
+Version 1.5 Release Note
+1. Remodeling Web View
+2. Final Analyze is once process only

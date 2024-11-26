@@ -5,9 +5,9 @@
 			
         <div class="m-header">
             <a class="mobile-menu" id="mobile-collapse" href="#"><span></span></a>
-            <a href="#" class="b-brand">
+            <a href="/" class="b-brand">
                 <!-- ========   change your logo hear   ============ -->
-                <img src="/static/assets/images/logo.png" alt="" class="logo">
+                <img src="/static/assets/images/dfision_logo_dark.png" alt="" class="logo" width="150px">
                 <img src="/static/assets/images/logo-icon.png" alt="" class="logo-thumb">
             </a>
             <a href="#" class="mob-toggler">
@@ -16,26 +16,15 @@
         </div>
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a href="#" class="pop-search"><i class="feather icon-search"></i></a>
-                    <div class="search-bar">
-                        <input type="text" class="form-control border-0 shadow-none" placeholder="Search here">
-                        <button type="button" class="btn-close" aria-label="Close">
-                        </button>
-                    </div>
-                </li>
             </ul>
             <ul class="navbar-nav ms-auto">
                 <li>
                     <div class="dropdown drp-user">
                         <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
-                            <img src="/static/assets/images/user/avatar-1.jpg" class="img-radius wid-40"
-                                alt="User-Profile-Image">
+                            <p>로그인 계정 : {{ current_user.username }}</p>
                         </a>
                         <div class="dropdown-menu dropdown-menu-end profile-notification">
                             <div class="pro-head">
-                                <img src="/static/assets/images/user/avatar-1.jpg" class="img-radius"
-                                    alt="User-Profile-Image">
                                 <span>
                                     {{ current_user.username }}
                                 </span>

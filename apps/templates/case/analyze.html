@@ -40,10 +40,8 @@
                                             <th>Case Number</th>
                                             <th>Case Analysis</th>
                                             <th>Case Description</th>
-                                            {% if case.normalization != None %}
-                                                <th>직접 분석</th>
-                                                <th>USB</th>
-                                            {% else %}
+                                            <th>Case Type</th>
+                                            {% if case.normalization == None %}
                                                 <th>케이스 정규화</th>
                                             {% endif %}
                                             
@@ -54,63 +52,22 @@
                                             <td>{{ case.case_number }}</td>
                                             <td>{{ case.analyst }}</td>
                                             <td>{{ case.description }}</td>
-                                            {% if case.normalization != None %}
-                                            <td>
-                                                <button class="btn btn-primary" onclick="window.location.href='/case/analyze/view/{{case.id}}'">직접 분석</button>
-                                            </td>
-                                            <td>
-                                                <button class="btn btn-primary submit-usb" data-case-id="{{ case.id }}">Submit</button>
-                                            </td>
-                                            {% else %}
+                                            <td>{{ case.case_type }}</td>
+                                            {% if case.normalization == None %}
                                             <td colspan="2">
                                                 <button class="btn btn-primary submit-normalization" data-case-id="{{ case.id }}">Submit</button>
                                             </td>
                                             {% endif %}
                                         </tr>
                                         {% if case.normalization != None %}
-                                        <tr>
-                                            <th colspan="1">Start Date</th>
-                                            <th colspan="1">End Data</th>
-                                            <th colspan="1">Filtering</th>
-                                            <th colspan="1">Filtering History</th>
-                                        </tr>
-                                        <td colspan="1">
-                                            <input type="datetime-local" id="start_date">
-                                        </td>
-                                        <td colspan="1">
-                                            <input type="datetime-local" id="end_date">
-                                        </td>
-                                        <td>
-                                            <select id="filtering_type">
-                                                <option value="time">Time</option>
-                                                <option value="table">Table</option>
-                                            </select>
-                                        </td>
-                                        <td colspan="1">
-                                            <button class="btn btn-primary submit-filtering" data-case-id="{{ case.id }}">Submit</button>
-                                        </td>
-                                        <td colspan="1">
-                                            <button class="btn btn-primary" onclick="window.location.href='/case/analyze/filtering/history/{{case.id}}'">히스토리</button>
-                                        </td>
-                                        
-                                        <tr>
-                                            <th colspan="2">그룹화 작업</th>
-                                            <th colspan="2">그룹화 히스토리</th>
-                                        </tr>
-                                        <td colspan="2">
-                                            <button class="btn btn-primary submit-group" data-case-id="{{ case.id }}">Submit</button>
-                                        </td>
-                                        <td colspan="2">
-                                            <button class="btn btn-primary" onclick="window.location.href='/case/analyze/filtering/history/{{case.id}}'">히스토리</button>
-                                        </td>
-                                        
                                         <!-- Version 1.3 - Analyze Final -->
                                         <tr>
-                                            <th colspan="2">최종 분석</th>
+                                            <td colspan="2"></td>
+                                            <td>최종 분석</td>
+                                            <td>
+                                                <button class="btn btn-primary submit-final" data-case-id="{{ case.id }}">Submit</button>
+                                            </td>
                                         </tr>
-                                        <td colspan="2">
-                                            <button class="btn btn-primary submit-final" data-case-id="{{ case.id }}">Submit</button>
-                                        </td>
                                         {% endif %}
                                     </tbody>
                                 </table>
@@ -142,35 +99,6 @@
 {% block javascripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('.submit-usb').forEach(function(button) {
-            button.addEventListener('click', function() {
-                var caseId = this.getAttribute('data-case-id');
-                fetch('/case/analyze/usb', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ case_id: caseId}),
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Redirect based on the URL provided by the server
-                        console.log(data)
-                        showProgress(caseId, function(){
-                            alert('정상적으로 처리되었습니다.');
-                            window.location.href = "/case/analyze/usb/" + {{case.id}};
-                        });
-                    } else {
-                        alert('Failed to submit the prompt.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while submitting the prompt.');
-                });
-            });
-        });
         document.querySelectorAll('.submit-normalization').forEach(function(button) {
             button.addEventListener('click', function() {
                 var caseId = this.getAttribute('data-case-id');
@@ -199,76 +127,11 @@
             });
         });
 
-        document.querySelectorAll('.submit-filtering').forEach(function(button) {
-            button.addEventListener('click', function() {
-                var caseNumber = this.getAttribute('data-case-id');
-                var startDate = document.getElementById('start_date').value;
-                var endDate = document.getElementById('end_date').value;
-                var filtering_type = document.getElementById('filtering_type').value;
-                var promptInput = document.querySelector('.prompt-input[data-case-id="' + caseNumber + '"]');
-                if (startDate == '') {
-                    alert('Please enter a StartDate.');
-                    return;
-                }
-                if (endDate == ''){
-                    alert("Please enter a EndDate.");
-                    return;
-                }
-
-                fetch('/case/analyze/filtering', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ case_id: {{case.id}}, case_number : caseNumber, startDate: startDate, endDate : endDate, filtering_type : filtering_type }),
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('정상적으로 처리되었습니다.');
-                        window.location.href = "/case/analyze/filtering/" + {{case.id}};
-                        console.log(data);
-                    } else {
-                        alert('Failed to submit the filtering.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while submitting the filtering.');
-                });
-            });
-        });
-
-        document.querySelectorAll('.submit-group').forEach(function(button) {
-            button.addEventListener('click', function() {
-                var caseId = this.getAttribute('data-case-id');
-                fetch('/case/analyze/group', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ case_id: caseId}),
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('정상적으로 처리되었습니다.');
-                        window.location.href = "/case/analyze/group/" + {{case.id}};
-                    } else {
-                        alert('Failed to submit the prompt.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while submitting the prompt.');
-                });
-            });
-        });
-
         document.querySelectorAll('.submit-final').forEach(function(button) {
             button.addEventListener('click', function() {
                 var caseId = this.getAttribute('data-case-id');
                 var caseNumber = this.getAttribute('data-case-id');
+                var caseType = "{{ case.case_type }}"
                 fetch('/case/analyze/final', {
                     method: 'POST',
                     headers: {
@@ -280,7 +143,11 @@
                 .then(data => {
                     if (data.success) {
                         alert('정상적으로 처리되었습니다.');
-                        window.location.href = "/case/analyze/final/" + {{case.id}};
+                        if (caseType == "음란물"){
+                            window.location.href = "/case/analyze/porn/" + {{case.id}};
+                        }else {                        
+                            window.location.href = "/case/analyze/final/" + {{case.id}};
+                        }
                     } else {
                         alert('Failed to submit the Final Process.');
                     }
