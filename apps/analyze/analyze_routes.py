@@ -118,8 +118,8 @@ def redirect_analyze_case_final(data) :
     case_number = Upload_Case.query.filter_by(id = case_id).first().case_number
     case_folder = os.path.join(os.getcwd(), "uploads", user, case_number)
     db_path = os.path.join(case_folder, "normalization.db")
-    case_type = Upload_Case.query.filter_by(id = case_id).first().case_type
-    if Analyzed_file_list.query.filter_by(case_id = case_id).first() :
+    case_type = Upload_Case.query.filter_by(id = case_id).first().case_type    
+    if Analyzed_file_list.query.filter_by(case_id=case_id).first() :
         return jsonify({'success': True})
     if case_type != "음란물" :
         ''' Tagging Process '''
@@ -139,7 +139,7 @@ def redirect_analyze_case_final(data) :
         for result in usb_results:
             if 'df' in result:
                 result['filtered_df'] = result['filtered_df'].to_dict('records')  # Convert DataFrame to list of dictionaries
-                
+
         usb_data_db = UsbData_final(case_id = case_id, usb_data = usb_results)
         db.session.add(usb_data_db)
         db.session.commit()
@@ -154,7 +154,7 @@ def redirect_analyze_case_final(data) :
         for result in printer_results:
             if 'df' in result and hasattr(result['df'], 'to_dict'):  # Check if df is a DataFrame
                 result['df'] = result['df'].to_dict('records')  # Convert DataFrame to list of dictionaries
-                
+
         printer_data_db = PrinterData_final(case_id = case_id, printer_data = printer_results)
         db.session.add(printer_data_db)
         db.session.commit()
@@ -173,6 +173,7 @@ def redirect_analyze_case_final(data) :
                     'time_end' : group_usb_time['End'],
                     'usb_name' : group_usb_time['Connection'],
                     'filename' : filename,
+                    'priority' : 0,
                     'data' : timelist_df.to_dict(orient='records')
                 }
                 analyzed_file_list.append(usb_file_row)
@@ -185,21 +186,22 @@ def redirect_analyze_case_final(data) :
                 for df_item in printer_time['df']:
                     if 'data' in df_item:
                         all_data.extend(df_item['data'])
-                
+
                 if all_data:  # 데이터가 있는 경우에만 처리
                     printer_df = pd.DataFrame(all_data)
-                    
+
                     for filename in printer_time['Accessed_File_List']:
                         if filename:  # filename이 None이 아닌 경우에만 처리
                             # na=False로 NaN 값 처리, 문자열이 아닌 경우 처리
                             mask = printer_df['main_data'].astype(str).str.contains(filename, na=False)
                             timelist_df = printer_df[mask]
-                            
+
                             printer_file_row = {
                                 'type': 'Printer',
                                 'time_start': printer_time.get('Start'),  # 시작 시간 추가
                                 'time_end': printer_time.get('End'),      # 종료 시간 추가
                                 'filename': filename,
+                                'priority' : 0,
                                 'data': timelist_df.to_dict(orient='records')
                             }
                             analyzed_file_list.append(printer_file_row)
@@ -209,10 +211,10 @@ def redirect_analyze_case_final(data) :
         mail_output = (os.path.join(os.getcwd(), "uploads", session['username'], case_number, "output_mail.json"))
         with open(mail_output, 'r', encoding='utf-8') as file:
             mail_results = json.load(file)
-        
+
         # Mail 데이터 처리
         for mail_event in mail_results:
-            if drive_event['priority'] != 0 :
+            if mail_event['priority'] != 0 :
                 mail_file_row = {
                     'type': 'Mail',
                     'time_start': mail_event['timerange'].split(' ~ ')[0],  # timerange에서 시작 시간 추출
@@ -238,6 +240,7 @@ def redirect_analyze_case_final(data) :
                     'time_end': drive_event['timerange'].split(' ~ ')[1],    # timerange에서 종료 시간 추출
                     'filename': drive_event['filename'],
                     'browser': drive_event['browser'],
+                    'priority' : drive_event['priority'],
                     'data': drive_event['connection']  # connection 데이터를 그대로 사용
                 }
                 analyzed_file_list.append(drive_file_row)
@@ -252,25 +255,21 @@ def redirect_analyze_case_final(data) :
                 blog_file_row = {
                     'type': 'Blog',
                     'time_start': blog_event['timerange'].split(' ~ ')[0],  # timerange에서 시작 시간 추출
-                    'time_end': blog_event['timerange'].split(' ~ ')[1],    # timerange에��� 종료 시간 추출
+                    'time_end': blog_event['timerange'].split(' ~ ')[1],    # timerange에서 종료 시간 추출
                     'filename': blog_event['filename'],
                     'browser': blog_event['browser'],
+                    'priority': blog_event['priority'],
                     'data': blog_event['connection']  # connection 데이터를 그대로 사용
                 }
                 analyzed_file_list.append(blog_file_row)
 
-        
 
+        analyzed_file_list = sorted(analyzed_file_list, key=lambda x: x['priority'], reverse=True)
         analyzed_file_db = Analyzed_file_list(case_id=case_id, data=analyzed_file_list)
         db.session.add(analyzed_file_db)
         db.session.commit()
-        
-        # Print Debug
-        for i in printer_results :
-            print(i['Print_Event_Date'], i['Accessed_File_List'], i['df'])
-
         return jsonify({'success': True})
-    
+
     elif case_type == "음란물" :
         porn_behavior(case_id, db_path)
         return jsonify({'success' : True})

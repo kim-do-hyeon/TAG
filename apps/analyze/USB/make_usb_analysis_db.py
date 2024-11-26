@@ -59,7 +59,8 @@ def extract_doc_and_program(LogFile_df, time_df, start_time, end_time) :
             append_data = {
                 'timestamp': timestamp,
                 'type': 'Logfile_'+operation,
-                'main_data': original if original == current else f'{original} -> {current}'
+                'main_data': original if original == current else f'{original} -> {current}',
+                'hit_id' : row['hit_id']
             }
             # append_df를 데이터프레임으로 변환
             append_df = pd.DataFrame([append_data], columns=new_df.columns)
@@ -125,7 +126,7 @@ def usb_behavior(normalization, time_normalization) :
                     'Start': start.strftime('%Y-%m-%d %H:%M:%S'),
                     'End': end.strftime('%Y-%m-%d %H:%M:%S'),
                     'Accessed_File_List': filename_list,
-                    'filtered_df': filetered_df[['timestamp', 'type', 'main_data']].to_dict('records')  # DataFrame을 dictionary 리스트로 변환
+                    'filtered_df': filetered_df[['timestamp', 'type', 'main_data', 'hit_id']].to_dict('records')  # DataFrame을 dictionary 리스트로 변환
                 }
                 for record in data['filtered_df']:
                     record['timestamp'] = record['timestamp'].strftime('%Y-%m-%d %H:%M:%S')
