@@ -29,7 +29,7 @@ def redirect_logfile(data) :
             tmp['File_Operation'] = tmp['File_Operation'].replace('Create', 'file_create')
             tmp.loc[:,'Event_Date/Time_-_UTC_(yyyy-mm-dd)'] = tmp['Event_Date/Time_-_UTC_(yyyy-mm-dd)'].astype(str)
             result[key] = tmp.to_dict(orient='records')
-        result['success'] = True     
+        result['success'] = True
         
         return jsonify(result)
     except Exception as e :
