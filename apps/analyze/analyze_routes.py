@@ -119,7 +119,8 @@ def redirect_analyze_case_final(data) :
     case_folder = os.path.join(os.getcwd(), "uploads", user, case_number)
     db_path = os.path.join(case_folder, "normalization.db")
     case_type = Upload_Case.query.filter_by(id = case_id).first().case_type
-
+    if Analyzed_file_list.query.filter_by(case_id = case_id).first() :
+        return jsonify({'success': True})
     if case_type != "음란물" :
         ''' Tagging Process '''
         TAG_Process = all_tag_process(data)

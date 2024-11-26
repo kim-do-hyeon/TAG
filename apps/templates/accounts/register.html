@@ -1,6 +1,6 @@
 {% extends "layouts/base-fullscreen.html" %}
 
-{% block title %} Sign UP {% endblock %} 
+{% block title %} 회원가입 {% endblock %} 
 
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}{% endblock stylesheets %}
@@ -14,9 +14,9 @@
 				<div class="row align-items-center text-center">
 					<div class="col-md-12">
 						<div class="card-body">
-							<img src="/static/assets/images/logo-dark.png" alt="" class="img-fluid mb-4">
+							<img src="/static/assets/images/dfision_logo_dark.png" alt="" class="img-fluid mb-4">
 
-							<h4 class="mb-3 f-w-400">Sign UP</h4>
+							<h4 class="mb-3 f-w-400">회원가입</h4>
 
 							<span class="mb-0 text-muted">
 								{% if msg %}
@@ -24,7 +24,6 @@
 										{{ msg | safe }}
 									</span>
 								{% else %}
-									Add your credentials
 								{% endif %} 
 							</span>
 							
@@ -32,7 +31,7 @@
 
 							{% if success %}
 								<p class="mb-2">
-									<a class="btn btn-primary btn-block mt-2 mb-4" href="{{ url_for('authentication_blueprint.login') }}" class="f-w-400">Sign IN</a>
+									<a class="btn btn-primary btn-block mt-2 mb-4" href="{{ url_for('authentication_blueprint.login') }}" class="f-w-400">로그인</a>
 								</p>
 							{% else %}
 
@@ -53,9 +52,9 @@
 										{{ form.password(placeholder="Password", class="form-control", type="password") }}
 									</div>
 
-									<button type="submit" name="register" class="btn btn-primary btn-block mt-2 mb-4">Sign UP</button>
+									<button type="submit" name="register" class="btn btn-primary btn-block mt-2 mb-4">회원가입</button>
 									<p class="mb-2">
-										Already have an account? <a href="{{ url_for('authentication_blueprint.login') }}" class="f-w-400">Sign IN</a>
+										이미 계정이 있으신가요? <a href="{{ url_for('authentication_blueprint.login') }}" class="f-w-400">로그인</a>
 									</p>
 								
 								</form>

@@ -37,8 +37,10 @@
                                     <tr>
                                         <th>Case Number</th>
                                         <th>Description</th>
+                                        <th>analyst</th>
+                                        <th>Case Type</th>
                                         <th>Analyze</th>
-                                        <th>Actions</th>
+                                        <th>Delete</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -46,6 +48,8 @@
                                         <tr>
                                             <td>{{ case.case_number }}</td>
                                             <td>{{ case.description }}</td>
+                                            <td>{{ case.analyst }}</td>
+                                            <td>{{ case.case_type }}</td>
                                             <td>
                                                 <a href="/case/analyze/{{ case.id }}" target="_blank">View File</a>
                                             </td>
