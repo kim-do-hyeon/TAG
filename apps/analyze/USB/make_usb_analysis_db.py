@@ -59,7 +59,8 @@ def extract_doc_and_program(LogFile_df, time_df, start_time, end_time) :
             append_data = {
                 'timestamp': timestamp,
                 'type': 'Logfile_'+operation,
-                'main_data': original if original == current else f'{original} -> {current}'
+                'main_data': original if original == current else f'{original} -> {current}',
+                'hit_id' : row['hit_id']
             }
             # append_df를 데이터프레임으로 변환
             append_df = pd.DataFrame([append_data], columns=new_df.columns)

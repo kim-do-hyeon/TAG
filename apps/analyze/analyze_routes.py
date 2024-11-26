@@ -117,6 +117,9 @@ def redirect_analyze_case_final(data) :
     case_number = Upload_Case.query.filter_by(id = case_id).first().case_number
     case_folder = os.path.join(os.getcwd(), "uploads", user, case_number)
     db_path = os.path.join(case_folder, "normalization.db")
+    if Analyzed_file_list.query.filter_by(case_id=case_id).first() :
+        return jsonify({'success': True})
+    
 
     ''' Tagging Process '''
     TAG_Process = all_tag_process(data)
@@ -169,6 +172,7 @@ def redirect_analyze_case_final(data) :
                 'time_end' : group_usb_time['End'],
                 'usb_name' : group_usb_time['Connection'],
                 'filename' : filename,
+                'priority' : 0,
                 'data' : timelist_df.to_dict(orient='records')
             }
             analyzed_file_list.append(usb_file_row)
@@ -196,6 +200,7 @@ def redirect_analyze_case_final(data) :
                             'time_start': printer_time.get('Start'),  # 시작 시간 추가
                             'time_end': printer_time.get('End'),      # 종료 시간 추가
                             'filename': filename,
+                            'priority' : 0,
                             'data': timelist_df.to_dict(orient='records')
                         }
                         analyzed_file_list.append(printer_file_row)
@@ -234,6 +239,7 @@ def redirect_analyze_case_final(data) :
                 'time_end': drive_event['timerange'].split(' ~ ')[1],    # timerange에서 종료 시간 추출
                 'filename': drive_event['filename'],
                 'browser': drive_event['browser'],
+                'priority' : drive_event['priority'],
                 'data': drive_event['connection']  # connection 데이터를 그대로 사용
             }
             analyzed_file_list.append(drive_file_row)
@@ -251,12 +257,13 @@ def redirect_analyze_case_final(data) :
                 'time_end': blog_event['timerange'].split(' ~ ')[1],    # timerange에서 종료 시간 추출
                 'filename': blog_event['filename'],
                 'browser': blog_event['browser'],
+                'priority': blog_event['priority'],
                 'data': blog_event['connection']  # connection 데이터를 그대로 사용
             }
             analyzed_file_list.append(blog_file_row)
 
     
-
+    analyzed_file_list = sorted(analyzed_file_list, key=lambda x: x['priority'], reverse=True)
     analyzed_file_db = Analyzed_file_list(case_id=case_id, data=analyzed_file_list)
     db.session.add(analyzed_file_db)
     db.session.commit()

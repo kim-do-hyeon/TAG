@@ -1,4 +1,5 @@
 import pprint
+import traceback
 from flask import jsonify, session, url_for
 from apps.authentication.models import Normalization, Upload_Case
 from apps.analyze.USB.make_usb_analysis_db import extract_transaction_LogFile_Analysis
@@ -113,14 +114,16 @@ def file_connect_node(data) :
                 'operation' : 'USB_Connected',
                 'filename' : all_data['usb_name'],
                 'after_filename' : None,
-                'mft_num' : None
+                'mft_num' : None,
+                'hit_id' : -1
             })
             rows.append({
                 'timestamp' : pd.to_datetime(all_data['time_end']),
                 'operation' : 'USB_Disconnected',
                 'filename' : all_data['usb_name'],
                 'after_filename' : None,
-                'mft_num' : None
+                'mft_num' : None,
+                'hit_id' : -1
             })
         
         for time_data in consolidated_time_data_list :
@@ -128,10 +131,13 @@ def file_connect_node(data) :
                 'timestamp' : pd.to_datetime(time_data['timestamp']),
                 'operation' : time_data['type'],
                 'filename' : time_data['main_data'],
-                'hit_id' : time_data['hit_id'],
                 'after_filename' : None,
                 'mft_num' : None
             }
+            try : 
+                row['hit_id'] = time_data['hit_id']
+            except Exception as e:
+                row['hit_id'] = -1
             rows.append(row)
         for key, value in logfile_data_list.items() :
             if isinstance(value, bool) :
@@ -273,12 +279,16 @@ def file_connect_node(data) :
         #pprint.pprint(result)
         return jsonify(result)
     except Exception as e :
-        return jsonify({'success' : False, 'message' : '[*] connection error : ' + str(e)})
+        error_message = traceback.format_exc()
+        return jsonify({'success' : False, 'message' : '[*] connection error : ' + str(e) +'\n' + str(error_message)})
     
 def find_data_by_hit_id(data) :
     
     case_id = data.get('case_id')
     hit_id = data.get('hit_id')
+    
+    if (hit_id == -1 or ',' in hit_id) :
+        return jsonify({'success' : False, 'message' : '[*] It doesn\'t have hit_id'})
     
     db_instance = Upload_Case.query.filter_by(id=case_id).first()  # Renamed to avoid confusion with db session
     db_path = db_instance.file
