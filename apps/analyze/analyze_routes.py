@@ -135,29 +135,31 @@ def redirect_analyze_case_final(data) :
             if time_parsing(db_path, time_db_path) :
                 print("Success Time Parsing")
 
-        usb_results = usb_behavior(db_path, time_db_path)
-        for result in usb_results:
-            if 'df' in result:
-                result['filtered_df'] = result['filtered_df'].to_dict('records')  # Convert DataFrame to list of dictionaries
+        if not UsbData_final.query.filter_by(case_id=case_id).first() :
+            usb_results = usb_behavior(db_path, time_db_path)
+            for result in usb_results:
+                if 'df' in result:
+                    result['filtered_df'] = result['filtered_df'].to_dict('records')  # Convert DataFrame to list of dictionaries
 
-        usb_data_db = UsbData_final(case_id = case_id, usb_data = usb_results)
-        db.session.add(usb_data_db)
-        db.session.commit()
+            usb_data_db = UsbData_final(case_id = case_id, usb_data = usb_results)
+            db.session.add(usb_data_db)
+            db.session.commit()
         # USB Debug
         # for i in usb_results :
         #     print(i['Connection'], i['Start'], i['End'], i['Accessed_File_List'])
 
 
         ''' Printer Behavior Process'''
-        printer_results = printer_behavior(db_path)
-        # Convert any DataFrame objects to dictionaries/lists before storing
-        for result in printer_results:
-            if 'df' in result and hasattr(result['df'], 'to_dict'):  # Check if df is a DataFrame
-                result['df'] = result['df'].to_dict('records')  # Convert DataFrame to list of dictionaries
+        if not PrinterData_final.query.filter_by(case_id=case_id).first() :
+            printer_results = printer_behavior(db_path)
+            # Convert any DataFrame objects to dictionaries/lists before storing
+            for result in printer_results:
+                if 'df' in result and hasattr(result['df'], 'to_dict'):  # Check if df is a DataFrame
+                    result['df'] = result['df'].to_dict('records')  # Convert DataFrame to list of dictionaries
 
-        printer_data_db = PrinterData_final(case_id = case_id, printer_data = printer_results)
-        db.session.add(printer_data_db)
-        db.session.commit()
+            printer_data_db = PrinterData_final(case_id = case_id, printer_data = printer_results)
+            db.session.add(printer_data_db)
+            db.session.commit()
 
 
         ''' USB Filelist process '''
@@ -166,7 +168,10 @@ def redirect_analyze_case_final(data) :
         for group_usb_time in usb_json :
             usb_df = pd.DataFrame(group_usb_time['filtered_df'])
             for filename in group_usb_time['Accessed_File_List'] :
-                timelist_df = usb_df[usb_df['main_data'].str.contains(filename)]
+                timelist_df = usb_df[usb_df['main_data'].str.contains(filename) & usb_df['type'].str.contains('shellbag')]
+                for index, row in timelist_df.iterrows() :
+                    if (', ' in row['hit_id']) :
+                        timelist_df.loc[index, 'hit_id'] = row['hit_id'].split(', ')
                 usb_file_row = {
                     'type' : 'USB',
                     'time_start' : group_usb_time['Start'],
@@ -221,9 +226,14 @@ def redirect_analyze_case_final(data) :
                     'time_end': mail_event['timerange'].split(' ~ ')[1],    # timerange에서 종료 시간 추출
                     'filename': mail_event['filename'],
                     'browser': mail_event['browser'],
-                    'priority': mail_event['priority'],  # 메일의 경우 priority 정보도 포함
+                    'priority': round((mail_event['priority']/14)*100, 2), # 메일의 경우 priority 정보도 포함
                     'data': mail_event['connection']     # connection 데이터를 그대로 사용
                 }
+                try :
+                    mail_file_row['service'] = mail_event['description'][0].split('_')[0]
+                except Exception as e :
+                    print(e)
+                    mail_file_row['service'] = ''
                 analyzed_file_list.append(mail_file_row)
 
 
@@ -240,9 +250,14 @@ def redirect_analyze_case_final(data) :
                     'time_end': drive_event['timerange'].split(' ~ ')[1],    # timerange에서 종료 시간 추출
                     'filename': drive_event['filename'],
                     'browser': drive_event['browser'],
-                    'priority' : drive_event['priority'],
+                    'priority' : round((drive_event['priority'] / 14)*100, 2),
                     'data': drive_event['connection']  # connection 데이터를 그대로 사용
                 }
+                try :
+                    drive_file_row['service'] = drive_event['description'][0].split('_')[0]
+                except Exception as e :
+                    print(e)
+                    drive_file_row['service'] = ''
                 analyzed_file_list.append(drive_file_row)
 
         blog_output = (os.path.join(os.getcwd(), "uploads", session['username'], case_number, "output_blog.json"))
@@ -257,10 +272,15 @@ def redirect_analyze_case_final(data) :
                     'time_start': blog_event['timerange'].split(' ~ ')[0],  # timerange에서 시작 시간 추출
                     'time_end': blog_event['timerange'].split(' ~ ')[1],    # timerange에서 종료 시간 추출
                     'filename': blog_event['filename'],
-                    'browser': blog_event['browser'],
-                    'priority': blog_event['priority'],
+                    'browser': blog_event['browser'], 
+                    'priority': round((blog_event['priority']/14)*100, 2),
                     'data': blog_event['connection']  # connection 데이터를 그대로 사용
                 }
+                try :
+                    blog_file_row['service'] = blog_event['description'][0].split('_')[0]
+                except Exception as e :
+                    print(e)
+                    blog_file_row['service'] = ''
                 analyzed_file_list.append(blog_file_row)
 
 
