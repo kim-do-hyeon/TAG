@@ -213,14 +213,19 @@ def file_connect_node(data) :
         }
         nodes = []
         edges = []
-        hit_ids = []
+        nodes_data = []
+        timestamps = []
         node_x = 0
         node_y = 0
         for idx, row in enumerate(consolidated_dict) :
             #row['filename'] = shorten_string(row['filename'])
             node = {}
             if 'hit_id' in row :
-                hit_ids.append({'id' : idx, 'hit_id' : row['hit_id']})
+                nodes_data.append({
+                    'id' : idx,
+                    'hit_id' : row['hit_id'],
+                    'timestamp' : str(row['timestamp'])
+                    })
             if 'USB' in row['operation'] :
                 node = {
                     'id' : idx,
@@ -268,12 +273,12 @@ def file_connect_node(data) :
             if idx != 0 :
                 edges.append({'from' : idx-1, 'to' : idx})                
         
-        
+        print(nodes_data)
         result = {
             'data' : new_df.to_dict(orient='records'),
             'nodes' : nodes,
             'edges' : edges,
-            'hit_ids' : hit_ids,
+            'nodes_data' : nodes_data,
             'success' : True
         }
         #pprint.pprint(result)

@@ -79,6 +79,14 @@
     </div>
 </div>
 
+<div id="tooltip" style="display: none; position: absolute;
+    background-color: white;
+    border: 1px solid black;
+    padding: 5px;
+    border-radius: 3px;
+    z-index: 1200;
+    pointer-events: none;"></div>
+
 <!-- 모달 -->
 <div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="DetailModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered">
@@ -245,6 +253,7 @@
                         },
                         interaction: {
                             hover: true,
+                            hoverEdges: false,
                             dragNodes: true,
                             dragView: true
                         },
@@ -266,7 +275,25 @@
                         }
                     };
                     var network = new vis.Network(container, data, options);
+                    
+                    // 노드에 마우스를 올렸을 때 툴팁 표시
+                    network.on("hoverNode", function (params) {
+                        var nodeId = params.node;
+                        var nodeData = secondData.nodes_data.find(node => node.id === nodeId);
+                        var tooltipContent = `<p>${nodeData.timestamp}</p>`;
+                        // 툴팁을 표시할 위치와 내용을 설정
+                        var tooltip = document.getElementById('tooltip');
+                        tooltip.innerHTML = tooltipContent;
+                        tooltip.style.left = params.event.pageX-50 + 'px';
+                        tooltip.style.top = params.event.pageY-80 + 'px';
+                        tooltip.style.display = 'block';
+                    });
 
+                    // 노드에서 마우스를 뗐을 때 툴팁 제거
+                    network.on("blurNode", function (params) {
+                        var tooltip = document.getElementById('tooltip');
+                        tooltip.style.display = 'none';
+                    });
                     // 노드 클릭 이벤트 리스너 추가
                     network.on("click", function (params) {
                         if (params.nodes.length > 0) {
@@ -275,7 +302,7 @@
                             console.log("Clicked node:", clickedNode);
 
                             // secondData.nodes에서 직접 가져오기
-                            var nodeData = secondData.hit_ids.find(node => node.id === nodeId);
+                            var nodeData = secondData.nodes_data.find(node => node.id === nodeId);
                             console.log("Node data from secondData:", nodeData);
                             // 여기서 원하는 동작을 수행
                             // 예: alert 창 띄우기
@@ -432,6 +459,18 @@
 .file-list li {
     margin-bottom: 4px;
 }
+
+.vis-tooltip {
+    position: absolute;
+    background-color: white;
+    border: 1px solid black;
+    padding: 5px;
+    border-radius: 3px;
+    z-index: 1100;
+    pointer-events: none; /* 마우스 이벤트가 툴팁에 영향을 주지 않도록 설정 */
+}
+
+
 </style>
 
 {% endblock content %}

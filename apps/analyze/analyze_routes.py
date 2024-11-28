@@ -135,29 +135,31 @@ def redirect_analyze_case_final(data) :
             if time_parsing(db_path, time_db_path) :
                 print("Success Time Parsing")
 
-        usb_results = usb_behavior(db_path, time_db_path)
-        for result in usb_results:
-            if 'df' in result:
-                result['filtered_df'] = result['filtered_df'].to_dict('records')  # Convert DataFrame to list of dictionaries
+        if not UsbData_final.query.filter_by(case_id=case_id).first() :
+            usb_results = usb_behavior(db_path, time_db_path)
+            for result in usb_results:
+                if 'df' in result:
+                    result['filtered_df'] = result['filtered_df'].to_dict('records')  # Convert DataFrame to list of dictionaries
 
-        usb_data_db = UsbData_final(case_id = case_id, usb_data = usb_results)
-        db.session.add(usb_data_db)
-        db.session.commit()
+            usb_data_db = UsbData_final(case_id = case_id, usb_data = usb_results)
+            db.session.add(usb_data_db)
+            db.session.commit()
         # USB Debug
         # for i in usb_results :
         #     print(i['Connection'], i['Start'], i['End'], i['Accessed_File_List'])
 
 
         ''' Printer Behavior Process'''
-        printer_results = printer_behavior(db_path)
-        # Convert any DataFrame objects to dictionaries/lists before storing
-        for result in printer_results:
-            if 'df' in result and hasattr(result['df'], 'to_dict'):  # Check if df is a DataFrame
-                result['df'] = result['df'].to_dict('records')  # Convert DataFrame to list of dictionaries
+        if not PrinterData_final.query.filter_by(case_id=case_id).first() :
+            printer_results = printer_behavior(db_path)
+            # Convert any DataFrame objects to dictionaries/lists before storing
+            for result in printer_results:
+                if 'df' in result and hasattr(result['df'], 'to_dict'):  # Check if df is a DataFrame
+                    result['df'] = result['df'].to_dict('records')  # Convert DataFrame to list of dictionaries
 
-        printer_data_db = PrinterData_final(case_id = case_id, printer_data = printer_results)
-        db.session.add(printer_data_db)
-        db.session.commit()
+            printer_data_db = PrinterData_final(case_id = case_id, printer_data = printer_results)
+            db.session.add(printer_data_db)
+            db.session.commit()
 
 
         ''' USB Filelist process '''
@@ -167,6 +169,9 @@ def redirect_analyze_case_final(data) :
             usb_df = pd.DataFrame(group_usb_time['filtered_df'])
             for filename in group_usb_time['Accessed_File_List'] :
                 timelist_df = usb_df[usb_df['main_data'].str.contains(filename)]
+                for index, row in timelist_df.iterrows() :
+                    if (', ' in row['hit_id']) :
+                        timelist_df.loc[index, 'hit_id'] = row['hit_id'].split(', ')
                 usb_file_row = {
                     'type' : 'USB',
                     'time_start' : group_usb_time['Start'],
