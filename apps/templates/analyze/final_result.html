@@ -43,308 +43,32 @@
                             <th>행위 흐름 그래프</th>
                             <!-- <th>타임라인</th> -->
                         </tr>
-                        {% for i in usb_results %}
-                            {% set outer_index = loop.index %}
+                        {% for i in analyzed_file_list %}
                             <tr>
-                                <td>
-                                    {{ loop.index }}
-                                </td>
-                                <td>
-                                    <p>기술 유출</p>
-                                </td>
-                                <td>
-                                    <p>USB</p>
-                                </td>
-                                <td>
-                                    {{i['Start']}} ~ {{i['End']}}
-                                </td>
+                                <td>{{ loop.index }}</td>
+                                <td><p>기술 유출</p></td>
+                                <td>{{ i['type'] }}</td>
+                                <td>{{i['time_start']}} ~ {{i['time_end']}}</td>
                                 <td class="description-cell">
-                                    {% if i.Accessed_File_List is string %}
-                                        {{ i.Accessed_File_List }}
-                                    {% else %}
-                                        <ul class="file-list">
-                                        {% for file in i.Accessed_File_List %}
-                                            <li>
-                                                <a href="#" onclick="showDetail('USB','{{outer_index}}', '{{file}}'); return false;" style="text-decoration: none; color: inherit;"><font color="blue">{{ file }}</font></a>
-                                            </li>
-                                        {% endfor %}
-                                            <li>
-                                                <p>USB가 꽂힌 시간대에서 이동 / 복사 / 이름변경 / 삭제 등의 행위가 탐지됨</p>
-                                            </li>
-                                        </ul>
+                                    {% if i['type'] == 'USB' %}
+                                    <p>USB가 꽂힌 시간대에서 <font color="blue">'{{i['filename']}}'</font> 파일의 이동 / 복사 / 이름변경 / 삭제 등의 행위가 탐지됨</p>
+                                    {% elif i['type'] == 'Printer' %}
+                                    <p>Printer의 행위가 탐지되었고, <font color="blue">'{{i['filename']}}'</font>파일을 프린트했을 가능성이 있음</p>
+                                    {% elif i['type'] == 'Mail' %}
+                                    <p>메일을 통해 <font color="blue">'{{i['filename']}}'</font>파일을 전송했을 가능성이 있음</p>
+                                    {% elif i['type'] == 'Blog' %}
+                                    <p>블로그를 통해 <font color="blue">'{{i['filename']}}'</font>파일을 업로드했을 가능성이 있음</p>
+                                    {% elif i['type'] == 'Drive' %}
+                                    <p>드라이브를 통해 <font color="blue">'{{i['filename']}}'</font>파일을 업로드했을 가능성이 있음</p>
                                     {% endif %}
                                 </td>
-                                
+                                <td>{{ i['priority']}}</td>
                                 <td>
-                                    Null
-                                </td>
-                                <td>
-                                    <button class="btn btn-primary btn-sm" onclick="showDetail('USB','{{outer_index}}', '{{file}}'); return false;">
+                                    <button class="btn btn-primary btn-sm" onclick="showDetail('{{ i['type'] }}','{{loop.index}}', '{{i['filename']}}'); return false;">
                                         커넥션 보기
                                     </button>
                                 </td>
-                                <!--<td>
-                                    <button class="btn btn-primary btn-sm" onclick="showTimeline({{loop.index}}, 'usb')">
-                                        타임라인 보기
-                                    </button>
-                                </td> -->
                             </tr>
-                        {% endfor %}
-                        {% for i in printer_results %}
-                            {% set outer_index = loop.index %}
-                            <tr>
-                                <td>
-                                    {{ loop.index }}
-                                </td>
-                                <td>
-                                    <p>기술 유출</p>
-                                </td>
-                                <td>
-                                    <p>Printer</p>
-                                </td>
-                                <td>
-                                    출력일시
-                                    <br>
-                                    {{i['Print_Event_Date']}}
-                                    <br>
-                                    {% if i['Start'] is not none %}
-                                        행위 시간대<br>
-                                        {{i['Start']}}<br>~{{i['End']}}
-                                    {% endif %}
-                                </td>
-                                <td class="description-cell">
-                                    {% if i.Accessed_File_List is string %}
-                                        {{ i.Accessed_File_List }}
-                                    {% else %}
-                                        <ul class="file-list">
-                                            {% if i.Accessed_File_List | length > 0 %}
-                                                {% for file in i.Accessed_File_List %}
-                                                    <li>
-                                                        <a href="#" onclick="showDetail('Printer','{{outer_index}}', '{{file}}'); return false;" style="text-decoration: none; color: inherit;"><font color="red">{{ file }}</font>이 출력된 것으로 추정됨</a>
-                                                    </li>
-                                                {% endfor %}
-                                            {% else %}
-                                                <li>
-                                                    <p>출력이 된 흔적이 파악되었지만, 실제 어떤 문서인지 확인할 수 없음</p>
-                                                </li>
-                                            {% endif %}
-                                        </ul>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    None
-                                </td>
-                                <td>
-                                    <button class="btn btn-primary btn-sm" onclick="showDetail('Printer','{{outer_index}}', '{{file}}'); return false;">
-                                        커넥션 보기
-                                    </button>
-                                </td>
-                                <!-- <td>
-                                    <button class="btn btn-primary btn-sm" onclick="showTimeline({{loop.index}}, 'printer')">
-                                        타임라인 보기
-                                    </button>
-                                </td> -->
-                            </tr>
-                        {% endfor %}
-                        {% for i in mail_results %}
-                            {% set outer_index = loop.index %}
-                            {% if i['priority'] > 0 %}
-                                {% set priority_percentage = ((i['priority'] / 14) * 100) | round(2) %}
-                                <tr>
-                                    <td>
-                                        {{ loop.index }}
-                                    </td>
-                                    <td>
-                                        <p>기술 유출</p>
-                                    </td>
-                                    <td>
-                                        <p>Mail - {{i['browser']}}</p>
-                                    </td>
-                                    <td>
-                                        {{i['timerange']}}
-                                    </td>
-                                    <td class="description-cell">
-                                        {% if i.filename is string %}
-                                            <font color="blue">{{i['browser']}}</font>를 통해 <a href="#" onclick="showDetail('Mail','{{outer_index}}', '{{i.filename}}'); return false;" style="text-decoration: none; color: inherit;"><font color="red">{{ i.filename }}</font></a>을 <font color="orange">{{i['description'][0].split("_")[0]}}</font>메일을 사용해서 전송
-                                        {% else %}
-                                            <ul class="file-list">
-                                            {% for file in i.filename %}
-                                                <li>
-                                                    <font color="blue">{{i['browser']}}</font>를 통해 <a href="#" onclick="showDetail('Mail','{{outer_index}}', '{{file}}'); return false;" style="text-decoration: none; color: inherit;"><font color="red">{{ file }}</font></a>을 <font color="orange">{{i['description'][0].split("_")[0]}}</font>메일을 사용해서 전송
-                                                </li>
-                                            {% endfor %}
-                                            </ul>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <span style="font-weight: bold; color: 
-                                            {% if priority_percentage >= 75 %}
-                                                red
-                                            {% elif priority_percentage >= 50 %}
-                                                darkorange
-                                            {% elif priority_percentage >= 25 %}
-                                                goldenrod
-                                            {% else %}
-                                                gray
-                                            {% endif %}
-                                            ;">
-                                            {% if priority_percentage >= 75 %}
-                                                Critical!
-                                            {% elif priority_percentage >= 50 %}
-                                                High
-                                            {% elif priority_percentage >= 25 %}
-                                                Medium
-                                            {% else %}
-                                                Low
-                                            {% endif %}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-primary btn-sm" onclick="showDetail('Mail','{{outer_index}}', '{{i.filename}}');">
-                                            커넥션 보기
-                                        </button>
-                                    </td>
-                                    <!-- <td>
-                                        <button class="btn btn-primary btn-sm" onclick="showTimeline({{loop.index}}, 'mail')">
-                                            타임라인 보기
-                                        </button>
-                                    </td> -->
-                                </tr>
-                            {% endif %}
-                        {% endfor %}
-
-                        {% for i in drive_results %}
-                            {% set outer_index = loop.index %}
-                            {% if i['priority'] > 0 %}
-                                {% set priority_percentage = ((i['priority'] / 14) * 100) | round(2) %}
-                                <tr>
-                                    <td>
-                                        {{ loop.index }}
-                                    </td>
-                                    <td>
-                                        <p>기술 유출</p>
-                                    </td>
-                                    <td>
-                                        <p>Drive - {{i['browser']}}</p>
-                                    </td>
-                                    <td>
-                                        {{i['timerange']}}
-                                    </td>
-                                    <td class="description-cell">
-                                        {% if i.filename is string %}
-                                            <font color="blue">{{i['browser']}}</font>를 통해 통해 <a href="#" onclick="showDetail('Drive','{{outer_index}}', '{{i.filename}}'); return false;" style="text-decoration: none; color: inherit;"><font color="red">{{ i.filename }}</font></a>을 드라이브에 업로드 전송
-                                        {% else %}
-                                            <ul class="file-list">
-                                            {% for file in i.filename %}
-                                                <li>
-                                                    <font color="blue">{{i['browser']}}</font>를 통해 통해 <a href="#" onclick="showDetail('Drive','{{outer_index}}', '{{file}}'); return false;" style="text-decoration: none; color: inherit;"><font color="red">{{ file }}</font></a>을 드라이브에 업로드 전송
-                                                </li>
-                                            {% endfor %}
-                                            </ul>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <span style="font-weight: bold; color: 
-                                            {% if priority_percentage >= 75 %}
-                                                red
-                                            {% elif priority_percentage >= 50 %}
-                                                darkorange
-                                            {% elif priority_percentage >= 25 %}
-                                                goldenrod
-                                            {% else %}
-                                                gray
-                                            {% endif %}
-                                            ;">
-                                            {% if priority_percentage >= 75 %}
-                                                Critical!
-                                            {% elif priority_percentage >= 50 %}
-                                                High
-                                            {% elif priority_percentage >= 25 %}
-                                                Medium
-                                            {% else %}
-                                                Low
-                                            {% endif %}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-primary btn-sm" onclick="showDetail('Drive','{{outer_index}}', '{{i.filename}}');">
-                                            커넥션 보기
-                                        </button>
-                                    </td>
-                                    <!-- <td>
-                                        <button class="btn btn-primary btn-sm" onclick="showTimeline({{loop.index}}, 'drive')">
-                                            타임라인 보기
-                                        </button>
-                                    </td> -->
-                                </tr>
-                            {% endif %}
-                        {% endfor %}
-
-                        {% for i in blog_results %}
-                            {% set outer_index = loop.index %}
-                            {% if i['priority'] > 0 %}
-                                {% set priority_percentage = ((i['priority'] / 14) * 100) | round(2) %}
-                                <tr>
-                                    <td>
-                                        {{ loop.index }}
-                                    </td>
-                                    <td>
-                                        <p>기술 유출</p>
-                                    </td>
-                                    <td>
-                                        <p>Blog - {{i['browser']}}</p>
-                                    </td>
-                                    <td>
-                                        {{i['timerange']}}
-                                    </td>
-                                    <td class="description-cell">
-                                        {% if i.filename is string %}
-                                        <font color="blue">{{i['browser']}}</font>를 통해 통해 <a href="#" onclick="showDetail('Blog','{{outer_index}}', '{{i.filename}}'); return false;" style="text-decoration: none; color: inherit;"><font color="red">{{ i.filename }}</font></a>을 <font color="orange">{{i['description'][0].split("_")[0]}}</font>블로그에 업로드
-                                        {% else %}
-                                            <ul class="file-list">
-                                            {% for file in i.filename %}
-                                                <li>
-                                                    <font color="blue">{{i['browser']}}</font>를 통해 <a href="#" onclick="showDetail('Blog','{{outer_index}}', '{{ file}}'); return false;" style="text-decoration: none; color: inherit;"><font color="red">{{ file }}</font></a>을 <font color="orange">{{i['description'][0].split("_")[0]}}</font>블로그에 업로드
-                                                </li>
-                                            {% endfor %}
-                                            </ul>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <span style="font-weight: bold; color: 
-                                            {% if priority_percentage >= 75 %}
-                                                red
-                                            {% elif priority_percentage >= 50 %}
-                                                darkorange
-                                            {% elif priority_percentage >= 25 %}
-                                                goldenrod
-                                            {% else %}
-                                                gray
-                                            {% endif %}
-                                            ;">
-                                            {% if priority_percentage >= 75 %}
-                                                Critical!
-                                            {% elif priority_percentage >= 50 %}
-                                                High
-                                            {% elif priority_percentage >= 25 %}
-                                                Medium
-                                            {% else %}
-                                                Low
-                                            {% endif %}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-primary btn-sm" onclick="showDetail('Blog','{{outer_index}}', '{{i.filename}}'); return false;">
-                                            커넥션 보기
-                                        </button>
-                                    </td>
-                                    <!-- <td>
-                                        <button class="btn btn-primary btn-sm" onclick="showTimeline({{loop.index}}, 'blog')">
-                                            타임라인 보기
-                                        </button>
-                                    </td> -->
-                                </tr>
-                            {% endif %}
                         {% endfor %}
                     </table>
                 </div>
@@ -355,23 +79,7 @@
     </div>
 </div>
 
-<!-- 모달 수정 -->
-<div class="modal fade" id="timelineModal" tabindex="-1" aria-labelledby="TimeLineModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="TimeLineModalLabel">타임라인 정보</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" style="overflow-y: auto;">
-                <div id="modalTimeline"></div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
-            </div>
-        </div>
-    </div>
-</div>
+<!-- 모달 -->
 <div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="DetailModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
@@ -383,6 +91,25 @@
                 <div id="modalDetail"></div>
                 <div id="modalDetail-filename"></div>
                 <div id="network_graph"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 두 번째 모달 -->
+<div class="modal fade" id="secondModal" tabindex="-1" aria-labelledby="SecondModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="SecondModalLabel">추가 정보</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- 두 번째 모달의 내용 -->
+                <div id="modalSecond"></div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
@@ -414,9 +141,6 @@
     };
 
     const analyzed_file_list = {{ analyzed_file_list | tojson | safe }};
-    const blog_result = {{ blog_results | tojson | safe }};
-    const mail_result = {{ mail_results | tojson | safe }};
-    const drive_result = {{ drive_results | tojson | safe }};
 
     const eventColors = {};  // 한 번만 선언
 
@@ -437,20 +161,7 @@
     // 노드 및 세부사항 표시 함수
     window.showDetail = function(type, outer_index, file_name) {
         console.log(type, outer_index, file_name);
-        // 먼저 type이 같은 파일들만 필터링
-        const typeFilteredFiles = analyzed_file_list.filter(item => item.type === type);
-        console.log(typeFilteredFiles);
-        // 필터링된 파일들 중에서 index와 filename이 일치하는 파일 찾기
-        if(type === 'USB' || type === 'Printer') {
-            var analyzed_file = analyzed_file_list.find(item => item.filename === file_name);
-        }else {
-            var analyzed_file = typeFilteredFiles[outer_index - 1];
-            var priority;
-            if (type === 'Blog') { priority = blog_result[outer_index - 1].priority; }
-            else if (type === 'Mail') { priority = mail_result[outer_index - 1].priority; }
-            else if (type === 'Drive') { priority = drive_result[outer_index - 1].priority; }
-            console.log(priority);
-        }
+        analyzed_file = analyzed_file_list[outer_index-1];
         if (analyzed_file) {
             var content = JSON.stringify(analyzed_file['data'], null, 2);
             var logfile_json;
@@ -474,6 +185,7 @@
                 return response.json();
             })
             .then(data => {
+                console.log(data);
                 // 응답 데이터를 JSON 형식으로 포맷
                 var logfile_json = JSON.stringify(data, null, 2);
 
@@ -496,10 +208,9 @@
                 return secondResponse.json();
             })
             .then(secondData => {
+                console.log(secondData);
                 // 두 번째 응답 데이터를 처리
                 var secondLogfileJson = JSON.stringify(secondData, null, 2);
-                //console.log(secondData.edges);
-                //console.log(secondData.nodes);
 
                 jQuery('#detailModal').on('shown.bs.modal', function () {
                     var nodes = new vis.DataSet(secondData.nodes);
@@ -514,11 +225,6 @@
                         layout: {
                             improvedLayout: false,
                             randomSeed : undefined
-                            //hierarchical: {
-                            //    direction: 'LR', // Left to Right, 가로 방향 설정
-                            //    sortMethod: 'hubsize', // 노드 정렬 방법
-                            //    levelSeparation: 200
-                            //}
                         },
                         nodes: {
                             shape: 'dot',
@@ -560,6 +266,59 @@
                         }
                     };
                     var network = new vis.Network(container, data, options);
+
+                    // 노드 클릭 이벤트 리스너 추가
+                    network.on("click", function (params) {
+                        if (params.nodes.length > 0) {
+                            var nodeId = params.nodes[0];
+                            var clickedNode = nodes.get(nodeId);
+                            console.log("Clicked node:", clickedNode);
+
+                            // secondData.nodes에서 직접 가져오기
+                            var nodeData = secondData.hit_ids.find(node => node.id === nodeId);
+                            console.log("Node data from secondData:", nodeData);
+                            // 여기서 원하는 동작을 수행
+                            // 예: alert 창 띄우기
+                            requestData_by_hit_id = {
+                                case_id : {{case_id}},
+                                hit_id : nodeData.hit_id
+                            };
+                            fetch(`/get_data_by_hit_id`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(requestData_by_hit_id)
+                            })
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('네트워크 응답이 올바르지 않습니다.');
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                //console.log(data);
+                                // 응답 데이터를 JSON 형식으로 포맷
+                                var node_data_json = JSON.stringify(data, null, 2);
+                                var node_data = data.data;
+                                console.log(node_data);
+
+                                // JSON 데이터를 테이블로 변환
+                                let tableHtml = '<table class="table table-bordered"><tr><th>Key</th><th>Value</th></tr>';
+                                for (const [key, value] of Object.entries(node_data)) {
+                                    tableHtml += `<tr><td>${key}</td><td>${value}</td></tr>`;
+                                }
+                                tableHtml += '</table>';
+
+
+
+                                document.getElementById('modalSecond').innerHTML = tableHtml;
+
+                                // 모달 표시
+                                $('#secondModal').modal('show');
+                            })
+                        }
+                    });
                 });
                 document.getElementById('modalDetail').innerHTML = `<p>${analyzed_file['filename']}<p>`
                 // 모달 표시
@@ -574,75 +333,17 @@
         }
     }
 
-    // Timeline 표시 함수
-    window.showTimeline = function(index, type) {  // window 객체에 함수 추가
-        if (type === 'usb') {
-            var timelineData = {{ usb_timeline_data | tojson | safe }};
-        } else if (type === 'printer') {
-            var timelineData = {{ printer_timeline_data | tojson | safe }};
-        } else if (type === 'mail') {
-            var timelineData = {{ mail_timeline_data | tojson | safe }};
-        } else if (type === 'blog') {
-            var timelineData = {{ blog_timeline_data | tojson | safe }};
-        } else if (type === 'drive') {
-            var timelineData = {{ drive_timeline_data | tojson | safe }};
-        }
-
-        // jQuery를 사용한 모달 표시
-        jQuery('#timelineModal').modal('show');
-
-        setTimeout(() => {
-            var container = document.getElementById('modalTimeline');
-            
-            if (!timelineData[index - 1]) {
-                console.error('No timeline data found for index:', index);
-                return;
-            }
-
-            var items = new vis.DataSet(timelineData[index - 1].map(item => {
-                const eventType = item.type;
-                const color = getColorForEventType(eventType);
-                return {
-                    id: item.id || Math.random(),  // id가 없는 경우 랜덤 값 사용
-                    content: `<div class="timeline-content">
-                        <div class="event-name">${item.name}</div>
-                        <div class="event-description">${item.Content}</div>
-                    </div>`,
-                    start: item.datetime,
-                    type: 'point',
-                    style: `background-color: ${color}; border-color: ${color};`
-                };
-            }));
-
-            var options = {
-                height: '900px',
-                locale: 'ko',
-                locales: {
-                    ko: koLocale
-                },
-                orientation: 'top',
-                zoomable: true,
-                tooltip: {
-                    followMouse: true,
-                    overflowMethod: 'cap'
-                }
-            };
-
-            new vis.Timeline(container, items, options);
-        }, 500);
-    };
-
     // DOM 로드 완료 후 실행될 코드
-    document.addEventListener('DOMContentLoaded', function() {
-        // Modal close event
-        jQuery('#timelineModal').on('hidden.bs.modal', function () {
-            document.getElementById('modalTimeline').innerHTML = '';
-        });
-    });
     document.addEventListener('DOMContentLoaded', function() {
         // Modal close event
         jQuery('#detailModal').on('hidden.bs.modal', function () {
             document.getElementById('modalDetail').innerHTML = '';
+        });
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+        // Modal close event
+        jQuery('#secondModal').on('hidden.bs.modal', function () {
+            document.getElementById('modalSecond').innerHTML = '';
         });
     });
 </script>
