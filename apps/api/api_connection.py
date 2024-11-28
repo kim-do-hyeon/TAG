@@ -325,6 +325,10 @@ def find_data_by_hit_id(data) :
 
         query = f"SELECT hit_id, value, fragment_definition_id FROM hit_fragment WHERE hit_id={hit_id}"
         data_by_hit_id_df = pd.read_sql_query(query, source_conn)
+        fragment_definition_id = data_by_hit_id_df['fragment_definition_id'].to_list()[0]
+        artifact_version_id = pd.read_sql_query(f'SELECT artifact_version_id FROM fragment_definition WHERE fragment_definition_id="{fragment_definition_id}"', source_conn)['artifact_version_id'].to_list()[0]
+        table_name = pd.read_sql_query(f'SELECT artifact_name FROM artifact_version WHERE artifact_version_id="{artifact_version_id}"', source_conn)['artifact_name'].to_list()[0]
+        
         
         exclude_keyword_list = [
             'Parent MFT',
@@ -337,7 +341,7 @@ def find_data_by_hit_id(data) :
             'NetBIOS',
             'Entry ID',
             'Show Command'    
-        ]        
+        ]
         return_dict = {}
         for index, row in data_by_hit_id_df.iterrows() :
             column = id_to_name[row['fragment_definition_id']]
@@ -359,7 +363,7 @@ def find_data_by_hit_id(data) :
                 return_dict[column] = row['value']
         
         #print(return_dict)
-        return jsonify({ 'success' : True, 'data' : return_dict})
+        return jsonify({ 'success' : True, 'data' : return_dict, 'table' : table_name})
     except Exception as e :
         print(e)
         return jsonify({'success' : False, 'message' : str(e)})

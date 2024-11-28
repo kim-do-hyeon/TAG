@@ -51,18 +51,28 @@
                                 <td>{{i['time_start']}} ~ {{i['time_end']}}</td>
                                 <td class="description-cell">
                                     {% if i['type'] == 'USB' %}
-                                    <p>USB가 꽂힌 시간대에서 <font color="blue">'{{i['filename']}}'</font> 파일의 이동 / 복사 / 이름변경 / 삭제 등의 행위가 탐지됨</p>
+                                    <p><font color="red">{{ i['usb_name'] }}</font>  USB가 꽂힌 시간대에서<font color="blue">'{{i['filename']}}'</font> 파일의 이동 / 복사 / 이름변경 / 삭제 등의 행위가 탐지됨</p>
                                     {% elif i['type'] == 'Printer' %}
                                     <p>Printer의 행위가 탐지되었고, <font color="blue">'{{i['filename']}}'</font>파일을 프린트했을 가능성이 있음</p>
                                     {% elif i['type'] == 'Mail' %}
-                                    <p>메일을 통해 <font color="blue">'{{i['filename']}}'</font>파일을 전송했을 가능성이 있음</p>
+                                    <p><font color="red">{{ i['browser'] }}</font>(으)로 메일을 통해 <font color="blue">'{{i['filename']}}'</font>파일을 전송했을 가능성이 있음</p>
                                     {% elif i['type'] == 'Blog' %}
-                                    <p>블로그를 통해 <font color="blue">'{{i['filename']}}'</font>파일을 업로드했을 가능성이 있음</p>
+                                    <p><font color="red">{{ i['browser'] }}</font>(으)로 블로그를 통해 <font color="blue">'{{i['filename']}}'</font>파일을 업로드했을 가능성이 있음</p>
                                     {% elif i['type'] == 'Drive' %}
-                                    <p>드라이브를 통해 <font color="blue">'{{i['filename']}}'</font>파일을 업로드했을 가능성이 있음</p>
+                                    <p><font color="red">{{ i['browser'] }}</font>(으)로 드라이브를 통해 <font color="blue">'{{i['filename']}}'</font>파일을 업로드했을 가능성이 있음</p>
                                     {% endif %}
                                 </td>
-                                <td>{{ i['priority']}}</td>
+                                <td>
+                                    {% if i['priority'] >= 80 %}
+                                    <span class="critical_priority">Critical!</span> {{ i['priority'] }}%
+                                    {% elif i['priority'] >= 50 %}
+                                    <span class="high_priority">High</span> {{ i['priority'] }}%
+                                    {% elif i['priority'] >= 25 %}
+                                    <span class="medium_priority">Medium</span> {{ i['priority'] }}%
+                                    {% else %}
+                                    <span class="low_priority">Low</span> {{ i['priority'] }}%
+                                    {% endif %}
+                                </td>
                                 <td>
                                     <button class="btn btn-primary btn-sm" onclick="showDetail('{{ i['type'] }}','{{loop.index}}', '{{i['filename']}}'); return false;">
                                         커넥션 보기
@@ -121,6 +131,7 @@
                 <div id="modalSecond_nodedata"></div>
                 <hr>
                 <h4>hit_id기반 정보</h4>
+                <div id="table_name_from_hit_id"></div>
                 <div id="modalSecond"></div>
             </div>
             <div class="modal-footer">
@@ -331,8 +342,10 @@
                                 // 응답 데이터를 JSON 형식으로 포맷
                                 var node_data_json = JSON.stringify(data, null, 2);
                                 var node_data = data.data;
+                                var table_name = data.table;
                                 console.log(node_data);
 
+                                document.getElementById('table_name_from_hit_id').innerHTML = `<p>Data from <b>${table_name}</b></p>`;
                                 // JSON 데이터를 테이블로 변환
                                 var tableHtml = '<table class="table table-bordered"><tr><th>Key</th><th>Value</th></tr>';
                                 for (const [key, value] of Object.entries(nodeData)) {
@@ -480,6 +493,25 @@
     pointer-events: none; /* 마우스 이벤트가 툴팁에 영향을 주지 않도록 설정 */
 }
 
+.critical_priority {
+    font-weight: bold;
+    color : red;
+}
+
+.high_priority {
+    font-weight: bold;
+    color : darkorange;
+}
+
+.medium_priority {
+    font-weight: bold;
+    color : goldenrod;
+}
+
+.low_priority {
+    font-weight: bold;
+    color : gray;
+}
 
 </style>
 

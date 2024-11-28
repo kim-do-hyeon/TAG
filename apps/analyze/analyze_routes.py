@@ -226,7 +226,7 @@ def redirect_analyze_case_final(data) :
                     'time_end': mail_event['timerange'].split(' ~ ')[1],    # timerange에서 종료 시간 추출
                     'filename': mail_event['filename'],
                     'browser': mail_event['browser'],
-                    'priority': mail_event['priority'],  # 메일의 경우 priority 정보도 포함
+                    'priority': round((mail_event['priority']/14)*100, 2), # 메일의 경우 priority 정보도 포함
                     'data': mail_event['connection']     # connection 데이터를 그대로 사용
                 }
                 analyzed_file_list.append(mail_file_row)
@@ -245,7 +245,7 @@ def redirect_analyze_case_final(data) :
                     'time_end': drive_event['timerange'].split(' ~ ')[1],    # timerange에서 종료 시간 추출
                     'filename': drive_event['filename'],
                     'browser': drive_event['browser'],
-                    'priority' : drive_event['priority'],
+                    'priority' : round((drive_event['priority'] / 14)*100, 2),
                     'data': drive_event['connection']  # connection 데이터를 그대로 사용
                 }
                 analyzed_file_list.append(drive_file_row)
@@ -263,7 +263,7 @@ def redirect_analyze_case_final(data) :
                     'time_end': blog_event['timerange'].split(' ~ ')[1],    # timerange에서 종료 시간 추출
                     'filename': blog_event['filename'],
                     'browser': blog_event['browser'],
-                    'priority': blog_event['priority'],
+                    'priority': round((blog_event['priority']/14)*100, 2),
                     'data': blog_event['connection']  # connection 데이터를 그대로 사용
                 }
                 analyzed_file_list.append(blog_file_row)
