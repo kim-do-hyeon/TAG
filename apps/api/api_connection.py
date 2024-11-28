@@ -344,7 +344,7 @@ def find_data_by_hit_id(data) :
         ]
         return_dict = {}
         for index, row in data_by_hit_id_df.iterrows() :
-            column = id_to_name[row['fragment_definition_id']]
+            column = remove_substrings(id_to_name[row['fragment_definition_id']])
             is_continue = False
             for exclude_keyword in exclude_keyword_list :
                 if exclude_keyword.lower() in column.lower() :
@@ -400,3 +400,9 @@ def shorten_string(s):
     if len(s) > 30:
         return s[:27] + '...'
     return s
+
+def remove_substrings(original_string):
+    substrings_to_remove = [' - UTC (yyyy-mm-dd)']
+    for substring in substrings_to_remove:
+        original_string = original_string.replace(substring, "")
+    return original_string

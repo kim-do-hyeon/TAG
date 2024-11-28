@@ -119,7 +119,7 @@
 
 <!-- 두 번째 모달 -->
 <div class="modal fade" id="secondModal" tabindex="-1" aria-labelledby="SecondModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-dialog modal-lg modal-dialog-centered" style="max-width: 90%;">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="SecondModalLabel">추가 정보</h5>
@@ -127,12 +127,17 @@
             </div>
             <div class="modal-body">
                 <!-- 두 번째 모달의 내용 -->
-                <h4>node 정보</h4>
-                <div id="modalSecond_nodedata"></div>
-                <hr>
-                <h4>hit_id기반 정보</h4>
-                <div id="table_name_from_hit_id"></div>
-                <div id="modalSecond"></div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4>node 정보</h4>
+                        <div id="modalSecond_nodedata"></div>
+                    </div>
+                    <div class="col-md-6" style="border-left: 1px solid #ccc;">
+                        <h4>hit_id기반 정보</h4>
+                        <div id="table_name_from_hit_id"></div>
+                        <div id="modalSecond"></div>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
@@ -363,7 +368,7 @@
 
 
                                 document.getElementById('modalSecond').innerHTML = tableHtml;
-
+                                document.getElementById('tooltip').style.display = 'none';
                                 // 모달 표시
                                 $('#secondModal').modal('show');
                             })
