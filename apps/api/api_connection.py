@@ -160,9 +160,10 @@ def file_connect_node(data) :
                 else :
                     if (logfile_data['Original_File_Name'] is None) :
                         row['filename'] = logfile_data['Current_File_Name']
+                        row['after_filename'] = None 
                     else : 
                         row['filename'] = logfile_data['Original_File_Name']
-                    row['after_filename'] = None 
+                        row['after_filename'] = logfile_data['Current_File_Name']
                 rows.append(row)
         new_df = pd.concat([new_df, pd.DataFrame(rows)], ignore_index=True)
         new_df = new_df.sort_values(by='timestamp').reset_index(drop=True)
@@ -260,6 +261,12 @@ def file_connect_node(data) :
                     node['shape'] = 'image'
                     node['size'] = 25
                     break
+                if 'after_filename' in row and row['after_filename'] != None :
+                    if keyword in row['after_filename'].lower() :
+                        node['image'] = val
+                        node['shape'] = 'image'
+                        node['size'] = 25
+                        break
             for keyword, val in img_dict.items() :
                 if keyword in row['operation'].lower() :
                     node['image'] = val
@@ -340,7 +347,8 @@ def find_data_by_hit_id(data) :
             'Pin Status',
             'NetBIOS',
             'Entry ID',
-            'Show Command'    
+            'Show Command',
+            'Short File Name'
         ]
         return_dict = {}
         for index, row in data_by_hit_id_df.iterrows() :
