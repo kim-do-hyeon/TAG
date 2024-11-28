@@ -117,6 +117,10 @@
             </div>
             <div class="modal-body">
                 <!-- 두 번째 모달의 내용 -->
+                <h4>node 정보</h4>
+                <div id="modalSecond_nodedata"></div>
+                <hr>
+                <h4>hit_id기반 정보</h4>
                 <div id="modalSecond"></div>
             </div>
             <div class="modal-footer">
@@ -253,7 +257,6 @@
                         },
                         interaction: {
                             hover: true,
-                            hoverEdges: false,
                             dragNodes: true,
                             dragView: true
                         },
@@ -331,7 +334,14 @@
                                 console.log(node_data);
 
                                 // JSON 데이터를 테이블로 변환
-                                let tableHtml = '<table class="table table-bordered"><tr><th>Key</th><th>Value</th></tr>';
+                                var tableHtml = '<table class="table table-bordered"><tr><th>Key</th><th>Value</th></tr>';
+                                for (const [key, value] of Object.entries(nodeData)) {
+                                    tableHtml += `<tr><td>${key}</td><td>${value}</td></tr>`;
+                                }
+                                tableHtml += '</table>';
+                                document.getElementById('modalSecond_nodedata').innerHTML = tableHtml;
+
+                                tableHtml = '<table class="table table-bordered"><tr><th>Key</th><th>Value</th></tr>';
                                 for (const [key, value] of Object.entries(node_data)) {
                                     tableHtml += `<tr><td>${key}</td><td>${value}</td></tr>`;
                                 }

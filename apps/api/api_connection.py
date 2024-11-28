@@ -225,7 +225,9 @@ def file_connect_node(data) :
             nodes_data.append({
                 'id' : idx,
                 'hit_id' : row['hit_id'],
-                'timestamp' : str(row['timestamp'])
+                'timestamp' : str(row['timestamp']),
+                'main_data' : row['filename'],
+                'type' : row['operation']
                 })
             if 'USB' in row['operation'] :
                 node = {
@@ -249,7 +251,7 @@ def file_connect_node(data) :
             else :
                 node = {
                     'id' : idx,
-                    'label' : '\n'.join([row['operation'], os.path.basename(row['filename'])]),
+                    'label' : '\n'.join([row['operation'], shorten_string(os.path.basename(row['filename']) if 'http' not in row['filename'] else row['filename'])]),
                 }
             
             for keyword, val in img_dict.items() :
@@ -324,12 +326,39 @@ def find_data_by_hit_id(data) :
         query = f"SELECT hit_id, value, fragment_definition_id FROM hit_fragment WHERE hit_id={hit_id}"
         data_by_hit_id_df = pd.read_sql_query(query, source_conn)
         
+        exclude_keyword_list = [
+            'Parent MFT',
+            'LSN',
+            'MFT Record',
+            'Sequence',
+            'App ID',
+            'Jump List Type',
+            'Pin Status',
+            'NetBIOS',
+            'Entry ID',
+            'Show Command'    
+        ]        
         return_dict = {}
         for index, row in data_by_hit_id_df.iterrows() :
             column = id_to_name[row['fragment_definition_id']]
-            return_dict[column] = row['value']
+            is_continue = False
+            for exclude_keyword in exclude_keyword_list :
+                if exclude_keyword.lower() in column.lower() :
+                    is_continue = True
+                    break
+            if is_continue :
+                continue
+            if column == 'Drive Type' :
+                if 'FIXED' in row['value'] :
+                    return_dict[column] = '고정 저장장치'
+                elif 'REMOVABLE' in row['value'] :
+                    return_dict[column] = '이동식 저장장치'
+                else :
+                    return_dict[column] = row['value']
+            else :
+                return_dict[column] = row['value']
         
-        print(return_dict)
+        #print(return_dict)
         return jsonify({ 'success' : True, 'data' : return_dict})
     except Exception as e :
         print(e)
@@ -362,3 +391,8 @@ def calculate_time_difference(start_timestamp, end_timestamp):
         return_str += f'{minutes}분 '
     return_str += f'{seconds} 초'
     return return_str
+
+def shorten_string(s):
+    if len(s) > 30:
+        return s[:27] + '...'
+    return s
