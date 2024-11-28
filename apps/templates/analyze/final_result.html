@@ -53,7 +53,7 @@
                                 <td>{{ i['filename'] }}</td>
                                 <td class="description-cell">
                                     {% if i['type'] == 'USB' %}
-                                    <p><font color="red">{{ i['usb_name'] }}</font>  USB가 꽂힌 시간대에서<font color="blue">'{{i['filename']}}'</font> 파일의 이동 / 복사 / 이름변경 / 삭제 등의 행위가 탐지됨</p>
+                                    <p><font color="red">{{ i['usb_name'] }}</font>  USB가 꽂힌 시간대에서 파일의 이동 / 복사 / 이름변경 / 삭제 등의 행위가 탐지됨</p>
                                     {% elif i['type'] == 'Printer' %}
                                     <p>Printer의 행위가 탐지되었고, 파일을 프린트했을 가능성이 있음</p>
                                     {% elif i['type'] == 'Mail' %}
