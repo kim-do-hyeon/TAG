@@ -209,7 +209,9 @@ def file_connect_node(data) :
             'mega_drive' : url_for('static', filename='graph_img/mega_drive.svg', _external=True),
             '.zip' : url_for('static', filename='graph_img/zip.svg', _external=True),
             'dropbox' : url_for('static', filename='graph_img/dropbox_icon.svg', _external=True),
-            'one_drive' : url_for('static', filename='graph_img/onedrive.svg', _external=True)
+            'one_drive' : url_for('static', filename='graph_img/onedrive.svg', _external=True),
+            'shellbag' : url_for('static', filename='graph_img/folder.svg', _external=True),
+            'delete' : url_for('static', filename='graph_img/recycle_bin.svg', _external=True)
         }
         nodes = []
         edges = []
@@ -220,12 +222,11 @@ def file_connect_node(data) :
         for idx, row in enumerate(consolidated_dict) :
             #row['filename'] = shorten_string(row['filename'])
             node = {}
-            if 'hit_id' in row :
-                nodes_data.append({
-                    'id' : idx,
-                    'hit_id' : row['hit_id'],
-                    'timestamp' : str(row['timestamp'])
-                    })
+            nodes_data.append({
+                'id' : idx,
+                'hit_id' : row['hit_id'],
+                'timestamp' : str(row['timestamp'])
+                })
             if 'USB' in row['operation'] :
                 node = {
                     'id' : idx,
@@ -252,26 +253,29 @@ def file_connect_node(data) :
                 }
             
             for keyword, val in img_dict.items() :
+                if keyword in row['filename'].lower() :
+                    node['image'] = val
+                    node['shape'] = 'image'
+                    node['size'] = 25
+                    break
+            for keyword, val in img_dict.items() :
                 if keyword in row['operation'].lower() :
                     node['image'] = val
                     node['shape'] = 'image'
                     node['size'] = 25
-                elif  keyword in row['filename'].lower() :
-                    node['image'] = val
-                    node['shape'] = 'image'
-                    node['size'] = 25
+                    break
             
             if (idx % 5) != 0 :
                 if (idx // 5) % 2 == 0 :
-                    node_x += 220
+                    node_x += 240
                 else :
-                    node_x -= 220
-            node_y += 150 if idx % 5 == 0 else 0
+                    node_x -= 240
+            node_y += 170 if idx % 5 == 0 else 0
             node['x'] = node_x
             node['y'] = node_y + 15 if idx % 2 == 0 else node_y - 15
             nodes.append(node)
             if idx != 0 :
-                edges.append({'from' : idx-1, 'to' : idx})                
+                edges.append({'from' : idx-1, 'to' : idx, 'label' : calculate_time_difference(nodes_data[idx-1]['timestamp'], nodes_data[idx]['timestamp'])})                
         
         print(nodes_data)
         result = {
@@ -332,3 +336,29 @@ def find_data_by_hit_id(data) :
         return jsonify({'success' : False, 'message' : str(e)})
     
     
+def calculate_time_difference(start_timestamp, end_timestamp):
+    # 타임스탬프를 pandas datetime으로 변환
+    start_time = pd.to_datetime(start_timestamp)
+    end_time = pd.to_datetime(end_timestamp)
+    
+    # 시간 차이 계산
+    time_difference = end_time - start_time
+    total_seconds = time_difference.total_seconds()
+    
+    # 24시간 초과 여부 확인
+    if total_seconds > 86400:  # 24시간 = 86400초
+        return ''
+    
+    # 시, 분, 초로 변환
+    hours = int(total_seconds // 3600)
+    minutes = int((total_seconds % 3600) // 60)
+    seconds = int(total_seconds % 60)
+    
+    # 문자열로 반환
+    return_str = ''
+    if hours != 0 :
+        return_str += f'{hours}시간 '
+    if minutes != 0 or hours != 0 :
+        return_str += f'{minutes}분 '
+    return_str += f'{seconds} 초'
+    return return_str

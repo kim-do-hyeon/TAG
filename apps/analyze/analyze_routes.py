@@ -168,7 +168,7 @@ def redirect_analyze_case_final(data) :
         for group_usb_time in usb_json :
             usb_df = pd.DataFrame(group_usb_time['filtered_df'])
             for filename in group_usb_time['Accessed_File_List'] :
-                timelist_df = usb_df[usb_df['main_data'].str.contains(filename)]
+                timelist_df = usb_df[usb_df['main_data'].str.contains(filename) & usb_df['type'].str.contains('shellbag')]
                 for index, row in timelist_df.iterrows() :
                     if (', ' in row['hit_id']) :
                         timelist_df.loc[index, 'hit_id'] = row['hit_id'].split(', ')
