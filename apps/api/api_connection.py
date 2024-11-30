@@ -194,7 +194,7 @@ def file_connect_node(data) :
             i = j
         #pprint.pprint(consolidated_dict)
         consolidated_df = pd.DataFrame(consolidated_dict)
-        consolidated_df['timestamp'] = pd.to_datetime(consolidated_df['timestamp']).dt.strftime('%Y-%m-%d %H:%M:%S')
+        #consolidated_df['timestamp'] = pd.to_datetime(consolidated_df['timestamp']).dt.strftime('%Y-%m-%d %H:%M:%S')
         consolidated_df['timestamp'] = pd.to_datetime(consolidated_df['timestamp'])
         consolidated_df = consolidated_df.sort_values(by=['timestamp', 'operation']).reset_index(drop=True)
         new_consolidated_df = pd.DataFrame(columns=consolidated_df.columns.to_list())
