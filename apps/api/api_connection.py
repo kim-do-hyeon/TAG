@@ -193,7 +193,25 @@ def file_connect_node(data) :
             consolidated_dict.append(current)  # Use the first item of the group
             i = j
         #pprint.pprint(consolidated_dict)
-        
+        consolidated_df = pd.DataFrame(consolidated_dict)
+        consolidated_df['timestamp'] = pd.to_datetime(consolidated_df['timestamp']).dt.strftime('%Y-%m-%d %H:%M:%S')
+        consolidated_df['timestamp'] = pd.to_datetime(consolidated_df['timestamp'])
+        consolidated_df = consolidated_df.sort_values(by=['timestamp', 'operation']).reset_index(drop=True)
+        new_consolidated_df = pd.DataFrame(columns=consolidated_df.columns.to_list())
+        print('------------------------------')
+        for idx, row in consolidated_df.iterrows() :
+            if idx != 0 :
+                if (row['timestamp'] - consolidated_df.iloc[idx-1]['timestamp'] <= pd.Timedelta(seconds=2) and
+                    row['filename'].lower() == consolidated_df.iloc[idx-1]['filename'].lower() and
+                    row['operation'].lower() == consolidated_df.iloc[idx-1]['operation'].lower()) :
+                    print(f'timestamp\t\tfilename\t\t\toperation')
+                    print(f"{consolidated_df.iloc[idx-1]['timestamp']}\t{consolidated_df.iloc[idx-1]['filename']}\t{consolidated_df.iloc[idx-1]['operation']}")
+                    print(f"{row['timestamp']}\t{row['filename']}\t{row['operation']}")
+                    continue
+            new_consolidated_df = pd.concat([new_consolidated_df, pd.DataFrame([row])], ignore_index=True)
+        consolidated_dict = new_consolidated_df.to_dict(orient='records')
+        #pprint.pprint(consolidated_dict)
+        print('------------------------------')
         
         img_dict = {
             'usb' : url_for('static', filename='graph_img/usb.svg', _external=True),
@@ -284,9 +302,10 @@ def file_connect_node(data) :
             node['y'] = node_y + 15 if idx % 2 == 0 else node_y - 15
             nodes.append(node)
             if idx != 0 :
-                edges.append({'from' : idx-1, 'to' : idx, 'label' : calculate_time_difference(nodes_data[idx-1]['timestamp'], nodes_data[idx]['timestamp'])})                
+                edges.append({'from' : idx-1, 'to' : idx, 'label' : calculate_time_difference(nodes_data[idx-1]['timestamp'], nodes_data[idx]['timestamp'])})
+                #edges.append({'from' : idx-1, 'to' : idx})
         
-        print(nodes_data)
+        #print(nodes_data)
         result = {
             'data' : new_df.to_dict(orient='records'),
             'nodes' : nodes,
