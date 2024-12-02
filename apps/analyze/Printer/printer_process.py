@@ -13,6 +13,7 @@ def printer_behavior(db_path) :
     ORIGINAL_FILE_NAME = (columns.index("Original_File_Name"))
     FILE_OPERATION = (columns.index("File_Operation"))
     MFT_RECORD_NUMBER = (columns.index("MFT_Record_Number"))
+    EVENT_DATE_TIME = (columns.index("Event_Date/Time_-_UTC_(yyyy-mm-dd)"))
 
     # LogFile_Analysis 테이블의 모든 데이터를 가져옴
     cursor.execute("SELECT * FROM LogFile_Analysis")
@@ -93,7 +94,7 @@ def printer_behavior(db_path) :
                 }
                 df_datas.append(df_dict)
                 
-        data['Print_Event_Date'] = all_data[spl_fixed_date[index]][17]
+        data['Print_Event_Date'] = all_data[spl_fixed_date[index]][EVENT_DATE_TIME]
         # Add checks before using timestamps
         if min_timestamp and max_timestamp:
             data['Start'] = min_timestamp.strftime('%Y-%m-%d %H:%M:%S.%f')

@@ -160,9 +160,10 @@ def file_connect_node(data) :
                 else :
                     if (logfile_data['Original_File_Name'] is None) :
                         row['filename'] = logfile_data['Current_File_Name']
+                        row['after_filename'] = None 
                     else : 
                         row['filename'] = logfile_data['Original_File_Name']
-                    row['after_filename'] = None 
+                        row['after_filename'] = logfile_data['Current_File_Name']
                 rows.append(row)
         new_df = pd.concat([new_df, pd.DataFrame(rows)], ignore_index=True)
         new_df = new_df.sort_values(by='timestamp').reset_index(drop=True)
@@ -209,18 +210,26 @@ def file_connect_node(data) :
             'mega_drive' : url_for('static', filename='graph_img/mega_drive.svg', _external=True),
             '.zip' : url_for('static', filename='graph_img/zip.svg', _external=True),
             'dropbox' : url_for('static', filename='graph_img/dropbox_icon.svg', _external=True),
-            'one_drive' : url_for('static', filename='graph_img/onedrive.svg', _external=True)
+            'one_drive' : url_for('static', filename='graph_img/onedrive.svg', _external=True),
+            'shellbag' : url_for('static', filename='graph_img/folder.svg', _external=True),
+            'delete' : url_for('static', filename='graph_img/recycle_bin.svg', _external=True)
         }
         nodes = []
         edges = []
-        hit_ids = []
+        nodes_data = []
+        timestamps = []
         node_x = 0
         node_y = 0
         for idx, row in enumerate(consolidated_dict) :
             #row['filename'] = shorten_string(row['filename'])
             node = {}
-            if 'hit_id' in row :
-                hit_ids.append({'id' : idx, 'hit_id' : row['hit_id']})
+            nodes_data.append({
+                'id' : idx,
+                'hit_id' : row['hit_id'],
+                'timestamp' : str(row['timestamp']),
+                'main_data' : row['filename'],
+                'type' : row['operation']
+                })
             if 'USB' in row['operation'] :
                 node = {
                     'id' : idx,
@@ -243,37 +252,46 @@ def file_connect_node(data) :
             else :
                 node = {
                     'id' : idx,
-                    'label' : '\n'.join([row['operation'], os.path.basename(row['filename'])]),
+                    'label' : '\n'.join([row['operation'], shorten_string(os.path.basename(row['filename']) if 'http' not in row['filename'] else row['filename'])]),
                 }
             
+            for keyword, val in img_dict.items() :
+                if keyword in row['filename'].lower() :
+                    node['image'] = val
+                    node['shape'] = 'image'
+                    node['size'] = 25
+                    break
+                if 'after_filename' in row and row['after_filename'] != None :
+                    if keyword in row['after_filename'].lower() :
+                        node['image'] = val
+                        node['shape'] = 'image'
+                        node['size'] = 25
+                        break
             for keyword, val in img_dict.items() :
                 if keyword in row['operation'].lower() :
                     node['image'] = val
                     node['shape'] = 'image'
                     node['size'] = 25
-                elif  keyword in row['filename'].lower() :
-                    node['image'] = val
-                    node['shape'] = 'image'
-                    node['size'] = 25
+                    break
             
             if (idx % 5) != 0 :
                 if (idx // 5) % 2 == 0 :
-                    node_x += 220
+                    node_x += 240
                 else :
-                    node_x -= 220
-            node_y += 150 if idx % 5 == 0 else 0
+                    node_x -= 240
+            node_y += 170 if idx % 5 == 0 else 0
             node['x'] = node_x
             node['y'] = node_y + 15 if idx % 2 == 0 else node_y - 15
             nodes.append(node)
             if idx != 0 :
-                edges.append({'from' : idx-1, 'to' : idx})                
+                edges.append({'from' : idx-1, 'to' : idx, 'label' : calculate_time_difference(nodes_data[idx-1]['timestamp'], nodes_data[idx]['timestamp'])})                
         
-        
+        print(nodes_data)
         result = {
             'data' : new_df.to_dict(orient='records'),
             'nodes' : nodes,
             'edges' : edges,
-            'hit_ids' : hit_ids,
+            'nodes_data' : nodes_data,
             'success' : True
         }
         #pprint.pprint(result)
@@ -314,16 +332,85 @@ def find_data_by_hit_id(data) :
 
         query = f"SELECT hit_id, value, fragment_definition_id FROM hit_fragment WHERE hit_id={hit_id}"
         data_by_hit_id_df = pd.read_sql_query(query, source_conn)
+        fragment_definition_id = data_by_hit_id_df['fragment_definition_id'].to_list()[0]
+        artifact_version_id = pd.read_sql_query(f'SELECT artifact_version_id FROM fragment_definition WHERE fragment_definition_id="{fragment_definition_id}"', source_conn)['artifact_version_id'].to_list()[0]
+        table_name = pd.read_sql_query(f'SELECT artifact_name FROM artifact_version WHERE artifact_version_id="{artifact_version_id}"', source_conn)['artifact_name'].to_list()[0]
         
+        
+        exclude_keyword_list = [
+            'Parent MFT',
+            'LSN',
+            'MFT Record',
+            'Sequence',
+            'App ID',
+            'Jump List Type',
+            'Pin Status',
+            'NetBIOS',
+            'Entry ID',
+            'Show Command',
+            'Short File Name'
+        ]
         return_dict = {}
         for index, row in data_by_hit_id_df.iterrows() :
-            column = id_to_name[row['fragment_definition_id']]
-            return_dict[column] = row['value']
+            column = remove_substrings(id_to_name[row['fragment_definition_id']])
+            is_continue = False
+            for exclude_keyword in exclude_keyword_list :
+                if exclude_keyword.lower() in column.lower() :
+                    is_continue = True
+                    break
+            if is_continue :
+                continue
+            if column == 'Drive Type' :
+                if 'FIXED' in row['value'] :
+                    return_dict[column] = '고정 저장장치'
+                elif 'REMOVABLE' in row['value'] :
+                    return_dict[column] = '이동식 저장장치'
+                else :
+                    return_dict[column] = row['value']
+            else :
+                return_dict[column] = row['value']
         
-        print(return_dict)
-        return jsonify({ 'success' : True, 'data' : return_dict})
+        #print(return_dict)
+        return jsonify({ 'success' : True, 'data' : return_dict, 'table' : table_name})
     except Exception as e :
         print(e)
         return jsonify({'success' : False, 'message' : str(e)})
     
     
+def calculate_time_difference(start_timestamp, end_timestamp):
+    # 타임스탬프를 pandas datetime으로 변환
+    start_time = pd.to_datetime(start_timestamp)
+    end_time = pd.to_datetime(end_timestamp)
+    
+    # 시간 차이 계산
+    time_difference = end_time - start_time
+    total_seconds = time_difference.total_seconds()
+    
+    # 24시간 초과 여부 확인
+    if total_seconds > 86400:  # 24시간 = 86400초
+        return ''
+    
+    # 시, 분, 초로 변환
+    hours = int(total_seconds // 3600)
+    minutes = int((total_seconds % 3600) // 60)
+    seconds = int(total_seconds % 60)
+    
+    # 문자열로 반환
+    return_str = ''
+    if hours != 0 :
+        return_str += f'{hours}시간 '
+    if minutes != 0 or hours != 0 :
+        return_str += f'{minutes}분 '
+    return_str += f'{seconds} 초'
+    return return_str
+
+def shorten_string(s):
+    if len(s) > 30:
+        return s[:27] + '...'
+    return s
+
+def remove_substrings(original_string):
+    substrings_to_remove = [' - UTC (yyyy-mm-dd)']
+    for substring in substrings_to_remove:
+        original_string = original_string.replace(substring, "")
+    return original_string

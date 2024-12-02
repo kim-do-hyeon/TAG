@@ -38,6 +38,7 @@
                             <th>사건 유형</th>
                             <th>행위 대상</th>
                             <th>시간대</th>
+                            <th>파일명</th>
                             <th>설명</th>
                             <th>의심도</th>
                             <th>행위 흐름 그래프</th>
@@ -49,20 +50,31 @@
                                 <td><p>기술 유출</p></td>
                                 <td>{{ i['type'] }}</td>
                                 <td>{{i['time_start']}} ~ {{i['time_end']}}</td>
+                                <td>{{ i['filename'] }}</td>
                                 <td class="description-cell">
                                     {% if i['type'] == 'USB' %}
-                                    <p>USB가 꽂힌 시간대에서 <font color="blue">'{{i['filename']}}'</font> 파일의 이동 / 복사 / 이름변경 / 삭제 등의 행위가 탐지됨</p>
+                                    <p><font color="red">{{ i['usb_name'] }}</font>  USB가 꽂힌 시간대에서 파일의 이동 / 복사 / 이름변경 / 삭제 등의 행위가 탐지됨</p>
                                     {% elif i['type'] == 'Printer' %}
-                                    <p>Printer의 행위가 탐지되었고, <font color="blue">'{{i['filename']}}'</font>파일을 프린트했을 가능성이 있음</p>
+                                    <p>Printer의 행위가 탐지되었고, 파일을 프린트했을 가능성이 있음</p>
                                     {% elif i['type'] == 'Mail' %}
-                                    <p>메일을 통해 <font color="blue">'{{i['filename']}}'</font>파일을 전송했을 가능성이 있음</p>
+                                    <p><font color="red">{{ i['browser'] }}</font>(으)로 <font color="blue">{{i['service']}}</font>메일을 통해 파일을 전송했을 가능성이 있음</p>
                                     {% elif i['type'] == 'Blog' %}
-                                    <p>블로그를 통해 <font color="blue">'{{i['filename']}}'</font>파일을 업로드했을 가능성이 있음</p>
+                                    <p><font color="red">{{ i['browser'] }}</font>(으)로 <font color="blue">{{i['service']}}</font>블로그를 통해 파일을 업로드했을 가능성이 있음</p>
                                     {% elif i['type'] == 'Drive' %}
-                                    <p>드라이브를 통해 <font color="blue">'{{i['filename']}}'</font>파일을 업로드했을 가능성이 있음</p>
+                                    <p><font color="red">{{ i['browser'] }}</font>(으)로 <font color="blue">{{i['service']}}</font>드라이브를 통해 파일을 업로드했을 가능성이 있음</p>
                                     {% endif %}
                                 </td>
-                                <td>{{ i['priority']}}</td>
+                                <td>
+                                    {% if i['priority'] >= 80 %}
+                                    <span class="critical_priority">Critical!</span> {{ i['priority'] }}%
+                                    {% elif i['priority'] >= 50 %}
+                                    <span class="high_priority">High</span> {{ i['priority'] }}%
+                                    {% elif i['priority'] >= 25 %}
+                                    <span class="medium_priority">Medium</span> {{ i['priority'] }}%
+                                    {% else %}
+                                    <span class="low_priority">Low</span> {{ i['priority'] }}%
+                                    {% endif %}
+                                </td>
                                 <td>
                                     <button class="btn btn-primary btn-sm" onclick="showDetail('{{ i['type'] }}','{{loop.index}}', '{{i['filename']}}'); return false;">
                                         커넥션 보기
@@ -78,6 +90,14 @@
         <!-- [ Main Content ] end -->
     </div>
 </div>
+
+<div id="tooltip" style="display: none; position: absolute;
+    background-color: white;
+    border: 1px solid black;
+    padding: 5px;
+    border-radius: 3px;
+    z-index: 1200;
+    pointer-events: none;"></div>
 
 <!-- 모달 -->
 <div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="DetailModalLabel" aria-hidden="true">
@@ -101,7 +121,7 @@
 
 <!-- 두 번째 모달 -->
 <div class="modal fade" id="secondModal" tabindex="-1" aria-labelledby="SecondModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-dialog modal-lg modal-dialog-centered" style="max-width: 90%;">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="SecondModalLabel">추가 정보</h5>
@@ -109,7 +129,17 @@
             </div>
             <div class="modal-body">
                 <!-- 두 번째 모달의 내용 -->
-                <div id="modalSecond"></div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4>node 정보</h4>
+                        <div id="modalSecond_nodedata"></div>
+                    </div>
+                    <div class="col-md-6" style="border-left: 1px solid #ccc;">
+                        <h4>hit_id기반 정보</h4>
+                        <div id="table_name_from_hit_id"></div>
+                        <div id="modalSecond"></div>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
@@ -266,7 +296,25 @@
                         }
                     };
                     var network = new vis.Network(container, data, options);
+                    
+                    // 노드에 마우스를 올렸을 때 툴팁 표시
+                    network.on("hoverNode", function (params) {
+                        var nodeId = params.node;
+                        var nodeData = secondData.nodes_data.find(node => node.id === nodeId);
+                        var tooltipContent = `<p>${nodeData.timestamp}</p>`;
+                        // 툴팁을 표시할 위치와 내용을 설정
+                        var tooltip = document.getElementById('tooltip');
+                        tooltip.innerHTML = tooltipContent;
+                        tooltip.style.left = params.event.pageX-50 + 'px';
+                        tooltip.style.top = params.event.pageY-80 + 'px';
+                        tooltip.style.display = 'block';
+                    });
 
+                    // 노드에서 마우스를 뗐을 때 툴팁 제거
+                    network.on("blurNode", function (params) {
+                        var tooltip = document.getElementById('tooltip');
+                        tooltip.style.display = 'none';
+                    });
                     // 노드 클릭 이벤트 리스너 추가
                     network.on("click", function (params) {
                         if (params.nodes.length > 0) {
@@ -275,7 +323,7 @@
                             console.log("Clicked node:", clickedNode);
 
                             // secondData.nodes에서 직접 가져오기
-                            var nodeData = secondData.hit_ids.find(node => node.id === nodeId);
+                            var nodeData = secondData.nodes_data.find(node => node.id === nodeId);
                             console.log("Node data from secondData:", nodeData);
                             // 여기서 원하는 동작을 수행
                             // 예: alert 창 띄우기
@@ -301,10 +349,19 @@
                                 // 응답 데이터를 JSON 형식으로 포맷
                                 var node_data_json = JSON.stringify(data, null, 2);
                                 var node_data = data.data;
+                                var table_name = data.table;
                                 console.log(node_data);
 
+                                document.getElementById('table_name_from_hit_id').innerHTML = `<p>Data from <b>${table_name}</b></p>`;
                                 // JSON 데이터를 테이블로 변환
-                                let tableHtml = '<table class="table table-bordered"><tr><th>Key</th><th>Value</th></tr>';
+                                var tableHtml = '<table class="table table-bordered"><tr><th>Key</th><th>Value</th></tr>';
+                                for (const [key, value] of Object.entries(nodeData)) {
+                                    tableHtml += `<tr><td>${key}</td><td>${value}</td></tr>`;
+                                }
+                                tableHtml += '</table>';
+                                document.getElementById('modalSecond_nodedata').innerHTML = tableHtml;
+
+                                tableHtml = '<table class="table table-bordered"><tr><th>Key</th><th>Value</th></tr>';
                                 for (const [key, value] of Object.entries(node_data)) {
                                     tableHtml += `<tr><td>${key}</td><td>${value}</td></tr>`;
                                 }
@@ -313,7 +370,7 @@
 
 
                                 document.getElementById('modalSecond').innerHTML = tableHtml;
-
+                                document.getElementById('tooltip').style.display = 'none';
                                 // 모달 표시
                                 $('#secondModal').modal('show');
                             })
@@ -432,6 +489,37 @@
 .file-list li {
     margin-bottom: 4px;
 }
+
+.vis-tooltip {
+    position: absolute;
+    background-color: white;
+    border: 1px solid black;
+    padding: 5px;
+    border-radius: 3px;
+    z-index: 1100;
+    pointer-events: none; /* 마우스 이벤트가 툴팁에 영향을 주지 않도록 설정 */
+}
+
+.critical_priority {
+    font-weight: bold;
+    color : red;
+}
+
+.high_priority {
+    font-weight: bold;
+    color : darkorange;
+}
+
+.medium_priority {
+    font-weight: bold;
+    color : goldenrod;
+}
+
+.low_priority {
+    font-weight: bold;
+    color : gray;
+}
+
 </style>
 
 {% endblock content %}
