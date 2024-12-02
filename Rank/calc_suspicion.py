@@ -1,9 +1,10 @@
 import sqlite3
 import json
 from datetime import datetime
+import pandas as pd
 
 # 데이터베이스 연결
-db_path = r"D:\프로젝트\정규화 파일\Task이후\1027\2024-10-27.db"
+db_path = r""
 conn = sqlite3.connect(db_path)
 db_cursor = conn.cursor()
 
@@ -24,7 +25,7 @@ docs_target_table = {
     "Logfile_Analysis":["Original_File_Name", "Current_File_Name", "MFT_Record_Number"]
 }
 
-docs_formats = ["hwp", "docx", "pptx", "pdf", "xlsx"] # 문서 파일 포맷 정의
+docs_formats = ["hwp", "docx", "pptx", "pdf", "xlsx", "zip"] # 문서 파일 포맷 정의
 docs_files_tmp = set([])
 
 # LNK와, Rename 이벤트들을 1초 단위로 그룹화
@@ -121,10 +122,10 @@ for doc_file in docs_files:
 
 # 1초 단위로 그룹화하여 저장
 rename_output_data_grouped = filter_first_per_second(rename_output_data)
-rename_output_path = r"./rename_score.json"
-with open(rename_output_path, "w", encoding="utf-8") as f:
-    json.dump(rename_output_data_grouped, f, indent=4, ensure_ascii=False, default=str)
-print("rename_score.json이 저장되었습니다.")
+# rename_output_path = r"./rename_score.json"
+# with open(rename_output_path, "w", encoding="utf-8") as f:
+#     json.dump(rename_output_data_grouped, f, indent=4, ensure_ascii=False, default=str)
+# print("rename_score.json이 저장되었습니다.")
 
 
 # 2) 과다 열람
@@ -301,12 +302,12 @@ for doc in docs_files:
 
 # UsnJrnl, Logfile 데이터 그룹화
 excessive_reading_data_grouped = filter_first_per_second(excessive_reading_data)
-excessive_reading_output_path = r"./excessive_reading_score.json"
-with open(excessive_reading_output_path, "w", encoding="utf-8") as f:
-    json.dump(excessive_reading_data_grouped, f, indent=4, ensure_ascii=False, default=str)
-print("excessive_reading_score.json이 저장되었습니다.")
+# excessive_reading_output_path = r"./excessive_reading_score.json"
+# with open(excessive_reading_output_path, "w", encoding="utf-8") as f:
+#     json.dump(excessive_reading_data_grouped, f, indent=4, ensure_ascii=False, default=str)
+# print("excessive_reading_score.json이 저장되었습니다.")
 
-# rename + 과다 열람 하나로 합친 후 점수 계산
+# rename + 과다 열람 커넥션 하나로 합치는 함수
 def final_data_rename_excessive_reading(data, temp):
     for temp_item in temp:
         temp_filename = temp_item["filename"]
@@ -330,12 +331,19 @@ def final_data_rename_excessive_reading(data, temp):
     
     return data
 
+# 각 문서 별로 점수 계산, 하위 % 결정하는 함수
 def calculate_score_total(data):
+    doc_scores = []
     for item in data:
         # Sum the scores from the connection list
         score_total = sum(conn.get("score", 0) for conn in item["connection"])
         # Add the score_total field
         item["score_total"] = score_total
+        doc_scores.append(score_total)
+    max_score = max(doc_scores)
+    percentage = [(score / max_score) * 100 for score in doc_scores]
+    for index, item in enumerate(data):
+        item["percentage"] = percentage[index]
     return data
 
 concat_data = final_data_rename_excessive_reading(excessive_reading_data_grouped, rename_output_data_grouped)
