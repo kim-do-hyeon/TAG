@@ -26,14 +26,14 @@ def redirect_logfile(data) :
         result = extract_transaction_LogFile_Analysis(db_conn, filename)
         for key, value in result.items() :
             tmp = value[['Event_Date/Time_-_UTC_(yyyy-mm-dd)', 'Original_File_Name', 'Current_File_Name', 'File_Operation', 'hit_id']]
-            tmp['File_Operation'] = tmp['File_Operation'].replace('Create', 'file_create')
+            tmp.loc[:,'File_Operation'] = tmp['File_Operation'].replace('Create', 'file_create')
             tmp.loc[:,'Event_Date/Time_-_UTC_(yyyy-mm-dd)'] = tmp['Event_Date/Time_-_UTC_(yyyy-mm-dd)'].astype(str)
             result[key] = tmp.to_dict(orient='records')
         result['success'] = True
         
         return jsonify(result)
     except Exception as e :
-        return jsonify({'success' : False, 'message' : '[*] LogFile table error : '+str(e)})
+        return jsonify({'success' : False, 'message' : '[*] LogFile table error : '+str(e)+'\n' + traceback.format_exc()})
 
 
 def file_connect_node(data) :
@@ -243,7 +243,7 @@ def file_connect_node(data) :
             node = {}
             nodes_data.append({
                 'id' : idx,
-                'hit_id' : row['hit_id'],
+                'hit_id' : row['hit_id'] if isinstance(row['hit_id'], list) else [row['hit_id']],
                 'timestamp' : str(row['timestamp']),
                 'main_data' : row['filename'],
                 'type' : row['operation']
@@ -322,10 +322,14 @@ def file_connect_node(data) :
 def find_data_by_hit_id(data) :
     
     case_id = data.get('case_id')
-    hit_id = data.get('hit_id')
+    hit_ids = data.get('hit_id')
     
-    if (hit_id == -1 or ',' in hit_id) :
+    if (hit_ids == -1 or ',' in hit_ids) :
         return jsonify({'success' : False, 'message' : '[*] It doesn\'t have hit_id'})
+    if isinstance(hit_ids, int) :
+        hit_ids = [hit_ids]
+    if isinstance(hit_ids, str) :
+        hit_ids = [hit_ids]
     
     db_instance = Upload_Case.query.filter_by(id=case_id).first()  # Renamed to avoid confusion with db session
     db_path = db_instance.file
@@ -349,48 +353,53 @@ def find_data_by_hit_id(data) :
         fragment_df = pd.read_sql_query(fragment_query, source_conn)
         id_to_name = dict(zip(fragment_df['fragment_definition_id'], fragment_df['name']))
 
-        query = f"SELECT hit_id, value, fragment_definition_id FROM hit_fragment WHERE hit_id={hit_id}"
-        data_by_hit_id_df = pd.read_sql_query(query, source_conn)
-        fragment_definition_id = data_by_hit_id_df['fragment_definition_id'].to_list()[0]
-        artifact_version_id = pd.read_sql_query(f'SELECT artifact_version_id FROM fragment_definition WHERE fragment_definition_id="{fragment_definition_id}"', source_conn)['artifact_version_id'].to_list()[0]
-        table_name = pd.read_sql_query(f'SELECT artifact_name FROM artifact_version WHERE artifact_version_id="{artifact_version_id}"', source_conn)['artifact_name'].to_list()[0]
-        
-        
-        exclude_keyword_list = [
-            'Parent MFT',
-            'LSN',
-            'MFT Record',
-            'Sequence',
-            'App ID',
-            'Jump List Type',
-            'Pin Status',
-            'NetBIOS',
-            'Entry ID',
-            'Show Command',
-            'Short File Name'
-        ]
-        return_dict = {}
-        for index, row in data_by_hit_id_df.iterrows() :
-            column = remove_substrings(id_to_name[row['fragment_definition_id']])
-            is_continue = False
-            for exclude_keyword in exclude_keyword_list :
-                if exclude_keyword.lower() in column.lower() :
-                    is_continue = True
-                    break
-            if is_continue :
-                continue
-            if column == 'Drive Type' :
-                if 'FIXED' in row['value'] :
-                    return_dict[column] = '고정 저장장치'
-                elif 'REMOVABLE' in row['value'] :
-                    return_dict[column] = '이동식 저장장치'
+        return_dicts = []
+        table_names = []
+        print('hit_ids', hit_ids)
+        for hit_id in hit_ids :
+            query = f"SELECT hit_id, value, fragment_definition_id FROM hit_fragment WHERE hit_id={hit_id}"
+            data_by_hit_id_df = pd.read_sql_query(query, source_conn)
+            fragment_definition_id = data_by_hit_id_df['fragment_definition_id'].to_list()[0]
+            artifact_version_id = pd.read_sql_query(f'SELECT artifact_version_id FROM fragment_definition WHERE fragment_definition_id="{fragment_definition_id}"', source_conn)['artifact_version_id'].to_list()[0]
+            table_name = pd.read_sql_query(f'SELECT artifact_name FROM artifact_version WHERE artifact_version_id="{artifact_version_id}"', source_conn)['artifact_name'].to_list()[0]
+            
+            
+            exclude_keyword_list = [
+                'Parent MFT',
+                'LSN',
+                'MFT Record',
+                'Sequence',
+                'App ID',
+                'Jump List Type',
+                'Pin Status',
+                'NetBIOS',
+                'Entry ID',
+                'Show Command',
+                'Short File Name'
+            ]
+            return_dict = {}
+            for index, row in data_by_hit_id_df.iterrows() :
+                column = remove_substrings(id_to_name[row['fragment_definition_id']])
+                is_continue = False
+                for exclude_keyword in exclude_keyword_list :
+                    if exclude_keyword.lower() in column.lower() :
+                        is_continue = True
+                        break
+                if is_continue :
+                    continue
+                if column == 'Drive Type' :
+                    if 'FIXED' in row['value'] :
+                        return_dict[column] = '고정 저장장치'
+                    elif 'REMOVABLE' in row['value'] :
+                        return_dict[column] = '이동식 저장장치'
+                    else :
+                        return_dict[column] = row['value']
                 else :
                     return_dict[column] = row['value']
-            else :
-                return_dict[column] = row['value']
-        
-        #print(return_dict)
-        return jsonify({ 'success' : True, 'data' : return_dict, 'table' : table_name})
+            return_dicts.append(return_dict)
+            table_names.append(table_name)
+            #print(return_dict)
+        return jsonify({ 'success' : True, 'data' : return_dicts, 'table' : table_names})
     except Exception as e :
         print(e)
         return jsonify({'success' : False, 'message' : str(e)})
