@@ -14,7 +14,7 @@ class TagPriorityManager:
         Parameters:
         tagged_data_path (str): 태그된 데이터를 저장한 JSON 파일 경로
         priority_data_path (str): 우선순위 데이터를 저장한 JSON 파일 경로
-        tags (dict): 분석에 필요한 태그와 설명을 포함한 딕셔너리 (선택적, 기본값 None)
+        tags (dict): 분석에 필요한 태그와 설명을 포함한 딕셔너리 (선택적, 기본값 None)     
         """
         self.tagged_data_path = tagged_data_path  # 태그된 데이터 파일 경로
         self.priority_data_path = priority_data_path  # 우선순위 데이터 파일 경로
@@ -156,24 +156,33 @@ if __name__ == "__main__":
 
     # 태그와 설명을 포함한 딕셔너리
     tags = {
-        "Google_Login": "Google 로그인 후 파일 업로드나 공유와 같은 파일 유출 행위 가능성.",
-        "Gmail_Inbox": "Gmail 메인 페이지의 접속한 흔적, Gmail을 통한 파일 유출 행위의 가능성을 내포하고있음",
-        "Gmail_Sent": "자신의 보낸 Gmail함을 열람했을때의 흔적, 파일유출 후 확인의 용도일 가능성",
-        "Gmail_Subject": "Gmail을 통한 받은 메일을 열람했을때의 흔적, 파일 유출과 직접적인 관계는 낮지만 파일유출의 요청을 받을 가능성",
-        "Web_Search": "웹 검색 후 파일 접근이나 드라이브 업로드가 파일 유출 시나리오에 연결될 수 있음.",
-        "Gmail_Drive_Sharing": "Gmail을 통한 Google Drive 파일 공유로 메일을 통한 파일유출 중 대용량 파일을 첨부함을 뜻함.",
-        "Gmail_Create_New_mail": "새 이메일 작성 후 파일 첨부 및 전송 시 유출 가능성이 높음.",
-        "Google_Redirection": "리디렉션 후 추가적인 웹 액세스나 업로드를 통해 유출 경로로 사용될 수 있음.",
-        "File_Web_Access": "웹에서 파일에 접근한 후 추가적인 공유나 업로드로 이어질 수 있음.",
-        "Google_Drive_Upload": "파일을 구글 드라이브에 업로드한 후 다른 방식으로 유출할 가능성이 높음.",
-        "User_USB": "USB 장치를 통한 파일 복사나 이동은 오프라인 파일 유출 가능성을 시사.",
-        "Remove": "휴지통에서 파일이 삭제되면 파일 유출을 은폐하려는 시도일 수 있음.",
-        "Tistory_Blog": "개인 블로그나 외부 웹사이트를 통한 파일 업로드는 파일 유출 가능성을 높임.",
-        "Web_PDF_Download": "웹에서 PDF 파일 다운로드는 파일 유출의 초기 단계일 수 있음.",
-        "Web_EXE_Download": "실행 파일(EXE)을 다운로드하는 행위는 악성코드나 파일 유출 관련 행위일 수 있음.",
-        "Web_HWP_Download": "한글(HWP) 파일을 다운로드하는 행위는 중요한 문서 유출 가능성을 시사.",
-        "Web_DOC_Download": "워드(DOC) 파일을 다운로드하는 행위는 중요한 문서 유출 가능성을 시사.",
-        "Web_DOCS_Download": "구글 문서 파일을 다운로드하는 행위는 중요한 문서 유출 가능성을 시사."
+        "Gmail_Drive_Sharing" : "Gmail을 통한 Google Drive 파일 링크 공유.",
+        "Gmail_Create_New_mail" : "Gmail에서의 새로운 메일 작성.",
+        "File_Web_Access" : "웹 브라우저를 통한 디스크 내 파일 실행.",
+        "Mega_Drive" : "익명 클라우드 파일공유 서비스인 Mega 웹 페이지 방문.",
+        "Dropbox_Drive" : "익명 클라우드 파일공유 서비스인 DropBox 웹 페이지 방문.",
+        "Short_URL_Service" : "짧은 URL 서비스를 사용중인 웹 사이트 접속.",
+        "VPN_Service" : "VPN과 관련된 문자열을 가진 URL 패턴의 사이트 접속.",
+        "Use_Proxy_Server_PORT" : "프록시 서버의 포트를 사용하는 웹 사이트 접속.",
+        "NAS_Quick_Connect_Server" : "Quick Connect 서버의 파일 공유 웹 사이트 접속.",
+        "NAS_C2_Synology_Server" : "C2 Synology 서버의 파일공유 웹 사이트 접속.",
+        "IP_Address_Server" : "개인 IPv4의 형식을 가진 IP 서버 웹 사이트 접속.",
+        "Google_Drive_Upload" : "Google Drive를 이용한 파일 업로드.",
+        "User_USB" : "디스크 이미지 내 연결된 USB 이력 탐지.",
+        "File_Remove" : "이미 삭제되어 Recycle Bin에 위치한 파일.",
+        "Google_Login" : "Google에 로그인하는 웹 사이트 접속.",
+        "Gmail_Inbox" : "Gmail 서비스 실행 시 기본으로 생기는 URL 패턴(특정 행동을 하지 않아도 Gmail 접속만으로 생성됨).",
+        "Gmail_Sent" : "Gmail 서비스 중 보낸 이메일 확인 웹 사이트 접속.",
+        "Gmail_Subject" : "이메일의 본문을 열람하기 위한 웹 사이트 접속 (해당 이메일의 제목이 포함된 URL 생성).",
+        "Web_Search" : "검색 포털을 이용한 웹 검색 기록(검색 내역도 포함되어있음).",
+        "Web_PDF" : "웹을 통한 PDF 문서 열람 웹사이트 접속.",
+        "Tistory_Blog" : "Tistory 블로그 페이지 웹 사이트 접속.",
+        "Google_Redirection" : "Google 관련 페이지에서 다른 URL로 리다이렉트 시 발생하는 패턴 탐지.",
+        "Web_PDF_Download" : "웹을 통한 PDF 파일 다운로드.",
+        "Web_EXE_Download" : "웹을 통한 EXE 파일 다운로드.",
+        "Web_HWP_Download" : "웹을 통한 HWP 파일 다운로드.",
+        "Web_DOC_Download" : "웹을 통한 DOC 파일 다운로드.",
+        "Web_DOCS_Download" : "웹을 통한 DOCS 파일 다운로드."
     }
 
     # 사용자 선택에 따라 TagPriorityGenerator 실행 여부 결정
