@@ -1,7 +1,6 @@
 import sqlite3
 import json
 from datetime import datetime
-import pandas as pd
 
 # 데이터베이스 연결
 db_path = r""
@@ -22,8 +21,18 @@ db_cursor = conn.cursor()
 # 수정) UsnJrnl, Logfile_Analysis 에서만 문서 파일 추출
 docs_target_table = {
     "UsnJrnl":["File_Name", "MFT_Record_Number"],
-    "Logfile_Analysis":["Original_File_Name", "Current_File_Name", "MFT_Record_Number"]
+    "LogFile_Analysis":["Original_File_Name", "Current_File_Name", "MFT_Record_Number"]
 }
+
+# 현재 케이스 파일의 테이블 목록 추출
+db_cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+res = db_cursor.fetchall()
+db_table_list = [row[0] for row in res]
+# 필수 테이블이 현재 케이스 파일에 없다면 프로그램 종료
+for necessary_table in docs_target_table.keys():
+    if necessary_table not in db_table_list:
+        print(f"프로그램 실행에 필요한 테이블 {necessary_table} 이 존재하지 않습니다. 프로그램을 종료합니다.")
+        exit()
 
 docs_formats = ["hwp", "docx", "pptx", "pdf", "xlsx", "zip"] # 문서 파일 포맷 정의
 docs_files_tmp = set([])
@@ -70,7 +79,10 @@ for table, cols in docs_target_table.items():
         if len(file_cols) > 1 and i < len(file_cols)-1:
             like_conditions = like_conditions + ' OR'
 
-    sql_query = f'SELECT "{cols_query}" FROM {table} WHERE {like_conditions}'
+    if table == "LogFile_Analysis":
+        sql_query = f'SELECT "{cols_query}", File_Operation FROM {table} WHERE {like_conditions} AND MFT_Record_Number IS NOT NULL;'
+    else:
+        sql_query = f'SELECT "{cols_query}" FROM {table} WHERE {like_conditions} AND MFT_Record_Number IS NOT NULL;'
     like_values = [f'%.{value}' for value in docs_formats] * len(file_cols)
     db_cursor.execute(sql_query, like_values)
 
@@ -79,7 +91,19 @@ for table, cols in docs_target_table.items():
 
 docs_files = set([]) # 최종적으로 문서 이름, MFT_Record_Number 저장하는 set
 for doc in docs_files_tmp:
-    docs_files.add(doc)
+    if len(doc) == 4: # Logfile_Analysis 에서 끌고 온 것이라면
+        MFT_Recoed_Num = doc[2]
+        if doc[3] == 'Rename':
+            # file_name = [doc[0], doc[1]]
+            file_name = [doc[1]]
+        elif doc[3] == 'Delete':
+            file_name = [doc[0]]
+        elif doc[3] == 'Create' or doc[3] == 'Move':
+            file_name = [doc[1]]
+        for item in file_name:
+            docs_files.add((item, MFT_Recoed_Num))
+    else:
+        docs_files.add(doc)
 
 # 1) Rename
 #   1. UsnJrnl에서 Rename reason이 있는 경우, Logfile_Analysis에 rename이 있는 경우 가져오기
@@ -122,6 +146,8 @@ for doc_file in docs_files:
 
 # 1초 단위로 그룹화하여 저장
 rename_output_data_grouped = filter_first_per_second(rename_output_data)
+print("Rename scoring 완료")
+
 # rename_output_path = r"./rename_score.json"
 # with open(rename_output_path, "w", encoding="utf-8") as f:
 #     json.dump(rename_output_data_grouped, f, indent=4, ensure_ascii=False, default=str)
@@ -269,39 +295,45 @@ for doc in docs_files:
     res = db_cursor.fetchall()
 
     if len(res) > 0: # 결과가 존재할 때만 진행
-        row = res[0]
-        target_file_created_time_raw = row[0]
-        last_access_time_raw = row[1]
-        access_count = int(row[2])
-        hit_id = row[3]
+        for row in res:
+            row = res[0]
+            target_file_created_time_raw = row[0]
+            last_access_time_raw = row[1]
+            access_count = int(row[2])
+            hit_id = row[3]
 
-        # access_count / (last_access time - file_created_data) 해서 빈도수 저장
-        target_file_created_time = datetime.strptime(target_file_created_time_raw, time_format)
-        last_access_time = datetime.strptime(last_access_time_raw, time_format)
+            if target_file_created_time_raw is None or last_access_time_raw is None:
+                continue
 
-        # if access_count > 1:
-        #     frequency = access_count / ((last_access_time - target_file_created_time).total_seconds() // 86400) 
-        # elif access_count == 1:
-        #     frequency = 1
-        
-        frequency = access_count / ((last_access_time - target_file_created_time).total_seconds())
-        score = frequency * 4.40
+            # access_count / (last_access time - file_created_data) 해서 빈도수 저장
+            target_file_created_time = datetime.strptime(target_file_created_time_raw, time_format)
+            last_access_time = datetime.strptime(last_access_time_raw, time_format)
 
-        temp["connection"].append(
-            {
-                "timestamp":last_access_time_raw,
-                "type":"Jump_List_Frequency",
-                "frequency":frequency,
-                "hit_id":hit_id,
-                "score":score
-            }
-        )
+            # if access_count > 1:
+            #     frequency = access_count / ((last_access_time - target_file_created_time).total_seconds() // 86400) 
+            # elif access_count == 1:
+            #     frequency = 1
+            
+            frequency = access_count / ((last_access_time - target_file_created_time).total_seconds())
+            score = frequency * 4.40
 
-    if len(temp["connection"]) > 1: # 로그가 존재할 때만 저장
-        excessive_reading_data.append(temp)
+            temp["connection"].append(
+                {
+                    "timestamp":last_access_time_raw,
+                    "type":"Jump_List_Frequency",
+                    "frequency":frequency,
+                    "hit_id":hit_id,
+                    "score":score
+                }
+            )
+
+        if len(temp["connection"]) > 1: # 로그가 존재할 때만 저장
+            excessive_reading_data.append(temp)
 
 # UsnJrnl, Logfile 데이터 그룹화
 excessive_reading_data_grouped = filter_first_per_second(excessive_reading_data)
+print("과다 열람 scoring 완료")
+
 # excessive_reading_output_path = r"./excessive_reading_score.json"
 # with open(excessive_reading_output_path, "w", encoding="utf-8") as f:
 #     json.dump(excessive_reading_data_grouped, f, indent=4, ensure_ascii=False, default=str)
