@@ -1,6 +1,7 @@
 import sqlite3, os, json
 import pandas as pd
 from flask import request, render_template, session, redirect, url_for, flash, Request, jsonify, render_template_string
+from apps.analyze.Calc_suspicion.calc_suspicion import *
 from apps.authentication.models import Analyzed_file_list, Upload_Case, Normalization, GraphData, PromptQuries, UsbData, FilteringData, GroupParingResults, PrinterData_final, UsbData_final, Mail_final, Porn_Data
 from apps import db
 from apps.case.case_analyze import case_analyze_view
@@ -124,11 +125,27 @@ def redirect_analyze_case_final(data) :
     if case_type != "음란물" :
         ''' Tagging Process '''
         TAG_Process = all_tag_process(data)
-
+        
         ''' Upload Behavior Process '''
         if TAG_Process:
             Upload_results = mail_behavior(db_path)
-
+            
+        ''' File based scoring Process '''
+        if os.path.exists(os.path.join(case_folder , 'final_score.json')) :
+            with open(os.path.join(case_folder, 'final_score.json'), 'r', encoding='utf-8') as f:
+                priority_json = json.load(f)
+        else :
+            priority_json = calc_suspicion(db_path, case_folder)
+        
+        def find_priority(filename, priority_json) :
+            for item in priority_json :
+                if isinstance(item['filename'], list) :
+                    if (filename in item['filename']) :
+                        return item['percentage']
+                elif item['filename'] == filename :
+                    return item['percentage']
+            return 0
+        
         ''' USB Behavior Process'''
         time_db_path = os.path.join(case_folder, "time_normalization.db")
         if os.path.isfile(time_db_path) == False :
@@ -178,7 +195,7 @@ def redirect_analyze_case_final(data) :
                     'time_end' : group_usb_time['End'],
                     'usb_name' : group_usb_time['Connection'],
                     'filename' : filename,
-                    'priority' : 0,
+                    'priority' : round(find_priority(filename, priority_json), 2),
                     'data' : timelist_df.to_dict(orient='records')
                 }
                 analyzed_file_list.append(usb_file_row)
@@ -206,7 +223,7 @@ def redirect_analyze_case_final(data) :
                                 'time_start': printer_time.get('Start'),  # 시작 시간 추가
                                 'time_end': printer_time.get('End'),      # 종료 시간 추가
                                 'filename': filename,
-                                'priority' : 0,
+                                'priority' : round(find_priority(filename, priority_json), 2),
                                 'data': timelist_df.to_dict(orient='records')
                             }
                             analyzed_file_list.append(printer_file_row)
@@ -216,6 +233,18 @@ def redirect_analyze_case_final(data) :
         mail_output = (os.path.join(os.getcwd(), "uploads", session['username'], case_number, "output_mail.json"))
         with open(mail_output, 'r', encoding='utf-8') as file:
             mail_results = json.load(file)
+            
+        drive_output = (os.path.join(os.getcwd(), "uploads", session['username'], case_number, "output_drive.json"))
+        with open(drive_output, 'r', encoding='utf-8') as file:
+            drive_results = json.load(file)
+
+        blog_output = (os.path.join(os.getcwd(), "uploads", session['username'], case_number, "output_blog.json"))
+        with open(blog_output, 'r', encoding='utf-8') as file:
+            blog_results = json.load(file)
+            
+        all_results = mail_results + drive_results + blog_results
+        all_results = sorted(all_results, key=lambda x: x['priority'], reverse=True)
+        max_priority_web = all_results[0]['priority']
 
         # Mail 데이터 처리
         for mail_event in mail_results:
@@ -226,7 +255,7 @@ def redirect_analyze_case_final(data) :
                     'time_end': mail_event['timerange'].split(' ~ ')[1],    # timerange에서 종료 시간 추출
                     'filename': mail_event['filename'],
                     'browser': mail_event['browser'],
-                    'priority': round((mail_event['priority']/14)*100, 2), # 메일의 경우 priority 정보도 포함
+                    'priority': round(((mail_event['priority']/max_priority_web)*100 + find_priority(mail_event['filename'], priority_json))/2, 2), # 메일의 경우 priority 정보도 포함
                     'data': mail_event['connection']     # connection 데이터를 그대로 사용
                 }
                 try :
@@ -235,11 +264,6 @@ def redirect_analyze_case_final(data) :
                     print(e)
                     mail_file_row['service'] = ''
                 analyzed_file_list.append(mail_file_row)
-
-
-        drive_output = (os.path.join(os.getcwd(), "uploads", session['username'], case_number, "output_drive.json"))
-        with open(drive_output, 'r', encoding='utf-8') as file:
-            drive_results = json.load(file)
 
         # Drive 데이터 처리
         for drive_event in drive_results:
@@ -250,7 +274,7 @@ def redirect_analyze_case_final(data) :
                     'time_end': drive_event['timerange'].split(' ~ ')[1],    # timerange에서 종료 시간 추출
                     'filename': drive_event['filename'],
                     'browser': drive_event['browser'],
-                    'priority' : round((drive_event['priority'] / 14)*100, 2),
+                    'priority' : round((((drive_event['priority'] / max_priority_web)*100+find_priority(drive_event['filename'], priority_json))/2), 2),
                     'data': drive_event['connection']  # connection 데이터를 그대로 사용
                 }
                 try :
@@ -259,10 +283,6 @@ def redirect_analyze_case_final(data) :
                     print(e)
                     drive_file_row['service'] = ''
                 analyzed_file_list.append(drive_file_row)
-
-        blog_output = (os.path.join(os.getcwd(), "uploads", session['username'], case_number, "output_blog.json"))
-        with open(blog_output, 'r', encoding='utf-8') as file:
-            blog_results = json.load(file)
 
         # Blog 데이터 처리
         for blog_event in blog_results:
@@ -273,7 +293,7 @@ def redirect_analyze_case_final(data) :
                     'time_end': blog_event['timerange'].split(' ~ ')[1],    # timerange에서 종료 시간 추출
                     'filename': blog_event['filename'],
                     'browser': blog_event['browser'], 
-                    'priority': round((blog_event['priority']/14)*100, 2),
+                    'priority': round(((blog_event['priority']/max_priority_web)*100+find_priority(blog_event['filename'], priority_json))/2, 2),
                     'data': blog_event['connection']  # connection 데이터를 그대로 사용
                 }
                 try :
@@ -288,6 +308,8 @@ def redirect_analyze_case_final(data) :
         analyzed_file_db = Analyzed_file_list(case_id=case_id, data=analyzed_file_list)
         db.session.add(analyzed_file_db)
         db.session.commit()
+        
+        print('max_priority :', max_priority_web)
         return jsonify({'success': True})
 
     elif case_type == "음란물" :
