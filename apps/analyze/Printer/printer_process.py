@@ -39,7 +39,7 @@ def printer_behavior(db_path) :
         unique_results = []
         for row in result_data:
             # 마지막 값이 지정된 확장자로 끝나는지 확인
-            if row[-1] and any(str(row[-1]).endswith(ext) for ext in ('pptx', 'xlsx', 'docx', 'hwp', 'pdf', 'jpg', 'lnk')):
+            if row[ORIGINAL_FILE_NAME] and any(str(row[ORIGINAL_FILE_NAME]).endswith(ext) for ext in ('pptx', 'xlsx', 'docx', 'hwp', 'pdf', 'jpg', 'lnk')):
                 unique_results.append(row[ORIGINAL_FILE_NAME])
         unique_results = list(set(unique_results))
         file_name_datas.append(unique_results)
