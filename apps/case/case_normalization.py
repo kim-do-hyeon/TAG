@@ -18,6 +18,37 @@ def case_normalization(case_id, progress):
         os.makedirs(directory)
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
+    
+    ''' Load fragment content '''
+    hit_fragment_id_list = pd.read_sql_query('SELECT hit_fragment_id FROM fragment_content', conn)['hit_fragment_id'].to_list()
+    fragment_query = "SELECT fragment_definition_id, name FROM fragment_definition;"
+    fragment_df = pd.read_sql_query(fragment_query, conn)
+    id_to_name = dict(zip(fragment_df['fragment_definition_id'], fragment_df['name']))
+    content_table_df = pd.DataFrame(columns=['hit_id', 'column_name', 'column_value', 'table_name', 'content'])
+    hit_id_list = set()
+    
+    for hit_fragment_id in hit_fragment_id_list :
+        cursor.execute(f'SELECT value, fragment_definition_id, hit_id FROM hit_fragment WHERE hit_fragment_id={hit_fragment_id}')
+        result = cursor.fetchall()[0]
+        cursor.execute(f"SELECT content FROM fragment_content WHERE hit_fragment_id={hit_fragment_id}")
+        content = cursor.fetchall()[0][0]
+        artifact_version_id = pd.read_sql_query(f'SELECT artifact_version_id FROM fragment_definition WHERE fragment_definition_id="{result[1]}"', conn)['artifact_version_id'].to_list()[0]
+        table_name = pd.read_sql_query(f'SELECT artifact_name FROM artifact_version WHERE artifact_version_id="{artifact_version_id}"', conn)['artifact_name'].to_list()[0]
+        
+        hit_id_list.add(result[2])
+        new_data = {
+            'hit_id' : result[2],
+            'column_name' : id_to_name[result[1]],
+            'column_value' : result[0],
+            'table_name' : table_name,
+            'content' : content
+        }
+        content_table_df = pd.concat([content_table_df, pd.DataFrame([new_data])], ignore_index=True)        
+    
+    new_conn = sqlite3.connect(new_db_path)
+    content_table_df.to_sql('file_content_datas', new_conn, if_exists='replace', index=False)
+    new_conn.close()
+    
     progress[case_id] = 10
     query_artifact_name = """
         SELECT artifact_name FROM artifact;
