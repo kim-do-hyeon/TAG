@@ -24,7 +24,7 @@ def case_normalization(case_id, progress):
     fragment_query = "SELECT fragment_definition_id, name FROM fragment_definition;"
     fragment_df = pd.read_sql_query(fragment_query, conn)
     id_to_name = dict(zip(fragment_df['fragment_definition_id'], fragment_df['name']))
-    content_table_df = pd.DataFrame(columns=['hit_id', 'column_name', 'column_value', 'table_name', 'content'])
+    content_table_df = pd.DataFrame(columns=['hit_id', 'column_name', 'column_value', 'table_name', 'filename', 'content'])
     hit_id_list = set()
     
     for hit_fragment_id in hit_fragment_id_list :
@@ -41,6 +41,7 @@ def case_normalization(case_id, progress):
             'column_name' : id_to_name[result[1]],
             'column_value' : result[0],
             'table_name' : table_name,
+            'filename' : '',
             'content' : content
         }
         content_table_df = pd.concat([content_table_df, pd.DataFrame([new_data])], ignore_index=True)        
@@ -175,6 +176,28 @@ def case_normalization(case_id, progress):
             print(f"No artifact_id containing '{artifact_name_normalization}' found in artifact table.")
         
         progress[case_id] = min(70, progress[case_id] + increment)
+
+    print('파일 이름 정보 추가중')
+    filename_column_list = ['File_Path', 'File_Name', 'Filename', 'Application_Name', 'Process_Name', 'URL']
+    new_conn = sqlite3.connect(new_db_path)
+    table_list = list(set(content_table_df['table_name'].to_list()))
+    print(table_list)
+    for table in table_list :
+        column_list = pd.read_sql_query(f'PRAGMA table_info("{table}")', new_conn)['name'].to_list()
+        print('현재 분석 테이블 컬럼 :', column_list)
+        for column in filename_column_list :
+            if column in column_list :
+                print(column, '데이터를 기반으로 파일이름 추가')
+                for index, row in content_table_df.iterrows() :
+                    if row['table_name'] == table :
+                        value = pd.read_sql_query(f'SELECT {column} FROM {table} WHERE hit_id={row["hit_id"]}', new_conn)[str(column)].to_list()
+                        if value :
+                            content_table_df.loc[index, 'filename'] = value[0]
+                break
+                    
+    content_table_df.to_sql('file_content_datas', new_conn, if_exists='replace', index=False)
+    new_conn.close()
+    print('파일 이름 정보 추가됨')
 
     ''' Remove System Files - Jihye Code '''
     remove_system_files(new_db_path, progress)
