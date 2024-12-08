@@ -4,8 +4,10 @@ import json
 import pandas as pd
 import re, os
 from operator import itemgetter
+from apps.manager.progress_bar import *
 
 def mail_behavior(db_path) :
+    progressBar = ProgressBar.get_instance()
     directory_path = os.path.dirname(db_path)
     # 기준 파일과 출력 파일 이름 설정
     criteria_files = {
@@ -40,6 +42,7 @@ def mail_behavior(db_path) :
         with open(criteria_file, "r", encoding="utf-8") as f:
             scoring_criteria = json.load(f)
         print(f"{criteria_file} 기준 파일이 성공적으로 로드되었습니다.")
+        progressBar.append_log(f"{criteria_file} 기준 파일이 성공적으로 로드되었습니다.")
 
         # 각 기준 파일마다 초기화할 변수들
         unique_files = set()  # 중복 제거를 위해 집합 사용
@@ -127,9 +130,11 @@ def mail_behavior(db_path) :
                                         }
                                         search_results[file_name].append(entry)
                                     except Exception as e :
+                                        progressBar.append_log(f"시간 변환 오류 발생: {e}")
                                         print(f"시간 변환 오류 발생: {e}")
                                 else :
                                     print(f"시간 변환 오류 발생 (테이블: {table}, 컬럼: {time_column}): {e}")
+                                    progressBar.append_log(f"시간 변환 오류 발생 (테이블: {table}, 컬럼: {time_column}): {e}")
 
 
         # Step 4: 각 파일의 검색 결과를 시간순으로 정렬 및 그룹화
@@ -150,6 +155,7 @@ def mail_behavior(db_path) :
             if group:
                 grouped_entries.append(group)
             search_results[file_name] = grouped_entries
+        progressBar.append_log("데이터 검색 및 그룹화가 완료되었습니다.")
         print("데이터 검색 및 그룹화가 완료되었습니다.")
 
         # Step 4: 그룹 점수 추가
@@ -211,6 +217,7 @@ def mail_behavior(db_path) :
                 group.append({"Group_Score": group_score})
 
         print("각 그룹에 점수가 부여되었습니다.")
+        progressBar.append_log("각 그룹에 점수가 부여되었습니다.")
 
         # Step 5: Group_Score 기준으로 정렬 및 출력
         all_groups = []
@@ -273,12 +280,15 @@ def mail_behavior(db_path) :
                                         all_tagged_data.append(tagged_entry)
                                     except Exception as e :
                                         print(f"시간 변환 오류 발생 (테이블: {table}, 컬럼: {time_column}): {e}")
+                                        progressBar.append_log(f"시간 변환 오류 발생 (테이블: {table}, 컬럼: {time_column}): {e}")
                                 else :
                                     print(f"시간 변환 오류 발생 (테이블: {table}, 컬럼: {time_column}): {e}")
+                                    progressBar.append_log(f"시간 변환 오류 발생 (테이블: {table}, 컬럼: {time_column}): {e}")
                                         
 
             except Exception as e:
                 print(f"테이블 조회 오류 발생: {e}")
+                progressBar.append_log(f"테이블 조회 오류 발생: {e}")
 
         url_cache_data = []
         cache_tables = ["Chrome_Cache_Records", "Edge_Chromium_Cache_Records", "Firefox_Cache_Records"]
@@ -293,6 +303,7 @@ def mail_behavior(db_path) :
                 cursor.execute(query)
             except Exception as e :
                 print(f'[*] Failed load table {e} in upload_paser.py')
+                progressBar.append_log(f'[*] Failed load table {e} in upload_paser.py')
                 continue
             column_names = [description[0] for description in cursor.description]
             rows = cursor.fetchall()
@@ -326,8 +337,10 @@ def mail_behavior(db_path) :
                                     url_cache_data.append(entry)
                                 except Exception as e :
                                     print(f"시간 변환 오류 발생 (테이블: {table}, 컬럼: {time_column}): {e}")
+                                    progressBar.append_log(f"시간 변환 오류 발생 (테이블: {table}, 컬럼: {time_column}): {e}")
                             else :
                                 print(f"시간 변환 오류 발생 (테이블: {table}, 컬럼: {time_column}): {e}")
+                                progressBar.append_log(f"시간 변환 오류 발생 (테이블: {table}, 컬럼: {time_column}): {e}")
 
         # URL 캐시 데이터를 타임스탬프 기준으로 정렬
         url_cache_data_sorted = sorted(url_cache_data, key=lambda x: x["Timestamp"])
@@ -466,3 +479,5 @@ def mail_behavior(db_path) :
 
         print(f"최종 그룹 데이터가 {output_file} 파일에 저장되었습니다.")
         print(f"추가 데이터가 {custom_output_file} 파일에 저장되었습니다.")
+        progressBar.append_log(f"최종 그룹 데이터가 {output_file} 파일에 저장되었습니다.")
+        progressBar.append_log(f"추가 데이터가 {custom_output_file} 파일에 저장되었습니다.")

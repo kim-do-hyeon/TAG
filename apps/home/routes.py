@@ -103,6 +103,7 @@ def case_analyze_filtering_history_view(id) :
 # Version 1.3 - Analyze Final
 @blueprint.route('/case/analyze/final', methods = ['POST'])
 def case_analyze_final() :
+    progressBar.show = True
     data = request.get_json()
     return redirect_analyze_case_final(data)
 

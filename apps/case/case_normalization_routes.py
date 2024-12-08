@@ -5,8 +5,11 @@ from apps.authentication.models import Upload_Case, Normalization
 from apps import db
 from apps.case.case_analyze import case_analyze_view
 from apps.case.case_normalization import case_normalization
+from apps.manager.progress_bar import *
 
 def redirect_analyze_normalization(data, case_id, progress) :
+    progressBar = ProgressBar.get_instance()
+    progressBar.start_progress(100)
     if not case_id:
         return jsonify({'success': False, 'message': 'Invalid input.'}), 400
     progress[case_id] = 0
@@ -19,6 +22,7 @@ def redirect_analyze_normalization(data, case_id, progress) :
                 Upload_Case.query.filter_by(id=case_id).update(dict(normalization=True))
                 db.session.commit()
             # progress[case_id] = 100
+            progressBar.progress_end()
 
     from threading import Thread
     thread = Thread(target=run_normalization, args=(app, case_id))
