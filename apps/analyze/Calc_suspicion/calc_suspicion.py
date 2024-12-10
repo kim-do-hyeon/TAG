@@ -2,8 +2,10 @@ import os
 import sqlite3
 import json
 from datetime import datetime
+from apps.manager.progress_bar import *
 
 def calc_suspicion(db_path, case_folder) :
+    progressBar = ProgressBar.get_instance()
     # 데이터베이스 연결
     conn = sqlite3.connect(db_path)
     db_cursor = conn.cursor()
@@ -24,6 +26,7 @@ def calc_suspicion(db_path, case_folder) :
         "UsnJrnl":["File_Name", "MFT_Record_Number"],
         "LogFile_Analysis":["Original_File_Name", "Current_File_Name", "MFT_Record_Number"]
     }
+    I = 0
 
     # 현재 케이스 파일의 테이블 목록 추출
     db_cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
@@ -67,7 +70,9 @@ def calc_suspicion(db_path, case_folder) :
             item["connection"] = filtered_connections
         return data
 
+    len_docs_files = len(docs_target_table)
     for table, cols in docs_target_table.items():
+        progressBar.append_progress(progress=(1/(progressBar.num_of_task * 6 * len_docs_files))*100)
         cols_query = '", "'.join(cols)
 
         like_conditions = ""
@@ -89,9 +94,13 @@ def calc_suspicion(db_path, case_folder) :
 
         for row in db_cursor:
             docs_files_tmp.add(row)
+    I += 1
+    progressBar.set_progress(progress=((I/6+progressBar.now_task)/progressBar.num_of_task) * 100)
 
     docs_files = set([]) # 최종적으로 문서 이름, MFT_Record_Number 저장하는 set
+    len_docs_files = len(docs_files_tmp)
     for doc in docs_files_tmp:
+        progressBar.append_progress(progress=(1/(progressBar.num_of_task * 6 * len_docs_files))*100)
         if len(doc) == 4: # Logfile_Analysis 에서 끌고 온 것이라면
             MFT_Recoed_Num = doc[2]
             if doc[3] == 'Rename':
@@ -105,6 +114,8 @@ def calc_suspicion(db_path, case_folder) :
                 docs_files.add((item, MFT_Recoed_Num))
         else:
             docs_files.add(doc)
+    I += 1
+    progressBar.set_progress(progress=((I/6+progressBar.now_task)/progressBar.num_of_task) * 100)
 
     # 1) Rename
     #   1. UsnJrnl에서 Rename reason이 있는 경우, Logfile_Analysis에 rename이 있는 경우 가져오기
@@ -144,10 +155,13 @@ def calc_suspicion(db_path, case_folder) :
             )
         if len(temp["connection"]) > 1: # rename의 흔적이 존재할 때만 저장
             rename_output_data.append(temp)
+    I += 1
+    progressBar.set_progress(progress=((I/6+progressBar.now_task)/progressBar.num_of_task) * 100)
 
     # 1초 단위로 그룹화하여 저장
     rename_output_data_grouped = filter_first_per_second(rename_output_data)
     print("Rename scoring 완료")
+    progressBar.append_log('Rename scoring 완료')
 
     # rename_output_path = r"./rename_score.json"
     # with open(rename_output_path, "w", encoding="utf-8") as f:
@@ -170,7 +184,9 @@ def calc_suspicion(db_path, case_folder) :
     jrnl_original_docs_MFT_name = {} 
     jrnl_original_docs_MFT_time = {}
 
+    len_docs_files = len(docs_files)
     for index, doc_file in enumerate(docs_files):
+        progressBar.append_progress(progress=(1/(progressBar.num_of_task * 6 * len_docs_files))*100)
         doc = doc_file[0] # 문서 파일 이름
         mft_record = doc_file[1][0] # MFT_Record_Number
 
@@ -187,9 +203,13 @@ def calc_suspicion(db_path, case_folder) :
                 jrnl_original_docs_MFT_name[mft] = file_name
                 jrnl_original_docs_MFT_time[mft] = set()
             jrnl_original_docs_MFT_time[mft].add(timestamp)
+    I += 1
+    progressBar.set_progress(progress=((I/6+progressBar.now_task)/progressBar.num_of_task) * 100)
 
     # 2. 링크 파일 조회
+    len_docs_files = len(docs_files)
     for index, doc_file in enumerate(docs_files):
+        progressBar.append_progress(progress=(1/(progressBar.num_of_task * 6 * len_docs_files))*100)
         doc = doc_file[0]  # 문서 파일 이름
         doc_title = doc.split('.')[0]  # "문서이름.lnk" 형태 처리
 
@@ -231,12 +251,15 @@ def calc_suspicion(db_path, case_folder) :
                         if lnk_mft not in docs_files[index][1]:
                             docs_files[index][0] = [docs_files[index][0], lnk_file_name]
                             docs_files[index][1].append(lnk_mft)
-                            
+    I += 1
+    progressBar.set_progress(progress=((I/6+progressBar.now_task)/progressBar.num_of_task) * 100)
 
     # 3. 문서 링크 파일 별로 모든 UsnJrnl, Logfile 끌고오기
     # 3-1. 문서 파일 별로 점프리스트도 끌고오기
     excessive_reading_data = []
+    len_docs_files = len(docs_files)
     for doc in docs_files:
+        progressBar.append_progress(progress=(1/(progressBar.num_of_task * 6 * len_docs_files))*100)
         doc_name = doc[0]
         doc_MFT = doc[1]
         temp = {
@@ -330,10 +353,13 @@ def calc_suspicion(db_path, case_folder) :
 
             if len(temp["connection"]) > 1: # 로그가 존재할 때만 저장
                 excessive_reading_data.append(temp)
+    I += 1
+    progressBar.set_progress(progress=((I/6+progressBar.now_task)/progressBar.num_of_task) * 100)
 
     # UsnJrnl, Logfile 데이터 그룹화
     excessive_reading_data_grouped = filter_first_per_second(excessive_reading_data)
     print("과다 열람 scoring 완료")
+    progressBar.append_log('과다 열람 scoring 완료')
     
     
     concat_data = final_data_rename_excessive_reading(excessive_reading_data_grouped, rename_output_data_grouped)
@@ -343,6 +369,7 @@ def calc_suspicion(db_path, case_folder) :
     with open(final_score_output_path, "w", encoding="utf-8") as f:
         json.dump(final_data, f, indent=4, ensure_ascii=False, default=str)
     print("final_score.json이 저장되었습니다.")
+    progressBar.append_log("final_score.json이 저장되었습니다.")
     return final_data
 
 # excessive_reading_output_path = r"./excessive_reading_score.json"

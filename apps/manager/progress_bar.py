@@ -47,13 +47,13 @@ class ProgressBar:
         return self.now_log
     
     def append_log(self, log_msg : str) :
-        self.now_log += f'{log_msg}\n'
+        self.now_log = f'{log_msg}\n' + self.now_log
         
     def append_progress(self, log_msg = '', progress = 0) :
         if progress != 0 :
             self.progress += progress
         if len(log_msg) > 0 :
-            self.now_log += log_msg + '\n'
+            self.now_log = f'{log_msg}\n' + self.now_log
     
     def get_progress(self) :
         return round(self.progress,2)

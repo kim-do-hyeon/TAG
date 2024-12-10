@@ -228,7 +228,7 @@
                     progressBar.style.width = `${progressValue}%`;
                     progressBar.setAttribute('aria-valuenow', progressValue);
                     progressText.textContent = `${progressValue}% Complete`;
-                    messageText.innerHTML = `${message.replace(/\n/g, '<br>')}` + messageText.innerHTML;
+                    messageText.innerHTML = `${message.replace(/\n+/g, '<br>')}` + messageText.innerHTML;
 
 
                     // Continue polling if not yet complete
