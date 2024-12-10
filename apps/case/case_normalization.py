@@ -2,10 +2,12 @@ import os
 from apps import db  # Ensure you're importing db correctly from your app
 from apps.authentication.models import Upload_Case, Normalization
 from apps.case.case_normalization_std import *
+from apps.manager.progress_bar import *
 import sqlite3
 import pandas as pd
 
 def case_normalization(case_id, progress):
+    progressBar = ProgressBar.get_instance()
     db_instance = Upload_Case.query.filter_by(id=case_id).first()  # Renamed to avoid confusion with db session
     db_path = db_instance.file
     user = db_instance.user
@@ -18,6 +20,41 @@ def case_normalization(case_id, progress):
         os.makedirs(directory)
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
+    
+    ''' Load fragment content '''
+    progressBar.append_log('Loading fragment content')
+    hit_fragment_id_list = pd.read_sql_query('SELECT hit_fragment_id FROM fragment_content', conn)['hit_fragment_id'].to_list()
+    fragment_query = "SELECT fragment_definition_id, name FROM fragment_definition;"
+    fragment_df = pd.read_sql_query(fragment_query, conn)
+    id_to_name = dict(zip(fragment_df['fragment_definition_id'], fragment_df['name']))
+    content_table_df = pd.DataFrame(columns=['hit_id', 'column_name', 'column_value', 'table_name', 'filename', 'content'])
+    hit_id_list = set()
+    
+    for idx, hit_fragment_id in enumerate(hit_fragment_id_list) :
+        cursor.execute(f'SELECT value, fragment_definition_id, hit_id FROM hit_fragment WHERE hit_fragment_id={hit_fragment_id}')
+        result = cursor.fetchall()[0]
+        cursor.execute(f"SELECT content FROM fragment_content WHERE hit_fragment_id={hit_fragment_id}")
+        content = cursor.fetchall()[0][0]
+        artifact_version_id = pd.read_sql_query(f'SELECT artifact_version_id FROM fragment_definition WHERE fragment_definition_id="{result[1]}"', conn)['artifact_version_id'].to_list()[0]
+        table_name = pd.read_sql_query(f'SELECT artifact_name FROM artifact_version WHERE artifact_version_id="{artifact_version_id}"', conn)['artifact_name'].to_list()[0]
+        
+        hit_id_list.add(result[2])
+        new_data = {
+            'hit_id' : result[2],
+            'column_name' : id_to_name[result[1]],
+            'column_value' : result[0],
+            'table_name' : table_name,
+            'filename' : '',
+            'content' : content
+        }
+        content_table_df = pd.concat([content_table_df, pd.DataFrame([new_data])], ignore_index=True)
+        progressBar.set_progress(progress=(idx/len(hit_fragment_id_list))*10)        
+    
+    new_conn = sqlite3.connect(new_db_path)
+    content_table_df.to_sql('file_content_datas', new_conn, if_exists='replace', index=False)
+    new_conn.close()
+    
+    progressBar.set_progress(progress=10)
     progress[case_id] = 10
     query_artifact_name = """
         SELECT artifact_name FROM artifact;
@@ -130,6 +167,7 @@ def case_normalization(case_id, progress):
                         new_conn.commit()
                         # print(f"Data successfully inserted into {safe_table_name} table.")
                         progress['message'] += f"Data successfully inserted into {safe_table_name} table.\n"
+                        progressBar.append_log(f"Data successfully inserted into {safe_table_name} table.\n")
                     except sqlite3.OperationalError as e:
                         print(f"Error inserting data into {safe_table_name}: {e}")
 
@@ -144,17 +182,43 @@ def case_normalization(case_id, progress):
             print(f"No artifact_id containing '{artifact_name_normalization}' found in artifact table.")
         
         progress[case_id] = min(70, progress[case_id] + increment)
+        progressBar.set_progress(progress=min(70, progress[case_id] + increment))
+
+    print('파일 이름 정보 추가중')
+    filename_column_list = ['File_Path', 'File_Name', 'Filename', 'Application_Name', 'Process_Name', 'URL']
+    new_conn = sqlite3.connect(new_db_path)
+    table_list = list(set(content_table_df['table_name'].to_list()))
+    print(table_list)
+    for table in table_list :
+        column_list = pd.read_sql_query(f'PRAGMA table_info("{table}")', new_conn)['name'].to_list()
+        print('현재 분석 테이블 컬럼 :', column_list)
+        for column in filename_column_list :
+            if column in column_list :
+                print(column, '데이터를 기반으로 파일이름 추가')
+                for index, row in content_table_df.iterrows() :
+                    if row['table_name'] == table :
+                        value = pd.read_sql_query(f'SELECT {column} FROM {table} WHERE hit_id={row["hit_id"]}', new_conn)[str(column)].to_list()
+                        if value :
+                            content_table_df.loc[index, 'filename'] = value[0]
+                break
+                    
+    content_table_df.to_sql('file_content_datas', new_conn, if_exists='replace', index=False)
+    new_conn.close()
+    print('파일 이름 정보 추가됨')
 
     ''' Remove System Files - Jihye Code '''
     remove_system_files(new_db_path, progress)
     progress[case_id] = 80
+    progressBar.set_progress(progress=80)
     ''' Remove Keywords - Jihye Code '''
     remove_keywords(new_db_path, progress)
     progress[case_id] = 90
+    progressBar.set_progress(progress=90)
     ''' Remove Win 10, 11 Basic Artifacts - Addy Code '''
     remove_win10_11_basic_artifacts(new_db_path, progress) 
 
     progress[case_id] = 100
+    progressBar.set_progress(progress=100)
 
     # Create a new Normalization entry
     new_normalization_data = Normalization(

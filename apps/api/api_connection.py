@@ -268,9 +268,13 @@ def file_connect_node(data) :
                     'label' : f'Move Detected!',
                 }
             else :
+                if 'shellbag' in row['operation'] or 'http' in row['filename'] :
+                    label = row['filename']
+                else :
+                    label = os.path.basename(row['filename'])
                 node = {
                     'id' : idx,
-                    'label' : '\n'.join([row['operation'], shorten_string(os.path.basename(row['filename']) if 'http' not in row['filename'] else row['filename'])]),
+                    'label' : '\n'.join([row['operation'],shorten_string(label)]),
                 }
             
             for keyword, val in img_dict.items() :
@@ -302,8 +306,8 @@ def file_connect_node(data) :
             node['y'] = node_y + 15 if idx % 2 == 0 else node_y - 15
             nodes.append(node)
             if idx != 0 :
-                edges.append({'from' : idx-1, 'to' : idx, 'label' : calculate_time_difference(nodes_data[idx-1]['timestamp'], nodes_data[idx]['timestamp'])})
-                #edges.append({'from' : idx-1, 'to' : idx})
+                #edges.append({'from' : idx-1, 'to' : idx, 'label' : calculate_time_difference(nodes_data[idx-1]['timestamp'], nodes_data[idx]['timestamp'])})
+                edges.append({'from' : idx-1, 'to' : idx})
         
         #print(nodes_data)
         result = {

@@ -3,8 +3,10 @@ from datetime import datetime
 import json
 
 from apps.case.case_normalization_std_util import *
+from apps.manager.progress_bar import *
 
 def remove_system_files(db_path, progress) :
+    progressBar = ProgressBar.get_instance()
     removes_json_path = os.path.join(os.getcwd(), "apps", "case", "STD_Exclude", "system_files.json")
     with open(removes_json_path, "r", encoding='utf8') as f:
         f = f.read()
@@ -53,14 +55,17 @@ def remove_system_files(db_path, progress) :
         before_total += before_remove
         after_taotal += after_remove
         progress['message'] += f"{table} 테이블 삭제 전: {before_remove} / 삭제 후: {after_remove} 개의 행으로 감소하였습니다.\n"
+        progressBar.append_log(f"{table} 테이블 삭제 전: {before_remove} / 삭제 후: {after_remove} 개의 행으로 감소하였습니다.\n")
         # print(f"{table} 테이블 삭제 전: {before_remove} / 삭제 후: {after_remove} 개의 행으로 감소하였습니다.")
 
     # print(f"전체 행 {before_total} 중에서 {before_total - after_taotal} 개의 행이 삭제되었습니다.\n현재 {after_taotal} 개의 행이 존재합니다.")
     progress['message'] += f"전체 행 {before_total} 중에서 {before_total - after_taotal} 개의 행이 삭제되었습니다.\n현재 {after_taotal} 개의 행이 존재합니다.\n"
+    progressBar.append_log(f"전체 행 {before_total} 중에서 {before_total - after_taotal} 개의 행이 삭제되었습니다.\n현재 {after_taotal} 개의 행이 존재합니다.\n")
     conn.commit()
     conn.close()
 
 def remove_keywords(new_db_path, progress) :
+    progressBar = ProgressBar.get_instance()
     # keywords.json 로드
     # 테이블명, 컬럼, 키워드 정보가 저장되어 있음
     removes_json_path = os.path.join(os.getcwd(), "apps", "case", "STD_Exclude", "keywords.json")
@@ -135,11 +140,14 @@ def remove_keywords(new_db_path, progress) :
         # 변경 사항 출력
         # print(f"{table} 테이블 삭제 전: {before_remove} / 삭제 후: {after_remove} 개의 행으로 감소하였습니다.")
         progress['message'] += f"{table} 테이블 삭제 전: {before_remove} / 삭제 후: {after_remove} 개의 행으로 감소하였습니다.\n"
-
+        progressBar.append_log(f"{table} 테이블 삭제 전: {before_remove} / 삭제 후: {after_remove} 개의 행으로 감소하였습니다.\n")
+        
     # print(f"전체 행 {total} 중에서 {before_total - after_taotal} 개의 행이 삭제되었습니다.\n현재 {total - before_total + after_taotal} 개의 행이 존재합니다.")
     progress['message'] += f"전체 행 {before_total} 중에서 {before_total - after_taotal} 개의 행이 삭제되었습니다.\n현재 {after_taotal} 개의 행이 존재합니다.\n"
-
+    progressBar.append_log(f"전체 행 {before_total} 중에서 {before_total - after_taotal} 개의 행이 삭제되었습니다.\n현재 {after_taotal} 개의 행이 존재합니다.\n")
+    
 def process_json_file(json_file_path, cursor, progress):
+    progressBar = ProgressBar.get_instance()
     max_sql_variables=999
     with open(json_file_path, 'r', encoding='utf-8') as file:
         data = json.load(file)
@@ -164,6 +172,7 @@ def process_json_file(json_file_path, cursor, progress):
             deleted_rows_total += deleted_rows
             # print(f'Table "{table}": {deleted_rows} rows deleted, {final_row_count} rows remaining.')
             progress['message'] += f'Table "{table}": {deleted_rows} rows deleted, {final_row_count} rows remaining.\n'
+            progressBar.append_log(f'Table "{table}": {deleted_rows} rows deleted, {final_row_count} rows remaining.\n')
         except sqlite3.OperationalError as e:
             print(f'Skipping table "{table}" due to error: {e}')
         except sqlite3.DatabaseError as e:
@@ -171,6 +180,7 @@ def process_json_file(json_file_path, cursor, progress):
     return deleted_rows_total
 
 def remove_win10_11_basic_artifacts(db_path, progress) :
+    progressBar = ProgressBar.get_instance()
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     try :

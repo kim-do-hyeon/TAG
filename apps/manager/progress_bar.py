@@ -20,9 +20,9 @@ class ProgressBar:
             self.now_log = ''
             self.show = False
 
-    def reset_progress(self) : 
+    def reset_progress(self, num_of_task = 0) : 
         self.progress = 0
-        self.num_of_task = 0
+        self.num_of_task = num_of_task
         self.now_task = 0
         self.now_log = ''
 
@@ -46,6 +46,15 @@ class ProgressBar:
     def get_now_log(self) :
         return self.now_log
     
+    def append_log(self, log_msg : str) :
+        self.now_log = f'{log_msg}\n' + self.now_log
+        
+    def append_progress(self, log_msg = '', progress = 0) :
+        if progress != 0 :
+            self.progress += progress
+        if len(log_msg) > 0 :
+            self.now_log = f'{log_msg}\n' + self.now_log
+    
     def get_progress(self) :
         return round(self.progress,2)
     
@@ -55,6 +64,12 @@ class ProgressBar:
     
     def isShow(self) :
         return self.show
+    
+    def status_bundle(self, flush_log=False) :
+        return_dict = {'progress' : self.get_progress(), 'message' : self.get_now_log(), 'show' : self.show}
+        if flush_log :
+            self.now_log = ''
+        return return_dict
         
 
     @classmethod
