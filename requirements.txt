@@ -23,3 +23,7 @@ scikit-learn==1.2.0
 pyvis==0.3.2
 py2neo==2021.2.4
 neo4j==5.24.0
+
+beautifulsoup4==4.12.3
+opencv-python==4.10.0.84
+nudenet==3.4.2
