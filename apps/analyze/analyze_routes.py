@@ -1,6 +1,7 @@
 import sqlite3, os, json
 import pandas as pd
 from flask import request, render_template, session, redirect, url_for, flash, Request, jsonify, render_template_string
+from apps.analyze.Calc_suspicion.calc_suspicion import *
 from apps.authentication.models import Analyzed_file_list, Upload_Case, Normalization, GraphData, PromptQuries, UsbData, FilteringData, GroupParingResults, PrinterData_final, UsbData_final, Mail_final, Porn_Data
 from apps import db
 from apps.case.case_analyze import case_analyze_view
@@ -13,10 +14,12 @@ from apps.analyze.USB.make_usb_analysis_db import usb_behavior
 from apps.analyze.Printer.printer_process import printer_behavior
 from apps.analyze.Upload.upload_parser import mail_behavior
 from apps.analyze.Porn.porn_process import porn_behavior
+from apps.manager.progress_bar import *
 import threading
 import base64
 from flask import current_app
 from datetime import datetime
+import time
 
 def create_dict_from_file_paths(file_path):
     # 파일명 추출
@@ -113,6 +116,7 @@ def convert_datetime_to_string(obj):
     return obj
 
 def redirect_analyze_case_final(data) :
+    progressBar = ProgressBar.get_instance()
     user = session.get('username')
     case_id = data['case_id']
     case_number = Upload_Case.query.filter_by(id = case_id).first().case_number
@@ -120,21 +124,45 @@ def redirect_analyze_case_final(data) :
     db_path = os.path.join(case_folder, "normalization.db")
     case_type = Upload_Case.query.filter_by(id = case_id).first().case_type    
     if Analyzed_file_list.query.filter_by(case_id=case_id).first() :
+        progressBar.progress_end()
         return jsonify({'success': True})
     if case_type != "음란물" :
+        progressBar.start_progress(12)
         ''' Tagging Process '''
+        progressBar.append_log('Tagging Processing 진행중...')
         TAG_Process = all_tag_process(data)
-
+        progressBar.append_log('Tagging Processing 완료')
+        progressBar.done_1_task()
+        
         ''' Upload Behavior Process '''
+        progressBar.append_log('Upload 행위 Processing 진행중...')
         if TAG_Process:
             Upload_results = mail_behavior(db_path)
-
-        ''' USB Behavior Process'''
+        progressBar.done_1_task()
+        progressBar.append_log('Upload 행위 Processing 완료')
+        
+        ''' File based scoring Process '''
+        progressBar.append_log('파일 트랜잭션 로그 기반 스코어링 진행중')
+        if os.path.exists(os.path.join(case_folder , 'final_score.json')) :
+            with open(os.path.join(case_folder, 'final_score.json'), 'r', encoding='utf-8') as f:
+                priority_json = json.load(f)
+        else :
+            priority_json = calc_suspicion(db_path, case_folder)
+        progressBar.append_log('파일 트랜잭션 로그 기반 스코어링 완료')
+        progressBar.done_1_task()
+        
+        ''' time_normalization.db '''
+        progressBar.append_log('정규화 DB 시간 데이터 통합 진행중...')
         time_db_path = os.path.join(case_folder, "time_normalization.db")
         if os.path.isfile(time_db_path) == False :
             if time_parsing(db_path, time_db_path) :
                 print("Success Time Parsing")
-
+        progressBar.append_log('정규화 DB 시간 데이터 통합 완료')
+        progressBar.done_1_task()
+        
+        
+        ''' USB Behavior Process'''
+        progressBar.append_log('USB 관련 행위 Processing 진행중...')
         if not UsbData_final.query.filter_by(case_id=case_id).first() :
             usb_results = usb_behavior(db_path, time_db_path)
             for result in usb_results:
@@ -147,9 +175,21 @@ def redirect_analyze_case_final(data) :
         # USB Debug
         # for i in usb_results :
         #     print(i['Connection'], i['Start'], i['End'], i['Accessed_File_List'])
+        progressBar.append_log('USB 관련 행위 Processing 완료')
+        progressBar.done_1_task()
+
+        def find_priority(filename, priority_json) :
+            for item in priority_json :
+                if isinstance(item['filename'], list) :
+                    if (filename in item['filename']) :
+                        return item['percentage']
+                elif item['filename'] == filename :
+                    return item['percentage']
+            return 0
 
 
         ''' Printer Behavior Process'''
+        progressBar.append_log('Printer 관련 행위 Processing 진행중...')
         if not PrinterData_final.query.filter_by(case_id=case_id).first() :
             printer_results = printer_behavior(db_path)
             # Convert any DataFrame objects to dictionaries/lists before storing
@@ -160,15 +200,19 @@ def redirect_analyze_case_final(data) :
             printer_data_db = PrinterData_final(case_id = case_id, printer_data = printer_results)
             db.session.add(printer_data_db)
             db.session.commit()
+        progressBar.append_log('Printer 관련 행위 Processing 완료')
+        progressBar.done_1_task()
 
 
+        progressBar.append_log('분석된 데이터 통합 진행중...')
         ''' USB Filelist process '''
+        progressBar.append_log('USB 통합 진행중...')
         analyzed_file_list = []
         usb_json = UsbData_final.query.filter_by(case_id = str(case_id)).first().usb_data
         for group_usb_time in usb_json :
             usb_df = pd.DataFrame(group_usb_time['filtered_df'])
             for filename in group_usb_time['Accessed_File_List'] :
-                timelist_df = usb_df[usb_df['main_data'].str.contains(filename) & usb_df['type'].str.contains('shellbag')]
+                timelist_df = usb_df[usb_df['main_data'].str.contains(filename) | usb_df['type'].str.contains('shellbag')]
                 for index, row in timelist_df.iterrows() :
                     if (', ' in row['hit_id']) :
                         timelist_df.loc[index, 'hit_id'] = row['hit_id'].split(', ')
@@ -178,11 +222,14 @@ def redirect_analyze_case_final(data) :
                     'time_end' : group_usb_time['End'],
                     'usb_name' : group_usb_time['Connection'],
                     'filename' : filename,
-                    'priority' : 0,
+                    'priority' : round(find_priority(filename, priority_json), 2),
                     'data' : timelist_df.to_dict(orient='records')
                 }
                 analyzed_file_list.append(usb_file_row)
-
+        progressBar.done_1_task()
+        
+        ''' Printer Filelist process '''
+        progressBar.append_log('Printer 통합 진행중...')
         printer_json = PrinterData_final.query.filter_by(case_id=str(case_id)).first().printer_data
         for printer_time in printer_json:
             if printer_time['df'] and isinstance(printer_time['df'], list):
@@ -206,18 +253,32 @@ def redirect_analyze_case_final(data) :
                                 'time_start': printer_time.get('Start'),  # 시작 시간 추가
                                 'time_end': printer_time.get('End'),      # 종료 시간 추가
                                 'filename': filename,
-                                'priority' : 0,
+                                'priority' : round(find_priority(filename, priority_json), 2),
                                 'data': timelist_df.to_dict(orient='records')
                             }
                             analyzed_file_list.append(printer_file_row)
-
+        progressBar.done_1_task()
+                            
         ''' Upload Behavior Process Complete '''
         case_number = Upload_Case.query.filter_by(id = case_id).first().case_number
         mail_output = (os.path.join(os.getcwd(), "uploads", session['username'], case_number, "output_mail.json"))
         with open(mail_output, 'r', encoding='utf-8') as file:
             mail_results = json.load(file)
+            
+        drive_output = (os.path.join(os.getcwd(), "uploads", session['username'], case_number, "output_drive.json"))
+        with open(drive_output, 'r', encoding='utf-8') as file:
+            drive_results = json.load(file)
+
+        blog_output = (os.path.join(os.getcwd(), "uploads", session['username'], case_number, "output_blog.json"))
+        with open(blog_output, 'r', encoding='utf-8') as file:
+            blog_results = json.load(file)
+            
+        all_results = mail_results + drive_results + blog_results
+        all_results = sorted(all_results, key=lambda x: x['priority'], reverse=True)
+        max_priority_web = all_results[0]['priority']
 
         # Mail 데이터 처리
+        progressBar.append_log('Mail 통합 진행중...')
         for mail_event in mail_results:
             if mail_event['priority'] != 0 :
                 mail_file_row = {
@@ -226,7 +287,7 @@ def redirect_analyze_case_final(data) :
                     'time_end': mail_event['timerange'].split(' ~ ')[1],    # timerange에서 종료 시간 추출
                     'filename': mail_event['filename'],
                     'browser': mail_event['browser'],
-                    'priority': round((mail_event['priority']/14)*100, 2), # 메일의 경우 priority 정보도 포함
+                    'priority': round(((mail_event['priority']/max_priority_web)*100 + find_priority(mail_event['filename'], priority_json))/2, 2), # 메일의 경우 priority 정보도 포함
                     'data': mail_event['connection']     # connection 데이터를 그대로 사용
                 }
                 try :
@@ -235,13 +296,10 @@ def redirect_analyze_case_final(data) :
                     print(e)
                     mail_file_row['service'] = ''
                 analyzed_file_list.append(mail_file_row)
-
-
-        drive_output = (os.path.join(os.getcwd(), "uploads", session['username'], case_number, "output_drive.json"))
-        with open(drive_output, 'r', encoding='utf-8') as file:
-            drive_results = json.load(file)
+        progressBar.done_1_task()
 
         # Drive 데이터 처리
+        progressBar.append_log('Drive 통합 진행중...')
         for drive_event in drive_results:
             if drive_event['priority'] != 0 :
                 drive_file_row = {
@@ -250,7 +308,7 @@ def redirect_analyze_case_final(data) :
                     'time_end': drive_event['timerange'].split(' ~ ')[1],    # timerange에서 종료 시간 추출
                     'filename': drive_event['filename'],
                     'browser': drive_event['browser'],
-                    'priority' : round((drive_event['priority'] / 14)*100, 2),
+                    'priority' : round((((drive_event['priority'] / max_priority_web)*100+find_priority(drive_event['filename'], priority_json))/2), 2),
                     'data': drive_event['connection']  # connection 데이터를 그대로 사용
                 }
                 try :
@@ -259,12 +317,10 @@ def redirect_analyze_case_final(data) :
                     print(e)
                     drive_file_row['service'] = ''
                 analyzed_file_list.append(drive_file_row)
-
-        blog_output = (os.path.join(os.getcwd(), "uploads", session['username'], case_number, "output_blog.json"))
-        with open(blog_output, 'r', encoding='utf-8') as file:
-            blog_results = json.load(file)
+        progressBar.done_1_task()
 
         # Blog 데이터 처리
+        progressBar.append_log('Blog 통합 진행중...')
         for blog_event in blog_results:
             if drive_event['priority'] != 0 :
                 blog_file_row = {
@@ -273,7 +329,7 @@ def redirect_analyze_case_final(data) :
                     'time_end': blog_event['timerange'].split(' ~ ')[1],    # timerange에서 종료 시간 추출
                     'filename': blog_event['filename'],
                     'browser': blog_event['browser'], 
-                    'priority': round((blog_event['priority']/14)*100, 2),
+                    'priority': round(((blog_event['priority']/max_priority_web)*100+find_priority(blog_event['filename'], priority_json))/2, 2),
                     'data': blog_event['connection']  # connection 데이터를 그대로 사용
                 }
                 try :
@@ -282,16 +338,53 @@ def redirect_analyze_case_final(data) :
                     print(e)
                     blog_file_row['service'] = ''
                 analyzed_file_list.append(blog_file_row)
-
-
-        analyzed_file_list = sorted(analyzed_file_list, key=lambda x: x['priority'], reverse=True)
+        progressBar.done_1_task()
+        
+        progressBar.append_log('전체 통합 완료')
+        
+        ''' final suspicion scoring '''
+        progressBar.append_log('최종 스코어링 진행중...')
+        type_score = {
+            "USB":4.50,
+            "Printer":3.88,
+            "Mail":5.00,
+            "Drive":5.00,
+            "Blog":5.00
+        }
+        doc_total_score = []
+        for item in analyzed_file_list:
+            # 1. row 별로 type → score 변수 생성 & 저장    
+            item["score"] = type_score[item["type"]]
+            # 2. row 별 문서 파일의 final_score.json 순회하여 score 에 더하기
+            for doc_score in priority_json:
+                if item["filename"] == doc_score["filename"][0]:
+                    item["score"] += doc_score["score_total"]
+                    break
+        # 4. 각 row 별 score 최대점 기준으로 하위 백분율 기존의 priority에 저장
+        for item in analyzed_file_list:
+            doc_total_score.append(item["score"])
+        max_score = max(doc_total_score)
+        percentages = [round((score / max_score) * 100, 2) for score in doc_total_score]
+        for index, item in enumerate(analyzed_file_list):
+            item["priority"] = percentages[index]
+        progressBar.done_1_task()
+        progressBar.append_log('최종 스코어링 완료')
+        
+        
+        analyzed_file_list = sorted(analyzed_file_list, key=lambda x: x['score'], reverse=True)
         analyzed_file_db = Analyzed_file_list(case_id=case_id, data=analyzed_file_list)
         db.session.add(analyzed_file_db)
         db.session.commit()
+        
+        progressBar.set_progress(progress=100)
+        
+        time.sleep(1)
+        progressBar.progress_end()
         return jsonify({'success': True})
 
     elif case_type == "음란물" :
         porn_behavior(case_id, db_path)
+        progressBar.progress_end()
         return jsonify({'success' : True})
 
 def redirect_analyze_case_final_result(id):

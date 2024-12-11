@@ -8,9 +8,11 @@ from sqlalchemy.exc import OperationalError
 import sys
 import urllib.parse
 from sqlalchemy import text
+from apps.manager.progress_bar import *
 
 class LogTagger:
     def __init__(self, db_url):
+        self.progressBar = ProgressBar.get_instance()
         self.engine = create_engine(db_url)
         self.patterns = {
             "Edge_Chromium_Web_Visits": {
@@ -515,11 +517,13 @@ class LogTagger:
                 # 데이터 조회
                 query = text(f"SELECT * FROM `{table_name}`")
                 print(query)
+                self.progressBar.append_log(query)
                 try :
                     result = conn.execute(query)
                     df = pd.DataFrame(result.fetchall(), columns=result.keys())
                     
                     if df.empty:
+                        self.progressBar.append_log(f"'{table_name}' 테이블이 비어 있습니다. 넘어갑니다.")
                         print(f"'{table_name}' 테이블이 비어 있습니다. 넘어갑니다.")
                         return
 
@@ -540,24 +544,30 @@ class LogTagger:
                         # 새로운 데이터 저장
                         df.to_sql(table_name, self.engine, if_exists='replace', index=False)
                         print(f"{table_name} 테이블에 태그가 추가되었습니다.")
+                        self.progressBar.append_log(f"{table_name} 테이블에 태그가 추가되었습니다.")
                     else:
                         print(f"{table_name} 테이블에 대한 패턴이 정의되지 않았습니다.")
+                        self.progressBar.append_log(f"{table_name} 테이블에 대한 패턴이 정의되지 않았습니다.")
                 except :
                     pass
                 
         except Exception as e:
             print(f"Error processing table {table_name}: {str(e)}")
+            self.progressBar.append_log(f"Error processing table {table_name}: {str(e)}")
             raise  # 에러를 상위로 전파하여 디버깅 용이하게
 
     def apply_tags(self):
-        for table_name in self.patterns:
+        
+        for idx, table_name in enumerate(self.patterns):
             self.process_table(table_name)
+            self.progressBar.set_progress(progress=((idx/len(self.patterns))*100/(self.progressBar.num_of_task)))
 
 class LogTaggerManager:
     def __init__(self, db_url):
         self.tagger_classes = {
             "1": ("기본 태깅", LogTagger)
         }
+        self.progressBar = ProgressBar.get_instance()
         self.db_url = db_url
 
     def run_tagger(self):
@@ -570,4 +580,5 @@ class LogTaggerManager:
         _, tagger_class = tagger_info
         tagger_instance = tagger_class(self.db_url)
         tagger_instance.apply_tags()
+        self.progressBar.append_log(f'DB path : {self.db_url} 에 적용되었습니다.')
         print(f'DB path : {self.db_url} 에 적용되었습니다.')

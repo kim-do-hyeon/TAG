@@ -5,8 +5,11 @@ from apps import db
 from flask import session
 from apps.authentication.models import Upload_Case, GroupParingResults
 from apps.analyze.analyze_tag_class import LogTaggerManager
+from apps.manager.progress_bar import *
 
 def all_tag_process(data) :
+    progressBar = ProgressBar.get_instance()
+    progressBar.append_log("Tagging Process")
     print("Tagging Process")
     user = session.get('username')
     case_id = data['case_id']

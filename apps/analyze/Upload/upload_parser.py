@@ -4,8 +4,10 @@ import json
 import pandas as pd
 import re, os
 from operator import itemgetter
+from apps.manager.progress_bar import *
 
 def mail_behavior(db_path) :
+    progressBar = ProgressBar.get_instance()
     directory_path = os.path.dirname(db_path)
     # 기준 파일과 출력 파일 이름 설정
     criteria_files = {
@@ -30,7 +32,8 @@ def mail_behavior(db_path) :
     # 특정 확장자를 가진 파일 이름을 가져오는 정규식
     file_extensions = (".pdf", ".pptx", ".zip", ".hwp")
     file_name_pattern = re.compile(r'[^\\/]+\.(pdf|pptx|zip|hwp)$', re.IGNORECASE)
-
+    I = 0
+    
     # 기준 파일별로 전체 코드를 반복 실행
     for criteria_file, (output_file, custom_output_file) in criteria_files.items():
         # 기준 파일에서 문자열(예: "mail", "drive", "blog") 추출
@@ -40,6 +43,7 @@ def mail_behavior(db_path) :
         with open(criteria_file, "r", encoding="utf-8") as f:
             scoring_criteria = json.load(f)
         print(f"{criteria_file} 기준 파일이 성공적으로 로드되었습니다.")
+        progressBar.append_log(f"{criteria_file} 기준 파일이 성공적으로 로드되었습니다.")
 
         # 각 기준 파일마다 초기화할 변수들
         unique_files = set()  # 중복 제거를 위해 집합 사용
@@ -70,7 +74,8 @@ def mail_behavior(db_path) :
                     unique_files.add(file_name)
                     only_file_name = file_name.rsplit('.', 1)[0]
                     unique_file_names.add(only_file_name)
-
+        progressBar.append_progress(progress=(1/(progressBar.num_of_task * 3 * 8))*100)
+        
         # 집합을 리스트로 변환하여 정렬
         unique_files = sorted(unique_files)
         unique_file_names = sorted(unique_file_names)
@@ -127,10 +132,12 @@ def mail_behavior(db_path) :
                                         }
                                         search_results[file_name].append(entry)
                                     except Exception as e :
+                                        progressBar.append_log(f"시간 변환 오류 발생: {e}")
                                         print(f"시간 변환 오류 발생: {e}")
                                 else :
                                     print(f"시간 변환 오류 발생 (테이블: {table}, 컬럼: {time_column}): {e}")
-
+                                    progressBar.append_log(f"시간 변환 오류 발생 (테이블: {table}, 컬럼: {time_column}): {e}")
+        progressBar.append_progress(progress=(1/(progressBar.num_of_task * 3 * 8))*100)
 
         # Step 4: 각 파일의 검색 결과를 시간순으로 정렬 및 그룹화
         for file_name, entries in search_results.items():
@@ -150,8 +157,10 @@ def mail_behavior(db_path) :
             if group:
                 grouped_entries.append(group)
             search_results[file_name] = grouped_entries
+        progressBar.append_log("데이터 검색 및 그룹화가 완료되었습니다.")
         print("데이터 검색 및 그룹화가 완료되었습니다.")
-
+        progressBar.append_progress(progress=(1/(progressBar.num_of_task * 3 * 8))*100)
+        
         # Step 4: 그룹 점수 추가
         for file_name, grouped_entries in search_results.items():
             for group in grouped_entries:
@@ -209,8 +218,10 @@ def mail_behavior(db_path) :
                                     group_score += condition["score"]
 
                 group.append({"Group_Score": group_score})
-
+        
         print("각 그룹에 점수가 부여되었습니다.")
+        progressBar.append_log("각 그룹에 점수가 부여되었습니다.")
+        progressBar.append_progress(progress=(1/(progressBar.num_of_task * 3 * 8))*100)
 
         # Step 5: Group_Score 기준으로 정렬 및 출력
         all_groups = []
@@ -225,6 +236,7 @@ def mail_behavior(db_path) :
                 all_groups.append(group_with_score)
 
         all_groups_sorted = sorted(all_groups, key=lambda x: x["Group_Score"], reverse=True)
+        progressBar.append_progress(progress=(1/(progressBar.num_of_task * 3 * 8))*100)
 
         all_tagged_data = []
         tables_with_tags = {
@@ -273,13 +285,17 @@ def mail_behavior(db_path) :
                                         all_tagged_data.append(tagged_entry)
                                     except Exception as e :
                                         print(f"시간 변환 오류 발생 (테이블: {table}, 컬럼: {time_column}): {e}")
+                                        progressBar.append_log(f"시간 변환 오류 발생 (테이블: {table}, 컬럼: {time_column}): {e}")
                                 else :
                                     print(f"시간 변환 오류 발생 (테이블: {table}, 컬럼: {time_column}): {e}")
+                                    progressBar.append_log(f"시간 변환 오류 발생 (테이블: {table}, 컬럼: {time_column}): {e}")
                                         
 
             except Exception as e:
                 print(f"테이블 조회 오류 발생: {e}")
-
+                progressBar.append_log(f"테이블 조회 오류 발생: {e}")
+        progressBar.append_progress(progress=(1/(progressBar.num_of_task * 3 * 8))*100)
+        
         url_cache_data = []
         cache_tables = ["Chrome_Cache_Records", "Edge_Chromium_Cache_Records", "Firefox_Cache_Records"]
 
@@ -293,6 +309,7 @@ def mail_behavior(db_path) :
                 cursor.execute(query)
             except Exception as e :
                 print(f'[*] Failed load table {e} in upload_paser.py')
+                progressBar.append_log(f'[*] Failed load table {e} in upload_paser.py')
                 continue
             column_names = [description[0] for description in cursor.description]
             rows = cursor.fetchall()
@@ -326,9 +343,12 @@ def mail_behavior(db_path) :
                                     url_cache_data.append(entry)
                                 except Exception as e :
                                     print(f"시간 변환 오류 발생 (테이블: {table}, 컬럼: {time_column}): {e}")
+                                    progressBar.append_log(f"시간 변환 오류 발생 (테이블: {table}, 컬럼: {time_column}): {e}")
                             else :
                                 print(f"시간 변환 오류 발생 (테이블: {table}, 컬럼: {time_column}): {e}")
-
+                                progressBar.append_log(f"시간 변환 오류 발생 (테이블: {table}, 컬럼: {time_column}): {e}")
+        progressBar.append_progress(progress=(1/(progressBar.num_of_task * 3 * 8))*100)
+        
         # URL 캐시 데이터를 타임스탬프 기준으로 정렬
         url_cache_data_sorted = sorted(url_cache_data, key=lambda x: x["Timestamp"])
         def extract_tag_prefix(tag_value):
@@ -455,7 +475,8 @@ def mail_behavior(db_path) :
                     "Closest_Tag_Data": None,
                     "Closest_Cache_Data": None
                 })
-
+        progressBar.append_progress(progress=(1/(progressBar.num_of_task * 3 * 8))*100)
+        
         # JSON 파일로 결과 저장
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump(result_with_tag_data, f, indent=4, ensure_ascii=False, default=str)
@@ -464,5 +485,9 @@ def mail_behavior(db_path) :
         with open(custom_output_file, "w", encoding="utf-8") as f:
             json.dump(custom_output_data, f, indent=4, ensure_ascii=False, default=str)
 
+        progressBar.set_progress(progress=((progressBar.now_task+((I+1)/3))/progressBar.num_of_task)*100)
+        I += 1
         print(f"최종 그룹 데이터가 {output_file} 파일에 저장되었습니다.")
         print(f"추가 데이터가 {custom_output_file} 파일에 저장되었습니다.")
+        progressBar.append_log(f"최종 그룹 데이터가 {output_file} 파일에 저장되었습니다.")
+        progressBar.append_log(f"추가 데이터가 {custom_output_file} 파일에 저장되었습니다.")

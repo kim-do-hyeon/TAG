@@ -4,6 +4,7 @@ import numpy as np
 import os
 from apps.analyze.USB.table_info import *
 from apps.analyze.USB.windows_event_log import *
+from apps.manager.progress_bar import ProgressBar
 
 def generate_to_timestamp(column, table, attribute, conn, table_info, time_dict) :
     query = f"SELECT hit_id, [{column}], [{table_info[table]['root_col']}] FROM '{table}'"
@@ -48,6 +49,7 @@ def generate_to_timestamp(column, table, attribute, conn, table_info, time_dict)
         return None
 
 def time_parsing(db_path, new_db_path) :
+    progressBar = ProgressBar.get_instance()
     
     # 파일이 존재하는지 확인
     if os.path.exists(new_db_path):
@@ -64,15 +66,18 @@ def time_parsing(db_path, new_db_path) :
 
     # 결과를 저장할 데이터프레임 리스트
     dataframes = []
-
+    len_time_dict = len(time_dict)
     # 각 테이블에 대해 데이터 추출
+    progressBar.append_log('정의된 기준에 대한 데이터 불러오는중...')
     for table, columns in time_dict.items():
+        progressBar.append_progress(progress=(1/(progressBar.num_of_task * 2 * len_time_dict))*100)
         # 테이블 존재 여부 확인
         table_exists_query = f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table}'"
         table_exists = pd.read_sql_query(table_exists_query, conn)
         
         if not table_exists.empty:
             for column, attribute in columns.items():
+                
                 if column == 'include' :
                     query = f"PRAGMA table_info('{table}')"
                     column_list = pd.read_sql_query(query, conn)
@@ -89,6 +94,7 @@ def time_parsing(db_path, new_db_path) :
     
 
     # 모든 데이터프레임을 하나로 합치기 & 그룹화
+    progressBar.append_log('데이터 통합 진행중...')
     if dataframes:
         combined_df = pd.concat(dataframes, ignore_index=True)
 
@@ -99,8 +105,10 @@ def time_parsing(db_path, new_db_path) :
         sorted_df = sorted_df.drop(columns=['index'])
 
         new_df = pd.DataFrame(columns=sorted_df.columns.to_list())
+        len_sorted_df = len(sorted_df)
         hit_id_tmp = set()
         for index, row in sorted_df.iterrows() :
+            progressBar.append_progress(progress=(1/(progressBar.num_of_task*2*len_sorted_df))*100)
             #row['timestamp'] = pd.to_datetime(row['timestamp'], errors='coerce')
             if index != 0:
                 if  (row['timestamp'] < new_df.iloc[-1]['timestamp'] + pd.Timedelta(seconds=1) and

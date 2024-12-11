@@ -136,7 +136,6 @@
                     </div>
                     <div class="col-md-6" style="border-left: 1px solid #ccc;">
                         <h4>hit_id기반 정보</h4>
-                        <div id="table_name_from_hit_id"></div>
                         <div id="modalSecond"></div>
                     </div>
                 </div>
@@ -351,8 +350,6 @@
                                 var node_data = data.data;
                                 var table_name = data.table;
                                 console.log(node_data);
-
-                                document.getElementById('table_name_from_hit_id').innerHTML = `<p>Data from <b>${table_name}</b></p>`;
                                 // JSON 데이터를 테이블로 변환
                                 var tableHtml = '<table class="table table-bordered"><tr><th>Key</th><th>Value</th></tr>';
                                 for (const [key, value] of Object.entries(nodeData)) {
@@ -361,13 +358,15 @@
                                 tableHtml += '</table>';
                                 document.getElementById('modalSecond_nodedata').innerHTML = tableHtml;
 
-                                tableHtml = '<table class="table table-bordered"><tr><th>Key</th><th>Value</th></tr>';
-                                for (const [key, value] of Object.entries(node_data)) {
-                                    tableHtml += `<tr><td>${key}</td><td>${value}</td></tr>`;
+                                tableHtml = '';
+                                for (let i = 0; i < node_data.length; i++) {
+                                    tableHtml += `<p>Data From <b>${table_name[i]}</b></p><p>Hit ID : <b>${nodeData.hit_id[i]}</b></p>`;
+                                    tableHtml += '<table class="table table-bordered"><tr><th>Key</th><th>Value</th></tr>';
+                                    for (const [key, value] of Object.entries(node_data[i])) {
+                                        tableHtml += `<tr><td>${key}</td><td>${value}</td></tr>`;
+                                    }
+                                    tableHtml += '</table>';
                                 }
-                                tableHtml += '</table>';
-
-
 
                                 document.getElementById('modalSecond').innerHTML = tableHtml;
                                 document.getElementById('tooltip').style.display = 'none';

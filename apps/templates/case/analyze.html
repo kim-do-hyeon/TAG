@@ -112,7 +112,7 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        showProgress(caseId, function () {
+                        showProgressBar(function () {
                             location.reload();
                             alert('정규화 처리가 완료되었습니다.');  // Start showing progress
                         });
@@ -131,7 +131,7 @@
             button.addEventListener('click', function() {
                 var caseId = this.getAttribute('data-case-id');
                 var caseNumber = this.getAttribute('data-case-id');
-                var caseType = "{{ case.case_type }}"
+                var caseType = "{{ case.case_type }}";
                 fetch('/case/analyze/final', {
                     method: 'POST',
                     headers: {
@@ -143,9 +143,10 @@
                 .then(data => {
                     if (data.success) {
                         alert('정상적으로 처리되었습니다.');
+                        show_progress = false;
                         if (caseType == "음란물"){
                             window.location.href = "/case/analyze/porn/" + {{case.id}};
-                        }else {                        
+                        }else {
                             window.location.href = "/case/analyze/final/" + {{case.id}};
                         }
                     } else {
@@ -156,9 +157,11 @@
                     console.error('Error:', error);
                     alert('An error occurred while submitting the Final Process.');
                 });
+                showProgressBar({});
             });
         });
 
+        /*
         function showProgress(caseId, onComplete) {
             // Show the progress bar
             document.getElementById('progress-container').style.display = 'block';
@@ -187,6 +190,49 @@
 
                     // Continue polling if not yet complete
                     if (progressValue < 100) {
+                        setTimeout(updateProgress, 10);  // Poll every second
+                    } else {
+                        onComplete();  // Reload the page upon completion
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching progress:', error);
+                });
+            }
+
+            // Start polling for progress updates
+            updateProgress();
+        }*/
+
+
+        function showProgressBar(onComplete) {
+            // Show the progress bar
+            document.getElementById('progress-container').style.display = 'block';
+
+            // Function to poll the server for progress updates
+            function updateProgress() {
+                fetch(`/get_progress`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const progressValue = data.progress;
+                    const message = data.message;
+                    const progressBar = document.getElementById('progress-bar');
+                    const progressText = document.getElementById('progress-text');
+                    const messageText = document.getElementById('message-Text')
+                    // Update the progress bar and text
+                    progressBar.style.width = `${progressValue}%`;
+                    progressBar.setAttribute('aria-valuenow', progressValue);
+                    progressText.textContent = `${progressValue}% Complete`;
+                    messageText.innerHTML = `${message.replace(/\n+/g, '<br>')}` + messageText.innerHTML;
+
+
+                    // Continue polling if not yet complete
+                    if (data.show) {
                         setTimeout(updateProgress, 10);  // Poll every second
                     } else {
                         onComplete();  // Reload the page upon completion

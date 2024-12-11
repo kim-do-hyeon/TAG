@@ -12,8 +12,10 @@ from apps.analyze.analyze_routes import *
 from apps.dashboard.dashboard_routes import *
 from apps.analyze.analyze_filtering import *
 from apps.api.api_connection import *
+from apps.manager.progress_bar import *
 
 progress = {}
+progressBar = ProgressBar.get_instance()
 UPLOAD_FOLDER = 'uploads'  # You can adjust this path as per your project structure
 ALLOWED_EXTENSIONS = {'case', 'db', 'mfdb'}  # Define allowed file extensions
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -101,8 +103,15 @@ def case_analyze_filtering_history_view(id) :
 # Version 1.3 - Analyze Final
 @blueprint.route('/case/analyze/final', methods = ['POST'])
 def case_analyze_final() :
-    data = request.get_json()
-    return redirect_analyze_case_final(data)
+    try :
+        progressBar.show = True
+        data = request.get_json()
+        return redirect_analyze_case_final(data)
+    except Exception as e :
+        progressBar.progress_end()
+        error_message = traceback.format_exc()
+        print(error_message)
+        return jsonify({'success' : False, 'message' : str(e), 'traceback' : error_message})
 
 @blueprint.route('/case/analyze/final/<int:id>')
 def case_analyze_final_result(id) :
@@ -133,6 +142,12 @@ def file_connection() :
 def get_data_by_hit_id() :
     data = request.get_json()
     return find_data_by_hit_id(data)
+
+@blueprint.route('/get_progress', methods=['GET', 'POST'])
+def get_progress() :
+    progress_bundle = progressBar.status_bundle(flush_log=True)
+    progress_bundle['success'] = True
+    return jsonify(progress_bundle)
 
 
 @blueprint.route('/<template>')
