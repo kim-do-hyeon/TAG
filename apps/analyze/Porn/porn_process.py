@@ -150,13 +150,13 @@ def detect_and_merge(image_paths, user_upload_folder, md5_strings):
         detections = detector.detect(image_path)
 
         output_folder = md5_strings
-        print(user_upload_folder)
+        # print(user_upload_folder)
         if not os.path.exists(os.path.join(user_upload_folder, "Detect", output_folder)):
             os.makedirs(os.path.join(user_upload_folder, "Detect", output_folder))
         # output_path_detect = os.path.join(user_upload_folder, "Detect", md5_strings, image_path)
         output_path_detect = os.path.join(user_upload_folder, "Detect", md5_strings, image_path.replace("Crop", "Detect"))
         # print(f"감지된 객체: {detections}")  # 감지된 객체 출력
-        print(output_path_detect)
+        # print(output_path_detect)
         class_colors = {
             "FEMALE_GENITALIA_COVERED": (255, 200, 200),  # 연한 빨간색
             "FACE_FEMALE": (255, 0, 0),  # 빨간색
@@ -199,7 +199,8 @@ def detect_and_merge(image_paths, user_upload_folder, md5_strings):
         
         print(output_path_detect)
         if cv2.imwrite(output_path_detect, image):
-            print(f"결과 이미지가 저장되었습니다 > : {output_path_detect}")
+            # print(f"결과 이미지가 저장되었습니다 > : {output_path_detect}")
+            pass
         else:
             print(f"이미지 저장에 실패했습니다: {output_path_detect}")
 
