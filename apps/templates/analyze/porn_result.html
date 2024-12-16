@@ -97,6 +97,9 @@
 {% block javascripts %}
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap4.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap4.min.css">
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         var modalImage = document.getElementById('modalImage');
@@ -181,15 +184,50 @@
                 
                 ctx.drawImage(tempImage, 0, 0);
                 
-                const mosaicDataUrl = applyMosaic(tempImage, 20);
+                const mosaicDataUrl = applyMosaic(tempImage, 50);
                 img.src = mosaicDataUrl;
             };
             
             tempImage.src = originalSrc;
         });
+
+        // DataTable 초기화
+        $('#resultsTable').DataTable({
+            "order": [[ 4, "desc" ]], // 5번째 컬럼(risk level)을 기준으로 내림차순 정렬
+            "columnDefs": [
+                {
+                    "targets": 4, // risk level 컬럼
+                    "type": "num" // 숫자형으로 정렬
+                },
+                {
+                    "targets": 0, // 파일 이름 컬럼
+                    "searchable": true // 검색 가능하도록 설정
+                }
+            ],
+            "search": {
+                "smart": true, // 스마트 검색 활성화
+                "regex": false, // 정규식 검색 비활성화
+                "caseInsensitive": true // 대소문자 구분 없음
+            },
+            "language": {
+                "emptyTable": "데이터가 없습니다",
+                "lengthMenu": "페이지당 _MENU_ 개씩 보기",
+                "info": "현재 _START_ - _END_ / _TOTAL_건",
+                "infoEmpty": "데이터 없음",
+                "infoFiltered": "(_MAX_ 건의 데이터에서 필터링됨)",
+                "search": "파일명 검색: ",
+                "zeroRecords": "일치하는 데이터가 없습니다.",
+                "loadingRecords": "로딩중...",
+                "processing": "잠시만 기다려 주세요...",
+                "paginate": {
+                    "next": "다음",
+                    "previous": "이전"
+                }
+            }
+        });
     });
 
-    function applyMosaic(imageElement, blockSize = 20) {
+    function applyMosaic(imageElement, blockSize = 50) {
         // Canvas 생성
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
