@@ -506,7 +506,7 @@ def evaluate_priority(detections):
         "MALE_GENITALIA_EXPOSED": (0.9, "노출된 남성 생식기"),
         "ANUS_COVERED": (0.9, "가려진 항문"),
         "FEMALE_BREAST_COVERED": (0.6, "가려진 여성 가슴"),
-        "BUTTOCKS_COVERED": (0.9, "가려진 ���덩이"),
+        "BUTTOCKS_COVERED": (0.9, "가려진 엉덩이"),
     }
     for detection_group in detections:
         group_results = []
