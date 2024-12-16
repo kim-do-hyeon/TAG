@@ -275,7 +275,10 @@ def redirect_analyze_case_final(data) :
             
         all_results = mail_results + drive_results + blog_results
         all_results = sorted(all_results, key=lambda x: x['priority'], reverse=True)
-        max_priority_web = all_results[0]['priority']
+        if len(all_results) > 0 :
+            max_priority_web = all_results[0]['priority']
+        else :
+            max_priority_web = 1
 
         # Mail 데이터 처리
         progressBar.append_log('Mail 통합 진행중...')
@@ -363,7 +366,10 @@ def redirect_analyze_case_final(data) :
         # 4. 각 row 별 score 최대점 기준으로 하위 백분율 기존의 priority에 저장
         for item in analyzed_file_list:
             doc_total_score.append(item["score"])
-        max_score = max(doc_total_score)
+        if len(doc_total_score) > 0 :
+            max_score = max(doc_total_score)
+        else :
+            max_score = 1
         percentages = [round((score / max_score) * 100, 2) for score in doc_total_score]
         for index, item in enumerate(analyzed_file_list):
             item["priority"] = percentages[index]
