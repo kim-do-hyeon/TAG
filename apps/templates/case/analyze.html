@@ -146,6 +146,8 @@
                         show_progress = false;
                         if (caseType == "음란물"){
                             window.location.href = "/case/analyze/porn/" + {{case.id}};
+                        }else if (caseType == "악성코드"){
+                            window.location.href = "/case/analyze/malware/" + {{case.id}};
                         }else {
                             window.location.href = "/case/analyze/final/" + {{case.id}};
                         }

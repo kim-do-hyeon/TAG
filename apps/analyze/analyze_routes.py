@@ -2,7 +2,7 @@ import sqlite3, os, json
 import pandas as pd
 from flask import request, render_template, session, redirect, url_for, flash, Request, jsonify, render_template_string
 from apps.analyze.Calc_suspicion.calc_suspicion import *
-from apps.authentication.models import Analyzed_file_list, Upload_Case, Normalization, GraphData, PromptQuries, UsbData, FilteringData, GroupParingResults, PrinterData_final, UsbData_final, Mail_final, Porn_Data
+from apps.authentication.models import Analyzed_file_list, Upload_Case, Normalization, GraphData, PromptQuries, UsbData, FilteringData, GroupParingResults, PrinterData_final, UsbData_final, Mail_final, Porn_Data, Malware_Data
 from apps import db
 from apps.case.case_analyze import case_analyze_view
 from apps.analyze.analyze_usb import usb_connection
@@ -14,6 +14,7 @@ from apps.analyze.USB.make_usb_analysis_db import usb_behavior
 from apps.analyze.Printer.printer_process import printer_behavior
 from apps.analyze.Upload.upload_parser import mail_behavior
 from apps.analyze.Porn.porn_process import porn_behavior
+from apps.analyze.Malware.malware_parser import malware_behavior
 from apps.manager.progress_bar import *
 import threading
 import base64
@@ -127,7 +128,7 @@ def redirect_analyze_case_final(data) :
     if Analyzed_file_list.query.filter_by(case_id=case_id).first() :
         progressBar.progress_end()
         return jsonify({'success': True})
-    if case_type != "음란물" :
+    if case_type == "기술유출" :
         progressBar.start_progress(12)
         ''' Tagging Process '''
         progressBar.append_log('Tagging Processing 진행중...')
@@ -394,6 +395,11 @@ def redirect_analyze_case_final(data) :
         progressBar.progress_end()
         return jsonify({'success' : True})
 
+    elif case_type == "악성코드" :
+        malware_behavior(case_id, db_path)
+        progressBar.progress_end()
+        return jsonify({'success' : True})
+
 def redirect_analyze_case_final_result(id):
     analyzed_file_list = Analyzed_file_list.query.filter_by(case_id=id).first().data
     case_number = Upload_Case.query.filter_by(id = id).first().case_number
@@ -584,3 +590,8 @@ def calculate_risk_score(detections):
             total_risk_score += risk_score
 
     return total_risk_score
+
+def redirect_analyze_case_malware_result(id) :
+    malware_data = Malware_Data.query.filter_by(case_id = id).first()
+    return render_template("analyze/malware_result.html",
+                           malware_data = malware_data)

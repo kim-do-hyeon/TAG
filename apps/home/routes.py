@@ -125,6 +125,10 @@ def case_analyze_final_connection_result(id) :
 def case_analyze_porn_result(id) :
     return redirect_analyze_case_porn_result(id)
 
+@blueprint.route('/case/analyze/malware/<int:id>')
+def case_analyze_malware_result(id) :
+    return redirect_analyze_case_malware_result(id)
+
 ''' End Case analyze '''
 
 ''' URI & API '''
