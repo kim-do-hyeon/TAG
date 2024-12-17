@@ -72,7 +72,11 @@ def file_connect_node(data) :
     
     try :
         all_data = dict(data.get('time_data'))
-        time_data_list = list(all_data['data'])
+        if 'data' in all_data :
+            time_data_list = list(all_data['data'])
+        else :
+            time_data_list = []
+            all_data['type'] = 'malware'
         logfile_data_list = dict(data.get('logfile_data'))
         
         ##pprint.pprint(time_data_list)
@@ -227,6 +231,8 @@ def file_connect_node(data) :
             '.pdf' : url_for('static', filename='graph_img/pdf.svg', _external=True),
             'mega_drive' : url_for('static', filename='graph_img/mega_drive.svg', _external=True),
             '.zip' : url_for('static', filename='graph_img/zip.svg', _external=True),
+            '.tmp' : url_for('static', filename='graph_img/tmp.svg', _external=True),
+            '.exe' : url_for('static', filename='graph_img/exe.svg', _external=True),
             'dropbox' : url_for('static', filename='graph_img/dropbox_icon.svg', _external=True),
             'one_drive' : url_for('static', filename='graph_img/onedrive.svg', _external=True),
             'shellbag' : url_for('static', filename='graph_img/folder.svg', _external=True),
@@ -276,7 +282,6 @@ def file_connect_node(data) :
                     'id' : idx,
                     'label' : '\n'.join([row['operation'],shorten_string(label)]),
                 }
-            
             for keyword, val in img_dict.items() :
                 if keyword in row['filename'].lower() :
                     node['image'] = val
@@ -295,6 +300,10 @@ def file_connect_node(data) :
                     node['shape'] = 'image'
                     node['size'] = 25
                     break
+            if 'image' not in node or not node['image'] :
+                node['image'] = url_for('static', filename='graph_img/question-mark.svg', _external=True)
+                node['shape'] = 'image'
+                node['size'] = 20
             
             if (idx % 5) != 0 :
                 if (idx // 5) % 2 == 0 :
