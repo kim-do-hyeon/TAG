@@ -20,6 +20,7 @@ import base64
 from flask import current_app
 from datetime import datetime
 import time
+import cv2
 
 def create_dict_from_file_paths(file_path):
     # 파일명 추출
@@ -448,10 +449,27 @@ def redirect_analyze_case_porn_result(id) :
         data = {}
         md5 = (i.file_original_name_md5)
         data['file_original_name'] = (i.file_original_name)
+        # Version 1.7 설문용 모자이크 처리
+        
+        # 이미지 로드 및 전체 모자이크 처리
         porn_image = os.path.join(porn_folder, str(md5) + ".jpg")
-        with open(porn_image, 'rb') as f:
-            image_data = f.read()
-        encoded_porn_image = base64.b64encode(image_data).decode('utf-8')
+        image = cv2.imread(porn_image)
+        
+        if image is not None:
+            # 전체 이미지에 대해 모자이크 처리
+            height, width = image.shape[:2]
+            # 이미지를 축소했다가 확대하여 모자이크 효과 생성
+            small = cv2.resize(image, (width//20, height//20))
+            image = cv2.resize(small, (width, height), interpolation=cv2.INTER_NEAREST)
+            
+            # 처리된 이미지를 메모리에 임시 저장
+            _, buffer = cv2.imencode('.jpg', image)
+            image_data = buffer.tobytes()
+            encoded_porn_image = base64.b64encode(image_data).decode('utf-8')
+        else:
+            # 이미지 로드 실패 시 빈 문자열 반환
+            encoded_porn_image = ''
+        # Version 1.7 End
 
         porn_result_image = os.path.join(porn_result_folder, str(md5) + "_detect_result.jpg")
         with open(porn_result_image, 'rb') as f:
