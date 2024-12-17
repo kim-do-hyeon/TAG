@@ -557,10 +557,12 @@ class LogTagger:
             raise  # 에러를 상위로 전파하여 디버깅 용이하게
 
     def apply_tags(self):
-        
         for idx, table_name in enumerate(self.patterns):
             self.process_table(table_name)
-            self.progressBar.set_progress(progress=((idx/len(self.patterns))*100/(self.progressBar.num_of_task)))
+            try :
+                self.progressBar.set_progress(progress=((idx/len(self.patterns))*100/(self.progressBar.num_of_task)))
+            except :
+                pass
 
 class LogTaggerManager:
     def __init__(self, db_url):

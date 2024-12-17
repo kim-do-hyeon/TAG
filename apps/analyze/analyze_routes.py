@@ -396,6 +396,10 @@ def redirect_analyze_case_final(data) :
         return jsonify({'success' : True})
 
     elif case_type == "악성코드" :
+        progressBar.append_log('Tagging Processing 진행중...')
+        TAG_Process = all_tag_process(data)
+        progressBar.append_log('Tagging Processing 완료')
+        progressBar.done_1_task()
         malware_behavior(case_id, db_path)
         progressBar.progress_end()
         return jsonify({'success' : True})
