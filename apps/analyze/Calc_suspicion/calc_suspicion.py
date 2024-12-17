@@ -110,6 +110,8 @@ def calc_suspicion(db_path, case_folder) :
                 file_name = [doc[0]]
             elif doc[3] == 'Create' or doc[3] == 'Move':
                 file_name = [doc[1]]
+            else :
+                file_name = ["Unknown"]
             for item in file_name:
                 docs_files.add((item, MFT_Recoed_Num))
         else:
