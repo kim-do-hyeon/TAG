@@ -179,18 +179,17 @@ def detect_and_merge(image_paths, user_upload_folder, md5_strings):
         }
 
         
+        # ver1.7 설문용 모자이크 처리
+        # 전체 이미지 모자이크 처리
+        height, width = image.shape[:2]
+        small = cv2.resize(image, (width//20, height//20))
+        image = cv2.resize(small, (width, height), interpolation=cv2.INTER_NEAREST)
+        # ver 1.7 End
 
         for detection in detections:
             x, y, w, h = detection['box']
             class_name = detection['class']
             score = detection['score']
-
-            # ver1.7 설문용 모자이크 처리
-            # 전체 이미지 모자이크 처리
-            height, width = image.shape[:2]
-            small = cv2.resize(image, (width//20, height//20))
-            image = cv2.resize(small, (width, height), interpolation=cv2.INTER_NEAREST)
-            # ver 1.7 End
 
             # 클래스에 해당하는 색상 가져오기 (없으면 기본값: 흰색)
             color = class_colors.get(class_name, (255, 255, 255))
