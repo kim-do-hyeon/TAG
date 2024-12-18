@@ -205,18 +205,34 @@ def case_normalization(case_id, progress):
     content_table_df.to_sql('file_content_datas', new_conn, if_exists='replace', index=False)
     new_conn.close()
     print('파일 이름 정보 추가됨')
-
+    
+    conn = sqlite3.connect(new_db_path)
+    cursor = conn.cursor()
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+    tables = cursor.fetchall()
+    total_row_count = 0
+    for table in tables :
+        if table == 'file_content_datas' :
+            continue
+        table_name = table[0]
+        cursor.execute(f"SELECT COUNT(*) FROM '{table_name}'")
+        total_row_count += cursor.fetchone()[0]
+        progressBar.append_progress(log_msg=f'{table}행 개수 세는중', progress=(10/(len(tables))))
+    cursor.close()
+    conn.close()
+    
     ''' Remove System Files - Jihye Code '''
-    remove_system_files(new_db_path, progress)
+    remove_system_files_row = remove_system_files(new_db_path, progress)
     progress[case_id] = 80
     progressBar.set_progress(progress=80)
     ''' Remove Keywords - Jihye Code '''
-    remove_keywords(new_db_path, progress)
+    remove_keywords_rows = remove_keywords(new_db_path, progress)
     progress[case_id] = 90
     progressBar.set_progress(progress=90)
     ''' Remove Win 10, 11 Basic Artifacts - Addy Code '''
-    remove_win10_11_basic_artifacts(new_db_path, progress) 
+    remove_win10_11_basic_rows = remove_win10_11_basic_artifacts(new_db_path, progress) 
 
+    delete_rows = remove_system_files_row + remove_keywords_rows + remove_win10_11_basic_rows
     progress[case_id] = 100
     progressBar.set_progress(progress=100)
 
@@ -231,7 +247,14 @@ def case_normalization(case_id, progress):
     # Use the correct session object to add and commit the new data
     db.session.add(new_normalization_data)
     db.session.commit()
-
+    
+    print('-------------------------------------------------------------')
+    print(f'시스템 파일 {remove_system_files_row}행 삭제')
+    print(f'키워드 기반 {remove_keywords_rows}행 삭제')
+    print(f'win10,11 기본파일 {remove_win10_11_basic_rows}행 삭제')
+    progressBar.append_log(f'전체 데이터 {total_row_count}행 중에서 {delete_rows}행이 삭제되었습니다.\n총 {round((delete_rows/total_row_count)*100, 2)}%가 삭제되었습니다.')
+    print(f'전체 데이터 {total_row_count}행 중에서 {delete_rows}행이 삭제되었습니다.\n총 {round((delete_rows/total_row_count)*100, 2)}%가 삭제되었습니다.')
+    print('-------------------------------------------------------------')
     return new_db_path
 
 

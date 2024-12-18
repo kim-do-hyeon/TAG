@@ -64,6 +64,8 @@ def remove_system_files(db_path, progress) :
     progressBar.append_log(f"전체 행 {before_total} 중에서 {before_total - after_taotal} 개의 행이 삭제되었습니다.\n현재 {after_taotal} 개의 행이 존재합니다.\n")
     conn.commit()
     conn.close()
+    
+    return before_total - after_taotal
 
 def remove_keywords(new_db_path, progress) :
     progressBar = ProgressBar.get_instance()
@@ -152,6 +154,8 @@ def remove_keywords(new_db_path, progress) :
     # print(f"전체 행 {total} 중에서 {before_total - after_taotal} 개의 행이 삭제되었습니다.\n현재 {total - before_total + after_taotal} 개의 행이 존재합니다.")
     progress['message'] += f"전체 행 {before_total} 중에서 {before_total - after_taotal} 개의 행이 삭제되었습니다.\n현재 {after_taotal} 개의 행이 존재합니다.\n"
     progressBar.append_log(f"전체 행 {before_total} 중에서 {before_total - after_taotal} 개의 행이 삭제되었습니다.\n현재 {after_taotal} 개의 행이 존재합니다.\n")
+    print(f"전체 행 {before_total} 중에서 {before_total - after_taotal} 개의 행이 삭제되었습니다.\n현재 {after_taotal} 개의 행이 존재합니다.")
+    return before_total - after_taotal
     
 def process_json_file(json_file_path, cursor, progress):
     progressBar = ProgressBar.get_instance()
@@ -190,6 +194,9 @@ def remove_win10_11_basic_artifacts(db_path, progress) :
     progressBar = ProgressBar.get_instance()
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
+    
+    deleted_rows_win10 = 0
+    deleted_rows_win11 = 0
     try :
         win11_json_file_path = os.path.join(os.getcwd(), "apps", "case", "STD_Exclude", "win11_output.json")
         deleted_rows_win11 = process_json_file(win11_json_file_path, cursor, progress)
@@ -205,4 +212,5 @@ def remove_win10_11_basic_artifacts(db_path, progress) :
         print("Windows 10 Error / " + str(e))
     conn.commit()
     conn.close()
+    return deleted_rows_win10+ deleted_rows_win11
     
