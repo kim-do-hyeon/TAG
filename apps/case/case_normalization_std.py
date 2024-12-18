@@ -1,6 +1,7 @@
 import os, pandas, sqlite3
 from datetime import datetime
 import json
+import glob
 
 from apps.case.case_normalization_std_util import *
 from apps.manager.progress_bar import *
@@ -66,9 +67,20 @@ def remove_system_files(db_path, progress) :
 
 def remove_keywords(new_db_path, progress) :
     progressBar = ProgressBar.get_instance()
+    
+    exclude_apps  = ['hwp', 'acrobat', 'office']
+    app_template_path = os.path.join(os.getcwd(), 'apps', 'case', 'STD_Exclude', 'Apps_Templates')
+    load_app_list = []
+    for exclude_app in exclude_apps :
+        load_app_list.extend(glob.glob(f'{app_template_path}{exclude_app}*.txt'))
+    
+    removes = []
+    for file_path in load_app_list :
+        removes.extend(load_file(file_path))
+    
     # keywords.json 로드
     # 테이블명, 컬럼, 키워드 정보가 저장되어 있음
-    removes_json_path = os.path.join(os.getcwd(), "apps", "case", "STD_Exclude", "keywords.json")
+    removes_json_path = os.path.join(os.getcwd(), "apps", "case", "STD_Exclude", "keywords_v2.json")
 
     with open(removes_json_path, "r", encoding='utf8') as f:
         f = f.read()
@@ -80,7 +92,7 @@ def remove_keywords(new_db_path, progress) :
     # 첫 번째 딕셔너리: 'table'이 key, 'column'이 value
     table_column_dict = {item['table']: item['column'] for item in removal_target}
     # 두 번째 딕셔너리: 'table'이 key, 'values'가 value
-    table_values_dict = {item['table']: item['values'] for item in removal_target}
+    #table_values_dict = {item['table']: item['values'] for item in removal_target}
 
     # removal_target에 저장된 테이블 명 저장
     remove_table_list = list(table_column_dict.keys())
@@ -114,11 +126,6 @@ def remove_keywords(new_db_path, progress) :
         # 딕셔너리로부터 target 컬럼 가져옴
         target_column = table_column_dict[table]
         if target_column == '':
-            continue
-        
-        # 지워야 할 키워드 리스트 removes에 저장
-        removes = table_values_dict[table]
-        if len(removes) < 1:
             continue
 
         # 삭제 전후 비교 위해 삭제 전 row 수 저장
