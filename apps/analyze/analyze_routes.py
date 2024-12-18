@@ -602,4 +602,5 @@ def calculate_risk_score(detections):
 def redirect_analyze_case_malware_result(id) :
     malware_data = Malware_Data.query.filter_by(case_id = id).first()
     return render_template("analyze/malware_result.html",
-                           malware_data = malware_data)
+                           malware_data = malware_data,
+                           case_id = id)
