@@ -417,7 +417,90 @@ def find_data_by_hit_id(data) :
         print(e)
         return jsonify({'success' : False, 'message' : str(e)})
     
-    
+def malware_connect_node(data) :
+    try :
+        data = data.get('data')
+        time_stamp = data.get('Timestamp')
+        filename = data.get('Filename')
+        browser = data.get('Browser')
+        description = list(data.get('Description', []))
+        connection = list(data.get('Connection', []))
+        hit_id_list = list(data.get('hit_id', []))
+        tables = set()
+        
+        for connection_data in connection :
+            tables.add(connection_data['Table'])
+        #pprint.pprint(connection)
+        
+        img_dict = {
+            'LogFile' : url_for('static', filename='graph_img/log_file.svg', _external=True),
+            'Event_Logs' : url_for('static', filename='graph_img/event_log.svg', _external=True),
+            'srum' : url_for('static', filename='graph_img/srum.svg', _external=True),
+            'shellbag' : url_for('static', filename='graph_img/folder.svg', _external=True)
+        }
+        
+        nodes = []
+        edges = []
+        nodes_data = []
+        titles = []
+        
+        nodes_data.append({
+            'id' : 0,
+            'hit_id' : None, 
+            'timestamp' : time_stamp,
+            'main_data' : filename,
+            'type' : '\n'.join(description)
+        })
+        nodes.append({
+            'id' : 0,
+            'label' : shorten_string(filename),
+            'shape' : 'ellipse'
+        })
+        tables = list(tables)
+        for table in tables :
+            node = {'id' : table, 'label' : table, 'shape' : 'image', 'size':25}
+            for key, value in img_dict.items() :
+                if key.lower() in table.lower() :
+                    node['image'] = value
+                    break
+            if 'image' not in node :
+                node['image'] = url_for('static', filename='graph_img/system_file.svg', _external=True)
+            nodes.append(node)
+            edges.append({'from' : 0, 'to' : table})
+            
+        for idx, connection_data in enumerate(connection) :
+            node = {
+                'id' : idx + 1,
+                'shape' : 'dot',
+                'color' : connection_data['Color'].lower() if connection_data['Color'] != 'None' else 'gray'
+            }
+            hit_id = str(hit_id_list[idx])
+            for description_ in description :
+                if hit_id in description_ :
+                    node['label'] = description_.split(': ')[1]
+                    break
+            if 'label' not in node :
+                node['label'] = connection_data['Details'].split(', ')[1]
+            nodes.append(node)
+            nodes_data.append({
+                'id' : idx + 1,
+                'hit_id' : hit_id_list[idx],
+                'table' : connection_data['Table'],
+                'detail' : connection_data['Details']       
+            })
+            edges.append({'from' : connection_data['Table'], 'to' : idx+1})
+        
+        result = {
+                'nodes' : nodes,
+                'edges' : edges,
+                'nodes_data' : nodes_data,
+                'success' : True
+            }
+        return jsonify(result)
+    except Exception as e :
+        error_message = traceback.format_exc()
+        return jsonify({'success' : False, 'message' : '[*] connection error : ' + str(e) +'\n' + str(error_message)})
+
 def calculate_time_difference(start_timestamp, end_timestamp):
     # 타임스탬프를 pandas datetime으로 변환
     start_time = pd.to_datetime(start_timestamp)
