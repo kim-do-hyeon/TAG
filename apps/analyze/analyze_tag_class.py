@@ -57,9 +57,9 @@ class LogTagger:
                     ("Dropbox_Drive_Drive", re.compile(r'^https:\/\/www\.dropbox\.com\/home$')),
                     ("Dropbox_Drive_Client_Login", re.compile(r'https:\/\/www\.dropbox\.com\/desktop\/oauth2\?code=.*&state=.*')),
                     #One Drive
-                    ("One_Drive_Login", re.compile(r'https:\/\/onedrive\.live\.com\/login\/')),
-                    ("One_Drive_Folder", re.compile(r'https:\/\/onedrive\.live\.com\/\?id=.*&cid=.*')),
-                    ("One_Drive_Main", re.compile(r'https:\/\/onedrive\.live\.com\/\?id=root&cid=.*')),
+                    ("OneDrive_Drive_Login", re.compile(r'https:\/\/onedrive\.live\.com\/login\/')),
+                    ("OneDrive_Drive_Folder", re.compile(r'https:\/\/onedrive\.live\.com\/\?id=.*&cid=.*')),
+                    ("OneDrive_Drive_Main", re.compile(r'https:\/\/onedrive\.live\.com\/\?id=root&cid=.*')),
                     #Outlook Mail
                     ("Outlook_Mail_Login", re.compile(r'https:\/\/login\.live\.com\/ppsecure\/post\.srf\?cobrandid=.*&uaid=.*&pid=.*&opid=.*&route=.*')),
                     ("Outlook_Mail_Sent", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/sentitems\?')),
@@ -68,6 +68,7 @@ class LogTagger:
                     #Naver
                     ("Naver_Login", re.compile(r'https:\/\/nid\.naver\.com\/nidlogin\.login')),
                     #Naver Mail
+                    ("Naver_Mail_Read", re.compile(r'https:\/\/mail\.naver\.com.*read')),
                     ("Naver_Mail_Write_Session", re.compile(r'https:\/\/mail\.naver\.com\/write')),
                     ("Naver_Mail_Write", re.compile(r'https:\/\/mail\.naver\.com\/.*\/new')),
                     ("Naver_Mail_Write_Done", re.compile(r'https:\/\/mail\.naver\.com\/.*\/new\/done')),
@@ -80,13 +81,13 @@ class LogTagger:
                     ("Naver_Mail_Trash", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/4')),
                     ("Naver_Mail_Self_Sent_Mailbox", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/6')),
                     #Naver Mybox
-                    ("Naver_Mybox_Main", re.compile(r'https:\/\/mybox\.naver\.com\/#\/my')),
-                    ("Naver_Mybox_Main", re.compile(r'^https:\/\/mybox\.naver\.com\/#\/$')),
-                    ("Naver_Mybox_Recent_Update", re.compile(r'https:\/\/mybox\.naver\.com\/#\/recent\/update')),
-                    ("Naver_Mybox_Recent_Access", re.compile(r'https:\/\/mybox\.naver\.com\/#\/recent\/access')),
-                    ("Naver_Mybox_Protect", re.compile(r'https:\/\/mybox\.naver\.com\/#\/protect')),
-                    ("Naver_Mybox_Shared", re.compile(r'https:\/\/mybox\.naver\.com\/#\/share\/shared')),
-                    ("Naver_Mybox_Sharing", re.compile(r'https:\/\/mybox\.naver\.com\/#\/share\/sharing')),
+                    ("Mybox_Drive_Main", re.compile(r'https:\/\/mybox\.naver\.com\/#\/my')),
+                    ("Mybox_Drive_Main", re.compile(r'^https:\/\/mybox\.naver\.com\/#\/$')),
+                    ("Mybox_Drive_Recent_Update", re.compile(r'https:\/\/mybox\.naver\.com\/#\/recent\/update')),
+                    ("Mybox_Drive_Recent_Access", re.compile(r'https:\/\/mybox\.naver\.com\/#\/recent\/access')),
+                    ("Mybox_Drive_Protect", re.compile(r'https:\/\/mybox\.naver\.com\/#\/protect')),
+                    ("Mybox_Drive_Shared", re.compile(r'https:\/\/mybox\.naver\.com\/#\/share\/shared')),
+                    ("Mybox_Drive_Sharing", re.compile(r'https:\/\/mybox\.naver\.com\/#\/share\/sharing')),
                     #Naver Blog
                     ("Naver_Blog_Main", re.compile(r'https:\/\/blog\.naver\.com\/')),
                     ("Naver_Blog_Write", re.compile(r'https:\/\/blog\.naver\.com\/.*\?Redirect=Write')),
@@ -121,6 +122,8 @@ class LogTagger:
                     ("Velog_Blog_Login", re.compile(r'https:\/\/velog\.io\/email-login\?code=.*')),
                     ("Velog_Blog_New_Post", re.compile(r'^https:\/\/velog\.io\/write$')),
                     ("Velog_Blog_Post", re.compile(r'https:\/\/velog\.io\/write\?id=.*')),
+                    #Nas
+                    ("Nas_Drive_Action", re.compile(r'https:\/\/nas')),
                     #ETC
                     ("File_Web_Access", re.compile(r'file:\/\/\/[A-Za-z]:\/(?:[^\/\n]+\/)*[^\/\n]+?\.[a-zA-Z0-9]+')),
                     ("Short_URL_Service", re.compile(r'\b(https?://)?(bit\.ly|tinyurl\.com|goo\.gl|t\.co|is\.gd|ow\.ly)/[a-zA-Z0-9]+\b')),
@@ -177,9 +180,9 @@ class LogTagger:
                     ("Dropbox_Drive_Drive", re.compile(r'^https:\/\/www\.dropbox\.com\/home$')),
                     ("Dropbox_Drive_Client_Login", re.compile(r'https:\/\/www\.dropbox\.com\/desktop\/oauth2\?code=.*&state=.*')),
                     #One Drive
-                    ("One_Drive_Login", re.compile(r'https:\/\/onedrive\.live\.com\/login\/')),
-                    ("One_Drive_Folder", re.compile(r'https:\/\/onedrive\.live\.com\/\?id=.*&cid=.*')),
-                    ("One_Drive_Main", re.compile(r'https:\/\/onedrive\.live\.com\/\?id=root&cid=.*')),
+                    ("OneDrive_Drive_Login", re.compile(r'https:\/\/onedrive\.live\.com\/login\/')),
+                    ("OneDrive_Drive_Folder", re.compile(r'https:\/\/onedrive\.live\.com\/\?id=.*&cid=.*')),
+                    ("OneDrive_Drive_Main", re.compile(r'https:\/\/onedrive\.live\.com\/\?id=root&cid=.*')),
                     #Outlook Mail
                     ("Outlook_Mail_Login", re.compile(r'https:\/\/login\.live\.com\/ppsecure\/post\.srf\?cobrandid=.*&uaid=.*&pid=.*&opid=.*&route=.*')),
                     ("Outlook_Mail_Sent", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/sentitems\?')),
@@ -188,6 +191,7 @@ class LogTagger:
                     #Naver
                     ("Naver_Login", re.compile(r'https:\/\/nid\.naver\.com\/nidlogin\.login')),
                     #Naver Mail
+                    ("Naver_Mail_Read", re.compile(r'https:\/\/mail\.naver\.com.*read')),
                     ("Naver_Mail_Write_Session", re.compile(r'https:\/\/mail\.naver\.com\/write')),
                     ("Naver_Mail_Write", re.compile(r'https:\/\/mail\.naver\.com\/.*\/new')),
                     ("Naver_Mail_Write_Done", re.compile(r'https:\/\/mail\.naver\.com\/.*\/new\/done')),
@@ -200,13 +204,13 @@ class LogTagger:
                     ("Naver_Mail_Trash", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/4')),
                     ("Naver_Mail_Self_Sent_Mailbox", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/6')),
                     #Naver Mybox
-                    ("Naver_Mybox_Main", re.compile(r'https:\/\/mybox\.naver\.com\/#\/my')),
-                    ("Naver_Mybox_Main", re.compile(r'^https:\/\/mybox\.naver\.com\/#\/$')),
-                    ("Naver_Mybox_Recent_Update", re.compile(r'https:\/\/mybox\.naver\.com\/#\/recent\/update')),
-                    ("Naver_Mybox_Recent_Access", re.compile(r'https:\/\/mybox\.naver\.com\/#\/recent\/access')),
-                    ("Naver_Mybox_Protect", re.compile(r'https:\/\/mybox\.naver\.com\/#\/protect')),
-                    ("Naver_Mybox_Shared", re.compile(r'https:\/\/mybox\.naver\.com\/#\/share\/shared')),
-                    ("Naver_Mybox_Sharing", re.compile(r'https:\/\/mybox\.naver\.com\/#\/share\/sharing')),
+                    ("Mybox_Drive_Main", re.compile(r'https:\/\/mybox\.naver\.com\/#\/my')),
+                    ("Mybox_Drive_Main", re.compile(r'^https:\/\/mybox\.naver\.com\/#\/$')),
+                    ("Mybox_Drive_Recent_Update", re.compile(r'https:\/\/mybox\.naver\.com\/#\/recent\/update')),
+                    ("Mybox_Drive_Recent_Access", re.compile(r'https:\/\/mybox\.naver\.com\/#\/recent\/access')),
+                    ("Mybox_Drive_Protect", re.compile(r'https:\/\/mybox\.naver\.com\/#\/protect')),
+                    ("Mybox_Drive_Shared", re.compile(r'https:\/\/mybox\.naver\.com\/#\/share\/shared')),
+                    ("Mybox_Drive_Sharing", re.compile(r'https:\/\/mybox\.naver\.com\/#\/share\/sharing')),
                     #Naver Blog
                     ("Naver_Blog_Main", re.compile(r'https:\/\/blog\.naver\.com\/')),
                     ("Naver_Blog_Write", re.compile(r'https:\/\/blog\.naver\.com\/.*\?Redirect=Write')),
@@ -241,6 +245,8 @@ class LogTagger:
                     ("Velog_Blog_Login", re.compile(r'https:\/\/velog\.io\/email-login\?code=.*')),
                     ("Velog_Blog_New_Post", re.compile(r'^https:\/\/velog\.io\/write$')),
                     ("Velog_Blog_Post", re.compile(r'https:\/\/velog\.io\/write\?id=.*')),
+                    #Nas
+                    ("Nas_Drive_Action", re.compile(r'https:\/\/nas')),
                     #ETC
                     ("File_Web_Access", re.compile(r'file:\/\/\/[A-Za-z]:\/(?:[^\/\n]+\/)*[^\/\n]+?\.[a-zA-Z0-9]+')),
                     ("Short_URL_Service", re.compile(r'\b(https?://)?(bit\.ly|tinyurl\.com|goo\.gl|t\.co|is\.gd|ow\.ly)/[a-zA-Z0-9]+\b')),
@@ -297,9 +303,9 @@ class LogTagger:
                     ("Dropbox_Drive_Drive", re.compile(r'^https:\/\/www\.dropbox\.com\/home$')),
                     ("Dropbox_Drive_Client_Login", re.compile(r'https:\/\/www\.dropbox\.com\/desktop\/oauth2\?code=.*&state=.*')),
                     #One Drive
-                    ("One_Drive_Login", re.compile(r'https:\/\/onedrive\.live\.com\/login\/')),
-                    ("One_Drive_Folder", re.compile(r'https:\/\/onedrive\.live\.com\/\?id=.*&cid=.*')),
-                    ("One_Drive_Main", re.compile(r'https:\/\/onedrive\.live\.com\/\?id=root&cid=.*')),
+                    ("OneDrive_Drive_Login", re.compile(r'https:\/\/onedrive\.live\.com\/login\/')),
+                    ("OneDrive_Drive_Folder", re.compile(r'https:\/\/onedrive\.live\.com\/\?id=.*&cid=.*')),
+                    ("OneDrive_Drive_Main", re.compile(r'https:\/\/onedrive\.live\.com\/\?id=root&cid=.*')),
                     #Outlook Mail
                     ("Outlook_Mail_Login", re.compile(r'https:\/\/login\.live\.com\/ppsecure\/post\.srf\?cobrandid=.*&uaid=.*&pid=.*&opid=.*&route=.*')),
                     ("Outlook_Mail_Sent", re.compile(r'https:\/\/outlook\.live\.com\/mail\/.*\/sentitems\?')),
@@ -308,6 +314,7 @@ class LogTagger:
                     #Naver
                     ("Naver_Login", re.compile(r'https:\/\/nid\.naver\.com\/nidlogin\.login')),
                     #Naver Mail
+                    ("Naver_Mail_Read", re.compile(r'https:\/\/mail\.naver\.com.*read')),
                     ("Naver_Mail_Write_Session", re.compile(r'https:\/\/mail\.naver\.com\/write')),
                     ("Naver_Mail_Write", re.compile(r'https:\/\/mail\.naver\.com\/.*\/new')),
                     ("Naver_Mail_Write_Done", re.compile(r'https:\/\/mail\.naver\.com\/.*\/new\/done')),
@@ -320,13 +327,13 @@ class LogTagger:
                     ("Naver_Mail_Trash", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/4')),
                     ("Naver_Mail_Self_Sent_Mailbox", re.compile(r'https:\/\/mail\.naver\.com\/.*\/folders\/6')),
                     #Naver Mybox
-                    ("Naver_Mybox_Main", re.compile(r'https:\/\/mybox\.naver\.com\/#\/my')),
-                    ("Naver_Mybox_Main", re.compile(r'^https:\/\/mybox\.naver\.com\/#\/$')),
-                    ("Naver_Mybox_Recent_Update", re.compile(r'https:\/\/mybox\.naver\.com\/#\/recent\/update')),
-                    ("Naver_Mybox_Recent_Access", re.compile(r'https:\/\/mybox\.naver\.com\/#\/recent\/access')),
-                    ("Naver_Mybox_Protect", re.compile(r'https:\/\/mybox\.naver\.com\/#\/protect')),
-                    ("Naver_Mybox_Shared", re.compile(r'https:\/\/mybox\.naver\.com\/#\/share\/shared')),
-                    ("Naver_Mybox_Sharing", re.compile(r'https:\/\/mybox\.naver\.com\/#\/share\/sharing')),
+                    ("Mybox_Drive_Main", re.compile(r'https:\/\/mybox\.naver\.com\/#\/my')),
+                    ("Mybox_Drive_Main", re.compile(r'^https:\/\/mybox\.naver\.com\/#\/$')),
+                    ("Mybox_Drive_Recent_Update", re.compile(r'https:\/\/mybox\.naver\.com\/#\/recent\/update')),
+                    ("Mybox_Drive_Recent_Access", re.compile(r'https:\/\/mybox\.naver\.com\/#\/recent\/access')),
+                    ("Mybox_Drive_Protect", re.compile(r'https:\/\/mybox\.naver\.com\/#\/protect')),
+                    ("Mybox_Drive_Shared", re.compile(r'https:\/\/mybox\.naver\.com\/#\/share\/shared')),
+                    ("Mybox_Drive_Sharing", re.compile(r'https:\/\/mybox\.naver\.com\/#\/share\/sharing')),
                     #Naver Blog
                     ("Naver_Blog_Main", re.compile(r'https:\/\/blog\.naver\.com\/')),
                     ("Naver_Blog_Write", re.compile(r'https:\/\/blog\.naver\.com\/.*\?Redirect=Write')),
@@ -361,6 +368,8 @@ class LogTagger:
                     ("Velog_Blog_Login", re.compile(r'https:\/\/velog\.io\/email-login\?code=.*')),
                     ("Velog_Blog_New_Post", re.compile(r'^https:\/\/velog\.io\/write$')),
                     ("Velog_Blog_Post", re.compile(r'https:\/\/velog\.io\/write\?id=.*')),
+                    #Nas
+                    ("Nas_Drive_Action", re.compile(r'https:\/\/nas')),
                     #ETC
                     ("File_Web_Access", re.compile(r'file:\/\/\/[A-Za-z]:\/(?:[^\/\n]+\/)*[^\/\n]+?\.[a-zA-Z0-9]+')),
                     ("Short_URL_Service", re.compile(r'\b(https?://)?(bit\.ly|tinyurl\.com|goo\.gl|t\.co|is\.gd|ow\.ly)/[a-zA-Z0-9]+\b')),
@@ -410,8 +419,8 @@ class LogTagger:
             "Chrome_Cache_Records": {
                 "URL": [
                     ("Google_Drive_Upload", re.compile(r'https:\/\/drive\.google\.com.*upload')),
-                    ("Naver_Mybox_File_Get_Folder", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service.*\/file\/get\?resourceKey=.*')),
-                    ("Naver_Mybox_File_Get_Root", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service.*\/file\/get\?resourceKey=root')),
+                    ("Mybox_Drive_File_Get_Folder", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service.*\/file\/get\?resourceKey=.*')),
+                    ("Mybox_Drive_File_Get_Root", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service.*\/file\/get\?resourceKey=root')),
                     ("Naver_Blog_File_Upload", re.compile(r'https:\/\/editor-static\.pstatic\.net\/e\/basic\.desktop\/.*\/se-file-upload-layer-view\.js\?')), #직접 업로드만
                     ("Naver_Blog_Image_Upload", re.compile(r'https:\/\/blogfiles\.pstatic\.net\/')), #블로그에 포함된 여러 이미지파일들의 중복 가능성 있어서 메일 작성 후 시간대로 묶어야할듯
                     ("Tistory_Blog_File_Upload", re.compile(r'.*https:\/\/tistory\.com.*plugins\/fileUpload\/plugin\.min\.js')),
@@ -420,7 +429,7 @@ class LogTagger:
                     ("Nate_Mail_Sent_Complete", re.compile(r'https:\/\/mail3\.nate\.com\/#write\/\?act=new')),
                     ("Mega_Drive_Upload", re.compile(r'https:\/\/jp\.static\.mega\.co\.nz\/4\/images\/mega\/overlay-sprite\.png\?v=bf2e646f2f83e139')),
                     ("Mega_Drive_Upload", re.compile(r'https:\/\/jp\.static\.mega\.co\.nz\/4\/imagery\/sprites-fm-mime-uni\.9f5adb6010bae3ce\.svg')),
-                    ("One_Drive_Upload", re.compile(r'https:\/\/res-1\.cdn\.office\.net\/files\/.*\.manifest\/76\.js')),
+                    ("OneDrive_Drive_Upload", re.compile(r'https:\/\/res-1\.cdn\.office\.net\/files\/.*\.manifest\/76\.js')),
                     ("Velog_Blog_File_Upload", re.compile(r'https:\/\/velog\.velcdn\.com\/.*\/post\/.*\/image\..*')),
                     ("Dropbox_Drive_File_Upload", re.compile(r'https:\/\/previews\.dropbox\.com\/p\/.*_img\/.*'))                                        
                     # 기타 캐시 기록 관련 URL 패턴 추가 가능
@@ -429,8 +438,8 @@ class LogTagger:
             "Edge_Chromium_Cache_Records": {
                 "URL": [
                     ("Google_Drive_Upload", re.compile(r'https:\/\/drive\.google\.com.*upload')),
-                    ("Naver_Mybox_File_Get_Folder", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service.*\/file\/get\?resourceKey=.*')),
-                    ("Naver_Mybox_File_Get_Root", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service.*\/file\/get\?resourceKey=root')),
+                    ("Mybox_Drive_File_Get_Folder", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service.*\/file\/get\?resourceKey=.*')),
+                    ("Mybox_Drive_File_Get_Root", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service.*\/file\/get\?resourceKey=root')),
                     ("Naver_Blog_File_Upload", re.compile(r'https:\/\/editor-static\.pstatic\.net\/e\/basic\.desktop\/.*\/se-file-upload-layer-view\.js\?')), #직접 업로드만
                     ("Naver_Blog_Image_Upload", re.compile(r'https:\/\/blogfiles\.pstatic\.net\/')), #블로그에 포함된 여러 이미지파일들의 중복 가능성 있어서 메일 작성 후 시간대로 묶어야할듯
                     ("Tistory_Blog_File_Upload", re.compile(r'.*https:\/\/tistory\.com.*plugins\/fileUpload\/plugin\.min\.js')),
@@ -439,7 +448,7 @@ class LogTagger:
                     ("Nate_Mail_Sent_Complete", re.compile(r'https:\/\/mail3\.nate\.com\/#write\/\?act=new')),
                     ("Mega_Drive_Upload", re.compile(r'https:\/\/jp\.static\.mega\.co\.nz\/4\/images\/mega\/overlay-sprite\.png\?v=bf2e646f2f83e139')),
                     ("Mega_Drive_Upload", re.compile(r'https:\/\/jp\.static\.mega\.co\.nz\/4\/imagery\/sprites-fm-mime-uni\.9f5adb6010bae3ce\.svg')),
-                    ("One_Drive_Upload", re.compile(r'https:\/\/res-1\.cdn\.office\.net\/files\/.*\.manifest\/76\.js')),
+                    ("OneDrive_Drive_Upload", re.compile(r'https:\/\/res-1\.cdn\.office\.net\/files\/.*\.manifest\/76\.js')),
                     ("Velog_Blog_File_Upload", re.compile(r'https:\/\/velog\.velcdn\.com\/.*\/post\/.*\/image\..*')),
                     ("Dropbox_Drive_File_Upload", re.compile(r'https:\/\/previews\.dropbox\.com\/p\/.*_img\/.*'))                                        
                     # 기타 캐시 기록 관련 URL 패턴 추가 가능
@@ -448,8 +457,8 @@ class LogTagger:
             "Firefox_Cache_Records": {
                 "URL": [
                     ("Google_Drive_Upload", re.compile(r'https:\/\/drive\.google\.com.*upload')),
-                    ("Naver_Mybox_File_Get_Folder", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service.*\/file\/get\?resourceKey=.*')),
-                    ("Naver_Mybox_File_Get_Root", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service.*\/file\/get\?resourceKey=root')),
+                    ("Mybox_Drive_File_Get_Folder", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service.*\/file\/get\?resourceKey=.*')),
+                    ("Mybox_Drive_File_Get_Root", re.compile(r'https:\/\/api\.mybox\.naver\.com\/service.*\/file\/get\?resourceKey=root')),
                     ("Naver_Blog_File_Upload", re.compile(r'https:\/\/editor-static\.pstatic\.net\/e\/basic\.desktop\/.*\/se-file-upload-layer-view\.js\?')), #직접 업로드만
                     ("Naver_Blog_Image_Upload", re.compile(r'https:\/\/blogfiles\.pstatic\.net\/')), #블로그에 포함된 여러 이미지파일들의 중복 가능성 있어서 메일 작성 후 시간대로 묶어야할듯
                     ("Tistory_Blog_File_Upload", re.compile(r'.*https:\/\/tistory\.com.*plugins\/fileUpload\/plugin\.min\.js')),
@@ -458,7 +467,7 @@ class LogTagger:
                     ("Nate_Mail_Sent_Complete", re.compile(r'https:\/\/mail3\.nate\.com\/#write\/\?act=new')),
                     ("Mega_Drive_Upload", re.compile(r'https:\/\/jp\.static\.mega\.co\.nz\/4\/images\/mega\/overlay-sprite\.png\?v=bf2e646f2f83e139')),
                     ("Mega_Drive_Upload", re.compile(r'https:\/\/jp\.static\.mega\.co\.nz\/4\/imagery\/sprites-fm-mime-uni\.9f5adb6010bae3ce\.svg')),
-                    ("One_Drive_Upload", re.compile(r'https:\/\/res-1\.cdn\.office\.net\/files\/.*\.manifest\/76\.js')),
+                    ("OneDrive_Drive_Upload", re.compile(r'https:\/\/res-1\.cdn\.office\.net\/files\/.*\.manifest\/76\.js')),
                     ("Velog_Blog_File_Upload", re.compile(r'https:\/\/velog\.velcdn\.com\/.*\/post\/.*\/image\..*')),
                     ("Dropbox_Drive_File_Upload", re.compile(r'https:\/\/previews\.dropbox\.com\/p\/.*_img\/.*'))                                        
                     # 기타 캐시 기록 관련 URL 패턴 추가 가능
@@ -557,10 +566,12 @@ class LogTagger:
             raise  # 에러를 상위로 전파하여 디버깅 용이하게
 
     def apply_tags(self):
-        
         for idx, table_name in enumerate(self.patterns):
             self.process_table(table_name)
-            self.progressBar.set_progress(progress=((idx/len(self.patterns))*100/(self.progressBar.num_of_task)))
+            try :
+                self.progressBar.set_progress(progress=((idx/len(self.patterns))*100/(self.progressBar.num_of_task)))
+            except :
+                pass
 
 class LogTaggerManager:
     def __init__(self, db_url):

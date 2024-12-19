@@ -2,7 +2,7 @@ import sqlite3, os, json
 import pandas as pd
 from flask import request, render_template, session, redirect, url_for, flash, Request, jsonify, render_template_string
 from apps.analyze.Calc_suspicion.calc_suspicion import *
-from apps.authentication.models import Analyzed_file_list, Upload_Case, Normalization, GraphData, PromptQuries, UsbData, FilteringData, GroupParingResults, PrinterData_final, UsbData_final, Mail_final, Porn_Data
+from apps.authentication.models import Analyzed_file_list, Upload_Case, Normalization, GraphData, PromptQuries, UsbData, FilteringData, GroupParingResults, PrinterData_final, UsbData_final, Mail_final, Porn_Data, Malware_Data
 from apps import db
 from apps.case.case_analyze import case_analyze_view
 from apps.analyze.analyze_usb import usb_connection
@@ -14,12 +14,14 @@ from apps.analyze.USB.make_usb_analysis_db import usb_behavior
 from apps.analyze.Printer.printer_process import printer_behavior
 from apps.analyze.Upload.upload_parser import mail_behavior
 from apps.analyze.Porn.porn_process import porn_behavior
+from apps.analyze.Malware.malware_parser import malware_behavior
 from apps.manager.progress_bar import *
 import threading
 import base64
 from flask import current_app
 from datetime import datetime
 import time
+import cv2
 
 def create_dict_from_file_paths(file_path):
     # 파일명 추출
@@ -126,7 +128,7 @@ def redirect_analyze_case_final(data) :
     if Analyzed_file_list.query.filter_by(case_id=case_id).first() :
         progressBar.progress_end()
         return jsonify({'success': True})
-    if case_type != "음란물" :
+    if case_type == "기술유출" :
         progressBar.start_progress(12)
         ''' Tagging Process '''
         progressBar.append_log('Tagging Processing 진행중...')
@@ -212,7 +214,7 @@ def redirect_analyze_case_final(data) :
         for group_usb_time in usb_json :
             usb_df = pd.DataFrame(group_usb_time['filtered_df'])
             for filename in group_usb_time['Accessed_File_List'] :
-                timelist_df = usb_df[usb_df['main_data'].str.contains(filename) | usb_df['type'].str.contains('shellbag')]
+                timelist_df = usb_df[usb_df['main_data'].str.contains(filename, regex=False) | usb_df['type'].str.contains('shellbag', regex=False)]
                 for index, row in timelist_df.iterrows() :
                     if (', ' in row['hit_id']) :
                         timelist_df.loc[index, 'hit_id'] = row['hit_id'].split(', ')
@@ -393,6 +395,19 @@ def redirect_analyze_case_final(data) :
         progressBar.progress_end()
         return jsonify({'success' : True})
 
+    elif case_type == "악성코드" :
+        if Malware_Data.query.filter_by(case_id = case_id).first() is None :
+            progressBar.append_log('Tagging Processing 진행중...')
+            TAG_Process = all_tag_process(data)
+            progressBar.append_log('Tagging Processing 완료')
+            progressBar.done_1_task()
+            malware_behavior(case_id, db_path)
+            progressBar.progress_end()
+            return jsonify({'success' : True})
+        else :
+            progressBar.progress_end()
+            return jsonify({'success' : True})
+
 def redirect_analyze_case_final_result(id):
     analyzed_file_list = Analyzed_file_list.query.filter_by(case_id=id).first().data
     case_number = Upload_Case.query.filter_by(id = id).first().case_number
@@ -448,10 +463,27 @@ def redirect_analyze_case_porn_result(id) :
         data = {}
         md5 = (i.file_original_name_md5)
         data['file_original_name'] = (i.file_original_name)
+        # Version 1.7 설문용 모자이크 처리
+        
+        # 이미지 로드 및 전체 모자이크 처리
         porn_image = os.path.join(porn_folder, str(md5) + ".jpg")
-        with open(porn_image, 'rb') as f:
-            image_data = f.read()
-        encoded_porn_image = base64.b64encode(image_data).decode('utf-8')
+        image = cv2.imread(porn_image)
+        
+        if image is not None:
+            # 전체 이미지에 대해 모자이크 처리
+            height, width = image.shape[:2]
+            # 이미지를 축소했다가 확대하여 모자이크 효과 생성
+            small = cv2.resize(image, (width//20, height//20))
+            image = cv2.resize(small, (width, height), interpolation=cv2.INTER_NEAREST)
+            
+            # 처리된 이미지를 메모리에 임시 저장
+            _, buffer = cv2.imencode('.jpg', image)
+            image_data = buffer.tobytes()
+            encoded_porn_image = base64.b64encode(image_data).decode('utf-8')
+        else:
+            # 이미지 로드 실패 시 빈 문자열 반환
+            encoded_porn_image = ''
+        # Version 1.7 End
 
         porn_result_image = os.path.join(porn_result_folder, str(md5) + "_detect_result.jpg")
         with open(porn_result_image, 'rb') as f:
@@ -566,3 +598,9 @@ def calculate_risk_score(detections):
             total_risk_score += risk_score
 
     return total_risk_score
+
+def redirect_analyze_case_malware_result(id) :
+    malware_data = Malware_Data.query.filter_by(case_id = id).first()
+    return render_template("analyze/malware_result.html",
+                           malware_data = malware_data,
+                           case_id = id)

@@ -179,6 +179,12 @@ def detect_and_merge(image_paths, user_upload_folder, md5_strings):
         }
 
         
+        # ver1.7 설문용 모자이크 처리
+        # 전체 이미지 모자이크 처리
+        height, width = image.shape[:2]
+        small = cv2.resize(image, (width//20, height//20))
+        image = cv2.resize(small, (width, height), interpolation=cv2.INTER_NEAREST)
+        # ver 1.7 End
 
         for detection in detections:
             x, y, w, h = detection['box']
@@ -193,7 +199,7 @@ def detect_and_merge(image_paths, user_upload_folder, md5_strings):
             bottom_right = (x + w, y + h)
 
             # 클래스별 색상 박스와 텍스트 추가
-            cv2.rectangle(image, top_left, bottom_right, color, 2)  # 박스 (2픽셀 두께)
+            cv2.rectangle(image, top_left, bottom_right, color, 2)
             text = f"{class_name} ({score:.2f})"
             cv2.putText(image, text, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
         

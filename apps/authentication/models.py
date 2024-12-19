@@ -134,6 +134,11 @@ class Porn_Data(db.Model, UserMixin) :
     file_original_name_md5 = db.Column(db.Text)
     results = db.Column(db.JSON)
 
+class Malware_Data(db.Model, UserMixin) :
+    __tablename__ = "Malware_Data"
+    id = db.Column(db.Integer, primary_key = True)
+    case_id = db.Column(db.Text)
+    results = db.Column(db.JSON)
 
 @login_manager.user_loader
 def user_loader(id):

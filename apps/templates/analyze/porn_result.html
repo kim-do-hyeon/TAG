@@ -149,8 +149,13 @@
             });
         });
 
-        // 토글 버튼 이벤트 리스너
+        // 토글 버튼 이벤트 리스너 수정
         toggleButton.addEventListener('click', function() {
+            alert('현재는 설문조사용 모드이기때문에 원본으로 전환할 수 없습니다.');
+            return; // 추가 동작 중단
+            
+            // 아래 코드는 실행되지 않음
+            /*
             if (isShowingOriginal) {
                 modalImage.src = currentMosaicSrc;
                 toggleButton.textContent = '원본 보기';
@@ -159,6 +164,7 @@
                 toggleButton.textContent = '모자이크 보기';
             }
             isShowingOriginal = !isShowingOriginal;
+            */
         });
 
         // 모달이 닫힐 때 상태 초기화
@@ -168,28 +174,28 @@
         });
 
         // 이미지 모자이크 처리
-        const images = document.querySelectorAll('.clickable-image');
+        // const images = document.querySelectorAll('.clickable-image');
         
-        images.forEach(img => {
-            const originalSrc = img.src;
-            const tempImage = new Image();
-            tempImage.crossOrigin = "Anonymous";
+        // images.forEach(img => {
+        //     const originalSrc = img.src;
+        //     const tempImage = new Image();
+        //     tempImage.crossOrigin = "Anonymous";
             
-            tempImage.onload = function() {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
+        //     tempImage.onload = function() {
+        //         const canvas = document.createElement('canvas');
+        //         const ctx = canvas.getContext('2d');
                 
-                canvas.width = tempImage.width;
-                canvas.height = tempImage.height;
+        //         canvas.width = tempImage.width;
+        //         canvas.height = tempImage.height;
                 
-                ctx.drawImage(tempImage, 0, 0);
+        //         ctx.drawImage(tempImage, 0, 0);
                 
-                const mosaicDataUrl = applyMosaic(tempImage, 50);
-                img.src = mosaicDataUrl;
-            };
+        //         const mosaicDataUrl = applyMosaic(tempImage, 50);
+        //         img.src = mosaicDataUrl;
+        //     };
             
-            tempImage.src = originalSrc;
-        });
+        //     tempImage.src = originalSrc;
+        // });
 
         // DataTable 초기화
         $('#resultsTable').DataTable({
