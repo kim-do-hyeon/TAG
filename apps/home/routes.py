@@ -142,6 +142,11 @@ def file_connection() :
     data = request.get_json()
     return file_connect_node(data)
 
+@blueprint.route('/malware_connection', methods=['POST'])
+def malware_connection() :
+    data = request.get_json()
+    return malware_connect_node(data)
+
 @blueprint.route('/get_data_by_hit_id', methods=['POST'])
 def get_data_by_hit_id() :
     data = request.get_json()
