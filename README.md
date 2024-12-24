@@ -87,6 +87,8 @@ python3 run.py
 ![케이스 업로드](images/3_case_upload.png)
 ![케이스 전처리](images/4_case_normalization.png)
 ![최종 결과](images/5_final_result.png)
+![노드 그래프](images/5-1_node_graph.png)
+![음란물 소지 결과](images/5-2_porn_result.png)
 
 ### 서비스 효용성 검증
 ![서비스 효용성 검증](images/6_submit_form.png)
